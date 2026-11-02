@@ -11,6 +11,8 @@ export class InnarioDb extends Dexie {
   annotations!: EntityTable<Annotation, 'id'>;
   setlists!: EntityTable<Setlist, 'id'>;
   settings!: EntityTable<StoredSettings, 'id'>;
+  /** Small device-only values (last backup date, auto-backup file handle). Not in backups. */
+  kv!: EntityTable<{ key: string; value: unknown }, 'key'>;
 
   constructor() {
     super('innario');
@@ -22,6 +24,8 @@ export class InnarioDb extends Dexie {
       setlists: 'id',
       settings: 'id',
     });
+    // Version 2 adds the key-value table (Dexie keeps the tables of version 1).
+    this.version(2).stores({ kv: 'key' });
   }
 }
 

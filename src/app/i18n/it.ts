@@ -132,6 +132,10 @@ export const IT = {
     persist: 'Il browser potrebbe cancellare canti e note se manca spazio.',
     persistButton: 'Proteggi i dati',
     dismiss: 'Non mostrare più',
+    backup: (when: string) => `Ultimo backup: ${when}. Crea un backup per non perdere canti, note e scalette.`,
+    backupNever: 'Non hai ancora fatto un backup. Creane uno per non perdere canti, note e scalette.',
+    backupButton: 'Crea un backup',
+    later: 'Più tardi',
   },
 
   notes: {
@@ -232,6 +236,12 @@ export const IT = {
 
     backupExport: 'Crea un backup',
     backupExportHint: 'Salva canti, note, scalette e impostazioni in un file',
+    lastBackup: (when: string) => `Ultimo backup: ${when}. Salva canti, note, scalette e impostazioni in un file`,
+    autoBackup: 'Backup automatico',
+    autoBackupOff: 'Aggiorna da solo un file di backup a ogni modifica. Sceglilo in una cartella iCloud, Google Drive o OneDrive: così i dati sono al sicuro anche fuori dal browser',
+    autoBackupOn: (file: string, when: string) => `Attivo: “${file}”, aggiornato ${when}`,
+    autoBackupPaused: (file: string) => `In pausa: il browser chiede di nuovo il permesso di scrivere “${file}”`,
+    autoBackupResume: 'Riattiva',
     backupRestore: 'Ripristina un backup',
     backupRestoreHint: 'Da un file creato su questo o su un altro dispositivo (es. computer → iPad)',
     bundled: 'Canti dell’innario',
@@ -245,6 +255,8 @@ export const IT = {
     persisted: 'Dati protetti',
     notPersisted: 'Il browser potrebbe cancellare i dati se manca spazio',
     persistButton: 'Proteggi',
+    persistRefused:
+      'Il browser non ha concesso la protezione. Installa l’app (Chrome: “Installa” nella barra degli indirizzi; iPad: Condividi → Aggiungi alla schermata Home) e fai un backup ogni tanto.',
 
     restoreDialog: {
       title: 'Ripristina un backup',

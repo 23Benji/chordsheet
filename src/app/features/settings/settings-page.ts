@@ -1,4 +1,5 @@
 import { ChangeDetectionStrategy, Component, ElementRef, OnInit, computed, inject, signal, viewChild } from '@angular/core';
+import { daysAgo } from '../../core/backup-reminder';
 import { shareOrDownload } from '../../core/export';
 import { Settings } from '../../core/models';
 import { ImportedFiles, createSongbookFile, songbookFileName } from '../../core/songbook-file';
@@ -45,6 +46,12 @@ export class SettingsPage implements OnInit {
   protected readonly settings = this.settingsService.settings;
   protected readonly fontPercent = computed(() => Math.round(this.settings().fontScale * 100));
   protected readonly appName = IT.appName;
+  protected readonly autoStatus = this.backup.autoStatus;
+  protected readonly autoFileName = this.backup.autoFileName;
+  protected readonly lastBackup = computed(() => {
+    const at = this.backup.lastBackupAt();
+    return at ? daysAgo(at, Date.now()) : null;
+  });
   /** "Canti dell'innario" only makes sense when this build ships songs. */
   protected readonly bundled = signal(false);
   /** Files chosen in "Importa canti", waiting for a decision about songs that already exist. */
@@ -92,9 +99,9 @@ export class SettingsPage implements OnInit {
     }
   }
 
-  protected shareSongs(): Promise<void> {
+  protected async shareSongs(): Promise<void> {
     const json = JSON.stringify(createSongbookFile(this.library.songs()));
-    return shareOrDownload(songbookFileName(), json);
+    await shareOrDownload(songbookFileName(), json);
   }
 
   protected set<K extends keyof Settings>(key: K, value: Settings[K]): void {
@@ -161,8 +168,18 @@ export class SettingsPage implements OnInit {
   }
 
   protected async requestPersist(): Promise<void> {
-    await navigator.storage?.persist?.().catch(() => false);
+    const granted = (await navigator.storage?.persist?.().catch(() => false)) ?? false;
+    if (!granted) this.toast.show(this.t.persistRefused, 10000);
     void this.refreshStorage();
+  }
+
+  protected async toggleAuto(on: boolean): Promise<void> {
+    if (on) await this.backup.enableAuto();
+    else await this.backup.disableAuto();
+  }
+
+  protected resumeAuto(): Promise<boolean> {
+    return this.backup.resumeAuto();
   }
 
   private async refreshStorage(): Promise<void> {

@@ -21,15 +21,16 @@ export function downloadText(fileName: string, text: string): void {
  * On iPad/iPhone the share sheet can send the file (AirDrop, WhatsApp, Mail…);
  * elsewhere the file is downloaded.
  */
-export async function shareOrDownload(fileName: string, text: string, type = 'application/json'): Promise<void> {
+export async function shareOrDownload(fileName: string, text: string, type = 'application/json'): Promise<boolean> {
   const file = new File([text], fileName, { type });
   if (navigator.canShare?.({ files: [file] })) {
     try {
       await navigator.share({ files: [file], title: fileName });
-      return;
+      return true;
     } catch (e) {
-      if ((e as Error).name === 'AbortError') return; // the user closed the share sheet
+      if ((e as Error).name === 'AbortError') return false; // the user closed the share sheet
     }
   }
   downloadText(fileName, text);
+  return true;
 }

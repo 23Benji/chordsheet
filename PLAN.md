@@ -229,3 +229,10 @@ Elsewhere:
 - [x] `scripts/build-songbook-file.mjs`: songs/*.cho → songbook file (for Benji to share)
 - [x] Fresh public git history (no songs/logos in it); private history kept locally
 - [ ] `gh` installed, repo created, GitHub Pages enabled, first deploy checked
+
+## 1.4 — Safer data
+
+- [x] GitHub Actions updated (checkout v7, setup-node v7, upload-pages-artifact v5, deploy-pages v5)
+- [x] "Proteggi i dati": clear message when the browser refuses (install the app, make backups)
+- [x] Backup reminder: "Ultimo backup: …" in Impostazioni; a hint when the last backup is older than 14 days (snooze 14 days)
+- [x] Automatic backup file (Chrome/Edge on computers): choose a file once (e.g. in an iCloud/Google Drive folder), rewritten a few seconds after every change; "Riattiva" when the browser asks for permission again

@@ -78,9 +78,37 @@
   <div class="list-group">
     <button type="button" class="list-row clickable" (click)="exportBackup()">
       <span class="icon-tile"><app-icon name="fileDown" /></span>
-      <span class="row-text"><span class="row-label">{{ t.backupExport }}</span><span class="row-hint">{{ t.backupExportHint }}</span></span>
+      <span class="row-text">
+        <span class="row-label">{{ t.backupExport }}</span>
+        <span class="row-hint">{{ lastBackup() ? t.lastBackup(lastBackup()!) : t.backupExportHint }}</span>
+      </span>
       <app-icon name="chevronRight" class="row-chevron" />
     </button>
+    @if (autoStatus() !== 'unsupported') {
+      <div class="list-row">
+        <span class="icon-tile" [class.coral]="autoStatus() === 'paused'"><app-icon [name]="autoStatus() === 'active' ? 'shield' : 'restore'" /></span>
+        <span class="row-text">
+          <span class="row-label">{{ t.autoBackup }}</span>
+          <span class="row-hint">
+            @switch (autoStatus()) {
+              @case ('active') {
+                {{ t.autoBackupOn(autoFileName() ?? '', lastBackup() ?? '') }}
+              }
+              @case ('paused') {
+                {{ t.autoBackupPaused(autoFileName() ?? '') }}
+              }
+              @default {
+                {{ t.autoBackupOff }}
+              }
+            }
+          </span>
+        </span>
+        @if (autoStatus() === 'paused') {
+          <button type="button" class="btn btn-secondary" (click)="resumeAuto()">{{ t.autoBackupResume }}</button>
+        }
+        <app-switch [checked]="autoStatus() !== 'off'" [label]="t.autoBackup" (toggled)="toggleAuto($event)" />
+      </div>
+    }
     <label class="list-row clickable">
       <span class="icon-tile"><app-icon name="fileUp" /></span>
       <span class="row-text"><span class="row-label">{{ t.backupRestore }}</span><span class="row-hint">{{ t.backupRestoreHint }}</span></span>
