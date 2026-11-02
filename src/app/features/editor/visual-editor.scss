@@ -36,7 +36,7 @@
   margin-bottom: 4px;
 }
 
-.kind,
+.kind-select select,
 .label {
   height: 34px;
   padding: 0 10px;
@@ -51,19 +51,20 @@
   }
 }
 
-.kind {
+.kind-select select {
+  padding-right: 34px;
   font-weight: 700;
 }
 
-.chorus .kind {
+.chorus .kind-select select {
   color: var(--accent);
 }
-.bridge .kind {
+.bridge .kind-select select {
   color: var(--coral);
 }
-.intro .kind,
-.interlude .kind,
-.outro .kind {
+.intro .kind-select select,
+.interlude .kind-select select,
+.outro .kind-select select {
   color: var(--sage);
 }
 

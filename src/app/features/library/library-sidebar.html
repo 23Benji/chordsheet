@@ -57,10 +57,13 @@
     <span class="count">{{ t.count(results().length) }}</span>
     <label class="sort">
       <span>{{ t.sortLabel }}</span>
-      <select [value]="sort()" (change)="sort.set($any($event.target).value)">
-        <option value="number">{{ t.sort.number }}</option>
-        <option value="title">{{ t.sort.title }}</option>
-      </select>
+      <span class="select">
+        <select [value]="sort()" (change)="sort.set($any($event.target).value)">
+          <option value="number">{{ t.sort.number }}</option>
+          <option value="title">{{ t.sort.title }}</option>
+        </select>
+        <app-icon name="chevronDown" />
+      </span>
     </label>
   </div>
 </div>

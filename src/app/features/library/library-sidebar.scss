@@ -142,15 +142,6 @@
   display: flex;
   align-items: center;
   gap: 6px;
-
-  select {
-    padding: 3px 6px;
-    border: none;
-    border-radius: var(--radius-s);
-    background: var(--surface);
-    color: var(--text);
-    font-size: 14px;
-  }
 }
 
 .list {

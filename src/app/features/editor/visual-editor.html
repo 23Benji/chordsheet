@@ -3,16 +3,19 @@
 @for (section of song().sections; track section.id; let si = $index, first = $first, last = $last) {
   <section class="card" [class]="section.kind">
     <header class="card-head">
-      <select
-        class="kind"
-        [value]="section.kind"
-        [attr.aria-label]="t.kindLabel"
-        (change)="setKind(section, $any($event.target).value)"
-      >
-        @for (kind of kinds; track kind) {
-          <option [value]="kind" [selected]="kind === section.kind">{{ t.kinds[kind] }}</option>
-        }
-      </select>
+      <span class="select kind-select">
+        <select
+          class="kind"
+          [value]="section.kind"
+          [attr.aria-label]="t.kindLabel"
+          (change)="setKind(section, $any($event.target).value)"
+        >
+          @for (kind of kinds; track kind) {
+            <option [value]="kind" [selected]="kind === section.kind">{{ t.kinds[kind] }}</option>
+          }
+        </select>
+        <app-icon name="chevronDown" />
+      </span>
       <input
         #label
         class="label"

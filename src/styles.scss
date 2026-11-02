@@ -611,3 +611,37 @@ a {
     margin: 0;
   }
 }
+
+// Dropdowns: our own chevron with room around it (the native arrow sat on
+// the edge). Markup: <span class="select"><select>…</select><app-icon name="chevronDown" /></span>
+.select {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+
+  select {
+    min-height: var(--tap-small);
+    padding: 0 34px 0 12px;
+    border: 1px solid transparent;
+    border-radius: var(--radius-s);
+    background: var(--surface);
+    color: var(--text);
+    font-size: 14px;
+    appearance: none;
+    -webkit-appearance: none;
+    cursor: pointer;
+
+    &:focus-visible {
+      outline: none;
+      border-color: var(--accent);
+    }
+  }
+
+  app-icon {
+    --icon-size: 16px;
+    position: absolute;
+    right: 10px;
+    color: var(--text-muted);
+    pointer-events: none;
+  }
+}
