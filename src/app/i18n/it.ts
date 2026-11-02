@@ -25,9 +25,8 @@ export const IT = {
     filters: {
       all: 'Tutti',
       notes: 'Con le mie note',
-      christmas: 'Natale',
-      versions: 'Con più versioni',
     },
+    notesFilterHint: 'Solo i canti in cui hai aggiunto note, evidenziazioni, assoli, accordi personali o un promemoria',
     sortLabel: 'Ordina',
     sort: { number: 'Numero', title: 'Titolo' },
     count: (n: number) => (n === 1 ? '1 canto' : `${n} canti`),

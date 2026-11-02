@@ -38,14 +38,15 @@
 </div>
 
 <div class="controls">
-  <div class="chips" role="radiogroup" [attr.aria-label]="t.filterLabel">
+  <!-- Two-way switch: all songs, or only the ones with your notes. -->
+  <div class="filter" role="radiogroup" [attr.aria-label]="t.filterLabel">
     @for (f of filters; track f) {
       <button
         type="button"
-        class="chip"
         role="radio"
         [attr.aria-checked]="filter() === f"
         [class.selected]="filter() === f"
+        [title]="f === 'notes' ? t.notesFilterHint : t.filters[f]"
         (click)="filter.set(f); activeIndex.set(0)"
       >
         {{ t.filters[f] }}

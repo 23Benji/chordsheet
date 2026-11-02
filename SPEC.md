@@ -119,7 +119,7 @@ When a song's text changes (user edit or re-import), re-anchor every annotation:
 - Grid/list of songs: number badge (amber pill), title, key, small icons if the song has personal notes or tabs.
 - **Search** (instant, accent-insensitive, case-insensitive) across number ("12", "123b"), title and lyrics. Typing a number and pressing Enter opens that song directly.
 - **Versions grouped**: songs sharing a number (123, 123b, 123c …) are one row, showing the main version (no suffix) and a small "N versioni" pill. While searching, the best-matching version represents the row (so "123c" + Enter opens 123c).
-- Filters: all / with my notes / Christmas (200+) / with several versions. Sort by number (default) or title.
+- Filter: all / with my notes (two-way switch, since 1.6.1). Sort by number (default) or title.
 - Keyboard: `/` focuses search, arrows move, Enter opens.
 
 ### 5.2 Import / export

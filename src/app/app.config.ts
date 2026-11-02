@@ -5,7 +5,7 @@ import {
   provideAppInitializer,
   provideBrowserGlobalErrorListeners,
 } from '@angular/core';
-import { provideRouter, withComponentInputBinding } from '@angular/router';
+import { PreloadAllModules, provideRouter, withComponentInputBinding, withPreloading } from '@angular/router';
 import { provideServiceWorker } from '@angular/service-worker';
 
 import { routes } from './app.routes';
@@ -20,7 +20,9 @@ export const appConfig: ApplicationConfig = {
   providers: [
     provideBrowserGlobalErrorListeners(),
     // withComponentInputBinding: route params (":id") arrive as component inputs.
-    provideRouter(routes, withComponentInputBinding()),
+    // PreloadAllModules: every lazy part (song view, editor …) is downloaded
+    // right after start-up, so it works even if the connection drops.
+    provideRouter(routes, withComponentInputBinding(), withPreloading(PreloadAllModules)),
     // Load everything from IndexedDB before the first render (it takes a few ms),
     // so the UI never flashes an empty library.
     provideAppInitializer(() =>
@@ -35,7 +37,8 @@ export const appConfig: ApplicationConfig = {
     ),
     provideServiceWorker('ngsw-worker.js', {
       enabled: !isDevMode(),
-      registrationStrategy: 'registerWhenStable:30000',
+      // Start caching for offline use immediately on the first visit.
+      registrationStrategy: 'registerImmediately',
     }),
   ],
 };

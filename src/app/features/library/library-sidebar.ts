@@ -23,7 +23,7 @@ import { SongPrefsService } from '../../services/song-prefs.service';
 import { HintBanner } from '../../ui/hint-banner';
 import { Icon } from '../../ui/icon';
 
-type LibraryFilter = 'all' | 'notes' | 'christmas' | 'versions';
+type LibraryFilter = 'all' | 'notes';
 type LibrarySort = 'number' | 'title';
 
 @Component({
@@ -56,7 +56,7 @@ export class LibrarySidebar {
   /** Row highlighted with the arrow keys while typing in the search box. */
   protected readonly activeIndex = signal(0);
 
-  protected readonly filters: LibraryFilter[] = ['all', 'notes', 'christmas', 'versions'];
+  protected readonly filters: LibraryFilter[] = ['all', 'notes'];
   /** Notes, highlights, personal chords or a Promemoria. */
   protected readonly songsWithNotes = computed(
     () => new Set([...this.annotations.songsWithNotes(), ...this.prefs.songsWithMemo()]),
@@ -127,10 +127,6 @@ export class LibrarySidebar {
         const tabs = this.songsWithTabs();
         return (s) => ids.has(s.id) || tabs.has(s.id);
       }
-      case 'christmas':
-        return (s) => s.number !== null && s.number >= 200;
-      case 'versions':
-        return (s) => this.library.versionsOf(s).length > 1;
       default:
         return () => true;
     }
