@@ -3,8 +3,8 @@ export const IT = {
   appName: 'Chordsheet',
 
   welcome: {
-    verse: 'Ogni creatura che respira lodi il SIGNORE.',
-    reference: 'Salmo 150:6',
+    verse: 'Accordi e testi, sempre con te.',
+    reference: 'Trasponi · Annota · Suona dal vivo',
     intro: 'La libreria è vuota. Importa i canti per iniziare: il file dei canti che ti hanno condiviso, oppure i tuoi file ChordPro (.cho).',
     importBundled: 'Importa i canti inclusi',
     importFile: 'Importa canti da file',

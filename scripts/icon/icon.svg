@@ -1,6 +1,22 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512">
+  <!-- Chordsheet: a chord diagram (nut, 4 strings, 3 frets, finger dots) on the amber tile -->
   <rect width="512" height="512" rx="96" fill="#14100D"/>
   <rect x="72" y="72" width="368" height="368" rx="84" fill="#F2B45C"/>
-  <rect x="233" y="132" width="46" height="248" rx="9" fill="#14100D"/>
-  <rect x="164" y="194" width="184" height="42" rx="9" fill="#14100D"/>
+  <g stroke="#14100D" stroke-linecap="round" fill="none">
+    <line x1="160" y1="150" x2="352" y2="150" stroke-width="22"/>
+    <g stroke-width="12">
+      <line x1="172" y1="150" x2="172" y2="370"/>
+      <line x1="228" y1="150" x2="228" y2="370"/>
+      <line x1="284" y1="150" x2="284" y2="370"/>
+      <line x1="340" y1="150" x2="340" y2="370"/>
+      <line x1="172" y1="223" x2="340" y2="223"/>
+      <line x1="172" y1="296" x2="340" y2="296"/>
+      <line x1="172" y1="370" x2="340" y2="370"/>
+    </g>
+  </g>
+  <g fill="#14100D">
+    <circle cx="228" cy="187" r="25"/>
+    <circle cx="340" cy="187" r="25"/>
+    <circle cx="284" cy="260" r="25"/>
+  </g>
 </svg>

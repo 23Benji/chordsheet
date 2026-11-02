@@ -230,7 +230,7 @@ The look must match the church's new projection slides ("Luce" style): warm near
 - Cards: `--bg-elev-1`, radius-l, subtle shadow on hover, no outlines.
 - Buttons: ghost by default (transparent, text colour), primary = accent fill. Icon buttons 40×40 min (44×44 on touch).
 - Focus ring: 2px `--accent` with 2px offset. All interactive elements keyboard-reachable.
-- Welcome / empty library screen: `bg-dark-rays.jpg` background, small logo top-left, the verse *"Ogni creatura che respira lodi il SIGNORE."* in Caladea italic and "SALMO 150:6" in small spaced amber caps, plus the import button. (Same composition as the church cover slide.)
+- Welcome / empty library screen: `bg-dark-rays.jpg` background, app icon + name top-left, the line *"Accordi e testi, sempre con te."* in Caladea italic and "TRASPONI · ANNOTA · SUONA DAL VIVO" in small spaced amber caps, plus the import button. (Since 1.6; before: Psalm 150:6.)
 - No decorative stripes or accent bars; separation through spacing and surface tint.
 - Contrast: body text ≥ 7:1 on `--bg` in performance mode; ≥ 4.5:1 everywhere else.
 

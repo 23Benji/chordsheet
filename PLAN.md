@@ -242,3 +242,8 @@ Elsewhere:
 - [x] Visible name everywhere (app, manifest, page title, messages, file names); neutral wording instead of "innario"
 - [x] Internal ids kept (database, file formats, local keys) for compatibility
 - [x] Repository renamed → 23benji.github.io/chordsheet/; build + tests; deploy checked
+
+## 1.6 — Neutral icon and welcome
+
+- [x] App icon: chord diagram on the amber tile (any, maskable, Apple touch)
+- [x] Welcome line "Accordi e testi, sempre con te." + "Trasponi · Annota · Suona dal vivo"
