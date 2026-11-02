@@ -1,0 +1,177 @@
+<div class="page">
+  <h1>{{ t.title }}</h1>
+
+  <h2 class="list-group-title">{{ t.groups.appearance }}</h2>
+  <div class="list-group">
+    <div class="list-row">
+      <span class="icon-tile"><app-icon [name]="settings().theme === 'light' ? 'sun' : 'moon'" /></span>
+      <span class="row-text"><span class="row-label">{{ t.theme }}</span><span class="row-hint">{{ t.themeHint }}</span></span>
+      <span class="segmented" role="radiogroup" [attr.aria-label]="t.theme">
+        <button type="button" role="radio" [class.selected]="settings().theme === 'dark'" [attr.aria-checked]="settings().theme === 'dark'" (click)="set('theme', 'dark')">{{ t.themeDark }}</button>
+        <button type="button" role="radio" [class.selected]="settings().theme === 'light'" [attr.aria-checked]="settings().theme === 'light'" (click)="set('theme', 'light')">{{ t.themeLight }}</button>
+      </span>
+    </div>
+    <div class="list-row">
+      <span class="icon-tile"><app-icon name="type" /></span>
+      <span class="row-text"><span class="row-label">{{ t.fontSize }}</span><span class="row-hint">{{ t.fontSizeHint }}</span></span>
+      <span class="stepper">
+        <button type="button" class="btn icon-btn" (click)="changeFont(-0.1)" [disabled]="settings().fontScale <= fontMin" [attr.aria-label]="t.fontDown">
+          <app-icon name="minus" />
+        </button>
+        <span class="stepper-value">{{ fontPercent() }}%</span>
+        <button type="button" class="btn icon-btn" (click)="changeFont(0.1)" [disabled]="settings().fontScale >= fontMax" [attr.aria-label]="t.fontUp">
+          <app-icon name="plus" />
+        </button>
+      </span>
+    </div>
+    <div class="list-row">
+      <span class="icon-tile"><app-icon name="music" /></span>
+      <span class="row-text"><span class="row-label">{{ t.chordStyle }}</span><span class="row-hint">{{ t.chordStyleHint }}</span></span>
+      <span class="segmented" role="radiogroup" [attr.aria-label]="t.chordStyle">
+        <button type="button" role="radio" [class.selected]="settings().chordStyle === 'above'" [attr.aria-checked]="settings().chordStyle === 'above'" (click)="set('chordStyle', 'above')">{{ t.chordAbove }}</button>
+        <button type="button" role="radio" [class.selected]="settings().chordStyle === 'inline'" [attr.aria-checked]="settings().chordStyle === 'inline'" (click)="set('chordStyle', 'inline')">{{ t.chordInline }}</button>
+      </span>
+    </div>
+  </div>
+
+  <h2 class="list-group-title">{{ t.groups.songs }}</h2>
+  <div class="list-group">
+    <div class="list-row">
+      <span class="icon-tile sage"><app-icon name="guitar" /></span>
+      <span class="row-text"><span class="row-label">{{ t.diagrams }}</span><span class="row-hint">{{ t.diagramsHint }}</span></span>
+      <app-switch [checked]="settings().showChordDiagrams" [label]="t.diagrams" (toggled)="set('showChordDiagrams', $event)" />
+    </div>
+    <div class="list-row">
+      <span class="icon-tile sage"><app-icon name="note" /></span>
+      <span class="row-text"><span class="row-label">{{ t.showNotes }}</span><span class="row-hint">{{ t.showNotesHint }}</span></span>
+      <app-switch [checked]="settings().showNotes" [label]="t.showNotes" (toggled)="set('showNotes', $event)" />
+    </div>
+    <div class="list-row">
+      <span class="icon-tile sage"><app-icon name="hash" /></span>
+      <span class="row-text"><span class="row-label">{{ t.accidentals }}</span><span class="row-hint">{{ t.accidentalsHint }}</span></span>
+      <span class="segmented" role="radiogroup" [attr.aria-label]="t.accidentals">
+        @for (option of accidentalOptions; track option) {
+          <button
+            type="button"
+            role="radio"
+            [class.selected]="(settings().accidentals ?? 'auto') === option"
+            [attr.aria-checked]="(settings().accidentals ?? 'auto') === option"
+            (click)="set('accidentals', option)"
+          >
+            {{ t.accidentalOptions[option] }}
+          </button>
+        }
+      </span>
+    </div>
+  </div>
+
+  <h2 class="list-group-title">{{ t.groups.performance }}</h2>
+  <div class="list-group">
+    <button type="button" class="list-row clickable" (click)="openKeys()">
+      <span class="icon-tile sky"><app-icon name="keyboard" /></span>
+      <span class="row-text"><span class="row-label">{{ t.keys }}</span><span class="row-hint">{{ t.keysHint }}</span></span>
+      <app-icon name="chevronRight" class="row-chevron" />
+    </button>
+  </div>
+
+  <h2 class="list-group-title">{{ t.groups.data }}</h2>
+  <div class="list-group">
+    <button type="button" class="list-row clickable" (click)="exportBackup()">
+      <span class="icon-tile"><app-icon name="fileDown" /></span>
+      <span class="row-text"><span class="row-label">{{ t.backupExport }}</span><span class="row-hint">{{ t.backupExportHint }}</span></span>
+      <app-icon name="chevronRight" class="row-chevron" />
+    </button>
+    <label class="list-row clickable">
+      <span class="icon-tile"><app-icon name="fileUp" /></span>
+      <span class="row-text"><span class="row-label">{{ t.backupRestore }}</span><span class="row-hint">{{ t.backupRestoreHint }}</span></span>
+      <app-icon name="chevronRight" class="row-chevron" />
+      <input #file type="file" accept=".json,application/json" class="visually-hidden" (change)="chooseBackup(file)" />
+    </label>
+    <label class="list-row clickable">
+      <span class="icon-tile sage"><app-icon name="library" /></span>
+      <span class="row-text"><span class="row-label">{{ t.importSongs }}</span><span class="row-hint">{{ t.importSongsHint }}</span></span>
+      <app-icon name="chevronRight" class="row-chevron" />
+      <input #songsFile type="file" multiple [accept]="it.accept" class="visually-hidden" (change)="chooseSongs(songsFile)" />
+    </label>
+    <button type="button" class="list-row clickable" (click)="shareSongs()">
+      <span class="icon-tile sage"><app-icon name="share" /></span>
+      <span class="row-text"><span class="row-label">{{ t.shareSongs }}</span><span class="row-hint">{{ t.shareSongsHint }}</span></span>
+      <app-icon name="chevronRight" class="row-chevron" />
+    </button>
+    @if (bundled()) {
+      <button type="button" class="list-row clickable" [disabled]="busy()" (click)="restoreBundled()">
+        <span class="icon-tile sage"><app-icon name="restore" /></span>
+        <span class="row-text"><span class="row-label">{{ t.bundled }}</span><span class="row-hint">{{ t.bundledHint }}</span></span>
+        <app-icon name="chevronRight" class="row-chevron" />
+      </button>
+    }
+    @if (storage(); as s) {
+      <div class="list-row">
+        <span class="icon-tile" [class.coral]="!s.persisted"><app-icon [name]="s.persisted ? 'shield' : 'storage'" /></span>
+        <span class="row-text">
+          <span class="row-label">{{ t.storage }}: {{ t.storageUsed(s.usedMb) }}</span>
+          <span class="row-hint">{{ s.persisted ? t.persisted : t.notPersisted }}</span>
+        </span>
+        @if (!s.persisted) {
+          <button type="button" class="btn btn-secondary" (click)="requestPersist()">{{ t.persistButton }}</button>
+        }
+      </div>
+    }
+  </div>
+
+  <h2 class="list-group-title">{{ t.groups.about }}</h2>
+  <div class="list-group about">
+    <img class="app-icon" src="icons/icon-192.png" alt="" />
+    <h3>{{ appName }}</h3>
+    <p>{{ t.aboutText }}</p>
+    <p class="muted">{{ t.version(version) }}</p>
+    <p class="muted credits">{{ t.credits }}</p>
+  </div>
+</div>
+
+<dialog #restoreDialog class="restore-dialog" aria-labelledby="restore-title" (close)="pendingRestore.set(null)">
+  <div class="dialog-body">
+    <h2 id="restore-title">{{ t.restoreDialog.title }}</h2>
+    @if (pendingRestore(); as pending) {
+      <p class="muted">{{ t.restoreDialog.file(pending.name) }}</p>
+    }
+    <button type="button" class="option" [disabled]="busy()" (click)="restore('merge')">
+      <span class="icon-tile sage"><app-icon name="layers" /></span>
+      <span class="row-text"><span class="row-label">{{ t.restoreDialog.merge }}</span><span class="row-hint">{{ t.restoreDialog.mergeHint }}</span></span>
+    </button>
+    <button type="button" class="option" [disabled]="busy()" (click)="restore('replace')">
+      <span class="icon-tile coral"><app-icon name="restore" /></span>
+      <span class="row-text"><span class="row-label">{{ t.restoreDialog.replace }}</span><span class="row-hint">{{ t.restoreDialog.replaceHint }}</span></span>
+    </button>
+    <div class="dialog-actions">
+      <button type="button" class="btn btn-secondary" (click)="closeRestore()">{{ t.restoreDialog.cancel }}</button>
+    </div>
+  </div>
+</dialog>
+
+<dialog #importDialog class="restore-dialog" aria-labelledby="import-title" (close)="pendingImport.set(null)">
+  <div class="dialog-body">
+    <h2 id="import-title">{{ it.conflictTitle }}</h2>
+    @if (pendingImport(); as pending) {
+      <p class="muted">{{ it.conflictMessage(pending.conflicts) }}</p>
+    }
+    <button type="button" class="option" (click)="resolveImport('replace')">
+      <span class="icon-tile"><app-icon name="restore" /></span>
+      <span class="row-text"><span class="row-label">{{ it.replace }}</span><span class="row-hint">{{ it.replaceHint }}</span></span>
+    </button>
+    <button type="button" class="option" (click)="resolveImport('keepBoth')">
+      <span class="icon-tile sage"><app-icon name="layers" /></span>
+      <span class="row-text"><span class="row-label">{{ it.keepBoth }}</span><span class="row-hint">{{ it.keepBothHint }}</span></span>
+    </button>
+    <button type="button" class="option" (click)="resolveImport('skip')">
+      <span class="icon-tile sky"><app-icon name="chevronRight" /></span>
+      <span class="row-text"><span class="row-label">{{ it.skip }}</span><span class="row-hint">{{ it.skipHint }}</span></span>
+    </button>
+    <div class="dialog-actions">
+      <button type="button" class="btn btn-secondary" (click)="resolveImport(null)">{{ it.cancel }}</button>
+    </div>
+  </div>
+</dialog>
+
+<app-confirm-dialog />
+<app-keymap-dialog />

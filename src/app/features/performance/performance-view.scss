@@ -1,0 +1,175 @@
+// Covers the whole screen (shell and sidebar included).
+:host {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  display: block;
+  background: var(--bg);
+  color: var(--text);
+}
+
+.bar {
+  position: absolute;
+  top: 0;
+  right: 0;
+  left: 0;
+  z-index: 2;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 14px;
+  padding: max(8px, env(safe-area-inset-top)) max(16px, env(safe-area-inset-right)) 8px
+    max(16px, env(safe-area-inset-left));
+  background: var(--bg-elev-1);
+  box-shadow: var(--shadow);
+  transition:
+    transform 0.25s ease,
+    opacity 0.25s ease;
+
+  &.hidden {
+    opacity: 0;
+    transform: translateY(-100%);
+    pointer-events: none;
+  }
+}
+
+.info {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  margin-right: auto;
+}
+
+.title {
+  overflow: hidden;
+  font-family: var(--font-heading);
+  font-size: 18px;
+  font-weight: 700;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.meta {
+  color: var(--text-muted);
+  font-size: 14px;
+}
+
+.controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.group {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  padding: 0 4px;
+  border-radius: var(--radius-m);
+  background: var(--surface);
+}
+
+.on {
+  background: var(--accent);
+  color: var(--accent-ink);
+
+  &:hover {
+    background: var(--accent);
+  }
+}
+
+.speed {
+  min-width: 6.5em;
+  color: var(--text-muted);
+  font-size: 14px;
+  font-variant-numeric: tabular-nums;
+  text-align: center;
+}
+
+.small {
+  min-height: var(--tap-small);
+  padding: 0 10px;
+  font-size: 14px;
+}
+
+.stage {
+  position: absolute;
+  inset: 0;
+  // Vertical scrolling stays native; horizontal swipes turn pages (Swipe directive).
+  touch-action: pan-y;
+  -webkit-touch-callout: none;
+  user-select: none;
+  padding: max(20px, env(safe-area-inset-top)) max(28px, env(safe-area-inset-right)) 36px
+    max(28px, env(safe-area-inset-left));
+}
+
+.pager {
+  height: 100%;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: none;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+
+  // Landscape: two fixed-height columns, more columns to the right = next page.
+  &.columns {
+    overflow: hidden;
+    column-count: 2;
+    column-gap: 64px;
+    column-rule: 1px solid var(--border);
+    column-fill: auto;
+  }
+}
+
+.song-title {
+  display: flex;
+  align-items: center;
+  gap: 0.5em;
+  margin: 0 0 0.6em;
+  font-size: 1.15em;
+  break-after: avoid;
+
+  .pill {
+    font-family: var(--font-body);
+    font-size: 0.75em;
+  }
+}
+
+.item-note {
+  margin: -0.3em 0 0.8em;
+  color: var(--coral);
+  font-size: 0.8em;
+  font-style: italic;
+  break-after: avoid;
+}
+
+.up-next {
+  margin-top: 1.5em;
+  color: var(--text-muted);
+  font-size: 0.75em;
+  font-style: italic;
+}
+
+.indicator {
+  position: absolute;
+  right: max(16px, env(safe-area-inset-right));
+  bottom: max(8px, env(safe-area-inset-bottom));
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  color: var(--text-muted);
+  font-size: 15px;
+  font-variant-numeric: tabular-nums;
+  pointer-events: none;
+}
+
+.progress {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  height: 3px;
+  background: var(--accent);
+  pointer-events: none;
+}

@@ -1,0 +1,121 @@
+<header class="bar">
+  <button type="button" class="btn icon-btn" (click)="cancel()" [attr.aria-label]="t.back" [title]="t.back">
+    <app-icon name="chevronLeft" />
+  </button>
+  <h1>{{ isNew() ? t.titleNew : t.titleEdit }}</h1>
+  @if (dirty()) {
+    <span class="dirty" role="status"><span class="dot" aria-hidden="true"></span>{{ t.unsaved }}</span>
+  }
+
+  <div class="tabs" role="tablist">
+    <button type="button" role="tab" class="tab" [class.selected]="mode() === 'visual' && !narrowPreview()" [attr.aria-selected]="mode() === 'visual'" (click)="setMode('visual')">
+      {{ t.tabVisual }}
+    </button>
+    <button type="button" role="tab" class="tab" [class.selected]="mode() === 'source' && !narrowPreview()" [attr.aria-selected]="mode() === 'source'" (click)="setMode('source')">
+      {{ t.tabSource }}
+    </button>
+    <button type="button" role="tab" class="tab narrow-only" [class.selected]="narrowPreview()" [attr.aria-selected]="narrowPreview()" (click)="narrowPreview.set(true)">
+      {{ t.tabPreview }}
+    </button>
+  </div>
+
+  <div class="bar-actions">
+    <button type="button" class="btn icon-btn" [disabled]="!canUndo()" (click)="undo()" [attr.aria-label]="t.undo" [title]="t.undo">
+      <app-icon name="undo" />
+    </button>
+    <button type="button" class="btn icon-btn" [disabled]="!canRedo()" (click)="redo()" [attr.aria-label]="t.redo" [title]="t.redo">
+      <app-icon name="redo" />
+    </button>
+    <button type="button" class="btn" (click)="cancel()">{{ t.cancel }}</button>
+    <button type="button" class="btn btn-primary" (click)="save()">{{ t.save }}</button>
+  </div>
+</header>
+
+@if (error(); as message) {
+  <p class="error" role="alert">{{ message }}</p>
+}
+
+<div class="body" [class.show-preview]="narrowPreview()">
+  <div class="edit-pane">
+    <div class="tools">
+      @if (mode() === 'visual') {
+        <div class="group" role="group" [attr.aria-label]="t.tools.transpose">
+          <span class="group-label">{{ t.tools.transpose }}</span>
+          <button type="button" class="btn icon-btn" (click)="transpose(-1)" [attr.aria-label]="t.tools.transposeDown" [title]="t.tools.transposeDown">
+            <app-icon name="minus" />
+          </button>
+          <button type="button" class="btn icon-btn" (click)="transpose(1)" [attr.aria-label]="t.tools.transposeUp" [title]="t.tools.transposeUp">
+            <app-icon name="plus" />
+          </button>
+        </div>
+      }
+      <button type="button" class="chip" (click)="openPaste()"><app-icon name="paste" /> {{ t.tools.paste }}</button>
+      <app-popover [label]="t.tools.more" [menu]="true">
+        <app-icon trigger name="more" />
+        <button type="button" class="menu-item" role="menuitem" (click)="exportCho()"><app-icon name="download" /> {{ t.tools.export }}</button>
+        @if (song()?.source === 'bundled') {
+          <button type="button" class="menu-item" role="menuitem" (click)="restoreOriginal()"><app-icon name="restore" /> {{ t.tools.restore }}</button>
+        }
+        @if (song()) {
+          <div class="menu-separator"></div>
+          <button type="button" class="menu-item danger" role="menuitem" (click)="deleteSong()"><app-icon name="trash" /> {{ t.tools.delete }}</button>
+        }
+      </app-popover>
+    </div>
+
+    @if (mode() === 'visual') {
+      @let meta = doc().meta;
+      <div class="meta">
+        <label class="field number">
+          <span>{{ t.meta.number }}</span>
+          <input #num type="text" [value]="meta.number" [placeholder]="t.meta.numberHint" (input)="setMeta('number', num.value)" />
+        </label>
+        <label class="field title">
+          <span>{{ t.meta.title }}</span>
+          <input #title type="text" [value]="meta.title" (input)="setMeta('title', title.value)" />
+        </label>
+        <label class="field small">
+          <span>{{ t.meta.key }}</span>
+          <input #key type="text" [value]="meta.key" [placeholder]="detectedKey() ? t.meta.keyDetected(detectedKey()!) : ''" (input)="setMeta('key', key.value)" />
+        </label>
+        <label class="field small">
+          <span>{{ t.meta.tempo }}</span>
+          <input #tempo type="text" inputmode="numeric" [value]="meta.tempo" (input)="setMeta('tempo', tempo.value)" />
+        </label>
+        <label class="field small">
+          <span>{{ t.meta.capo }}</span>
+          <input #capo type="text" inputmode="numeric" [value]="meta.capo" (input)="setMeta('capo', capo.value)" />
+        </label>
+      </div>
+      <app-visual-editor [song]="doc()" (changed)="onVisualChange($event)" />
+    } @else {
+      <app-source-editor [text]="source()" (changed)="onSourceChange($event)" />
+    }
+  </div>
+
+  <aside class="preview-pane" [attr.aria-label]="t.preview">
+    <p class="preview-label">{{ t.preview }}</p>
+    @if (preview().error) {
+      <p class="error inline" role="status">{{ t.errors.syntax }}</p>
+    }
+    @if (preview().sheet; as sheet) {
+      <h2 class="preview-title">{{ sheet.title }}</h2>
+      <app-song-sheet [sheet]="sheet" />
+    }
+  </aside>
+</div>
+
+<dialog #pasteDialog class="paste" aria-labelledby="paste-title">
+  <h2 id="paste-title">{{ t.pasteDialog.title }}</h2>
+  <p>{{ t.pasteDialog.help }}</p>
+  <textarea #pasted spellcheck="false" rows="14"></textarea>
+  <div class="paste-actions">
+    <button type="button" class="btn" (click)="pasteDialog.close()">{{ t.pasteDialog.cancel }}</button>
+    <button type="button" class="btn" (click)="applyPaste(pasted.value, false); pasted.value = ''">{{ t.pasteDialog.append }}</button>
+    <button type="button" class="btn btn-primary" (click)="applyPaste(pasted.value, true); pasted.value = ''">
+      {{ t.pasteDialog.replace }}
+    </button>
+  </div>
+</dialog>
+
+<app-confirm-dialog />

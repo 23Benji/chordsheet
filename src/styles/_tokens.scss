@@ -1,0 +1,88 @@
+// Design tokens (SPEC §6). Components use only these custom properties —
+// never hard-coded colours.
+
+:root,
+[data-theme='dark'] {
+  --bg: #14100d;
+  --bg-elev-1: #1c1612;
+  --surface: #2b2119;
+  --surface-chorus: rgb(43 33 25 / 40%); // --surface at ~40%
+  --surface-bridge: rgb(238 154 120 / 7%); // --coral, very faint
+  --border: #3a2e25;
+  --text: #f6efe4;
+  --text-muted: #a8988a;
+  --accent: #f2b45c;
+  --accent-ink: #14100d;
+  --coral: #ee9a78;
+  --sage: #9cc3a3;
+  --sky: #8fb8de;
+  --highlight-amber: rgb(242 180 92 / 18%);
+  --highlight-coral: rgb(238 154 120 / 18%);
+  --highlight-sage: rgb(156 195 163 / 16%);
+  --highlight-sky: rgb(143 184 222 / 16%);
+  --scrim: rgb(20 16 13 / 55%);
+
+  --radius-s: 8px;
+  --radius-m: 12px;
+  --radius-l: 18px;
+  --shadow: 0 8px 30px rgb(0 0 0 / 35%);
+
+  --font-body: 'Carlito', 'Calibri', system-ui, sans-serif;
+  --font-heading: 'Caladea', 'Cambria', Georgia, serif;
+  --font-mono: ui-monospace, 'Cascadia Code', Consolas, monospace;
+
+  --lyrics-size: 22px;
+  --sidebar-width: 340px;
+  --header-height: 64px;
+  --tap: 40px;
+  --tap-small: 32px;
+
+  color-scheme: dark;
+}
+
+// Light theme (optional, finished in M5).
+[data-theme='light'] {
+  --bg: #fbf8f4;
+  --bg-elev-1: #ffffff;
+  --surface: #efe6dc;
+  --surface-chorus: rgb(239 230 220 / 55%);
+  --surface-bridge: rgb(176 71 58 / 6%);
+  --border: #e3d6c8;
+  --text: #2a1f17;
+  --text-muted: #8c7b6c;
+  --accent: #c46a1e;
+  --accent-ink: #ffffff;
+  --coral: #b0473a;
+  --sage: #4b7a55;
+  --sky: #3b6b98;
+  --highlight-amber: rgb(196 106 30 / 14%);
+  --highlight-coral: rgb(176 71 58 / 12%);
+  --highlight-sage: rgb(75 122 85 / 13%);
+  --highlight-sky: rgb(59 107 152 / 12%);
+  --scrim: rgb(42 31 23 / 35%);
+  --shadow: 0 8px 30px rgb(60 40 20 / 14%);
+
+  color-scheme: light;
+}
+
+// Performance mode: maximum contrast (text ≥ 7:1 on the background).
+[data-contrast='high'] {
+  --bg: #0e0b09;
+  --bg-elev-1: #17120e;
+  --surface: #2b2119;
+  --surface-chorus: rgb(43 33 25 / 55%);
+  --text: #fffaf2;
+  --text-muted: #d2c4b5;
+  --accent: #ffc56e;
+  --coral: #ffab8a;
+  --sage: #b2dbb9;
+  --sky: #a6cdf2;
+}
+
+// Touch screens: bigger targets (SPEC: 44×44 on touch).
+@media (pointer: coarse) {
+  :root {
+    --tap: 44px;
+    --tap-small: 40px;
+  }
+}

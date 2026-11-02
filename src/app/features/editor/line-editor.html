@@ -1,0 +1,63 @@
+<div class="scroller" #scroller>
+  <div class="grid" [style.width.ch]="widthCh()">
+    <span class="measure" #measure aria-hidden="true">0000000000</span>
+    <div class="chord-row" (pointerdown)="onRowPointerDown($event)" [title]="t.chordRow">
+      @for (chip of chips(); track chip.id) {
+        <button
+          type="button"
+          class="chip"
+          [style.left.ch]="chip.left"
+          [attr.aria-label]="t.chordAria(chip.chord)"
+          (pointerdown)="onChipPointerDown($event, chip)"
+          (pointermove)="onChipPointerMove($event)"
+          (pointerup)="onChipPointerUp(chip)"
+          (keydown)="onChipKeydown($event, chip)"
+        >{{ chip.chord }}</button>
+      }
+    </div>
+    <input
+      #text
+      class="text"
+      type="text"
+      autocomplete="off"
+      autocapitalize="off"
+      spellcheck="false"
+      [attr.aria-label]="t.lyricsAria"
+      [value]="line().text"
+      (input)="onInput(text.value)"
+      (keydown)="onTextKeydown($event)"
+    />
+  </div>
+</div>
+
+@if (popover(); as p) {
+  <div class="popover" [style.left.px]="p.leftPx" (keydown.escape)="closePopover()">
+    <input
+      #chordInput
+      class="chord-input"
+      type="text"
+      autocomplete="off"
+      autocapitalize="off"
+      spellcheck="false"
+      [value]="p.value"
+      [placeholder]="t.chordPopover.placeholder"
+      (keydown.enter)="confirmPopover(chordInput.value)"
+    />
+    @if (palette().length) {
+      <div class="palette" [attr.aria-label]="t.chordPopover.palette">
+        @for (chord of palette(); track chord) {
+          <button type="button" class="pal" (click)="confirmPopover(chord)">{{ chord }}</button>
+        }
+      </div>
+    }
+    <div class="pop-actions">
+      @if (p.chordId) {
+        <button type="button" class="btn danger" (click)="removeFromPopover()">{{ t.chordPopover.remove }}</button>
+      }
+      <button type="button" class="btn" (click)="closePopover()">{{ t.chordPopover.cancel }}</button>
+      <button type="button" class="btn btn-primary" (click)="confirmPopover(chordInput.value)">
+        {{ t.chordPopover.ok }}
+      </button>
+    </div>
+  </div>
+}

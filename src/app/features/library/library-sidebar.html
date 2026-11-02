@@ -1,0 +1,106 @@
+<div class="head">
+  <nav class="tabs" [attr.aria-label]="st.title">
+    <a class="tab" routerLink="/" [class.selected]="!onSetlists()" [attr.aria-current]="!onSetlists() ? 'page' : null">{{ st.tabLibrary }}</a>
+    <a class="tab" routerLink="/scalette" [class.selected]="onSetlists()" [attr.aria-current]="onSetlists() ? 'page' : null" (click)="closeOnNarrowScreen()">{{ st.tabSetlists }}</a>
+  </nav>
+  <span class="spacer"></span>
+  <a class="btn icon-btn new" routerLink="/nuovo" (click)="closeOnNarrowScreen()" [attr.aria-label]="t.newSong" [title]="t.newSong">
+    <app-icon name="plus" />
+  </a>
+  <button
+    type="button"
+    class="btn icon-btn"
+    (click)="layout.toggleSidebar()"
+    [attr.aria-label]="t.collapse"
+    [title]="t.collapse"
+  >
+    <app-icon name="sidebar" />
+  </button>
+</div>
+
+<app-hint-banner class="hint" />
+
+<div class="search">
+  <app-icon name="search" class="search-icon" />
+  <label class="visually-hidden" for="library-search">{{ t.searchLabel }}</label>
+  <input
+    #search
+    id="library-search"
+    type="search"
+    autocomplete="off"
+    spellcheck="false"
+    [placeholder]="t.searchPlaceholder"
+    [value]="query()"
+    (input)="onQuery(search.value)"
+    (keydown)="onSearchKeydown($event)"
+  />
+  <kbd class="kbd" aria-hidden="true" [title]="t.searchHint">/</kbd>
+</div>
+
+<div class="controls">
+  <div class="chips" role="radiogroup" [attr.aria-label]="t.filterLabel">
+    @for (f of filters; track f) {
+      <button
+        type="button"
+        class="chip"
+        role="radio"
+        [attr.aria-checked]="filter() === f"
+        [class.selected]="filter() === f"
+        (click)="filter.set(f); activeIndex.set(0)"
+      >
+        {{ t.filters[f] }}
+      </button>
+    }
+  </div>
+  <div class="sort-row">
+    <span class="count">{{ t.count(results().length) }}</span>
+    <label class="sort">
+      <span>{{ t.sortLabel }}</span>
+      <select [value]="sort()" (change)="sort.set($any($event.target).value)">
+        <option value="number">{{ t.sort.number }}</option>
+        <option value="title">{{ t.sort.title }}</option>
+      </select>
+    </label>
+  </div>
+</div>
+
+<nav class="list" #list [attr.aria-label]="t.title">
+  @for (song of results(); track song.id; let i = $index) {
+    <a
+      class="row"
+      [routerLink]="['/canto', song.id]"
+      [class.current]="isCurrent(song)"
+      [class.active]="query() !== '' && i === activeIndex()"
+      [attr.aria-current]="isCurrent(song) ? 'page' : null"
+      (click)="closeOnNarrowScreen()"
+    >
+      @if (song.number !== null) {
+        <span class="pill">{{ numberLabel(song) }}</span>
+      } @else {
+        <span class="pill pill-secondary">–</span>
+      }
+      <span class="name">{{ song.title }}</span>
+      @let versions = versionCount(song);
+      @if (versions > 1) {
+        <span class="pill pill-secondary versions" [title]="t.versionsHint">{{ t.versions(versions) }}</span>
+      }
+      @if (songsWithNotes().has(song.id)) {
+        <app-icon name="note" class="flag" [attr.title]="t.hasNotes" />
+      }
+      @if (songsWithTabs().has(song.id)) {
+        <app-icon name="tab" class="flag" />
+      }
+      @if (song.key) {
+        <span class="key">{{ song.key }}</span>
+      }
+    </a>
+  } @empty {
+    <p class="empty">{{ t.empty }}</p>
+  }
+</nav>
+
+<footer class="foot">
+  <a class="btn settings" routerLink="/impostazioni" (click)="closeOnNarrowScreen()">
+    <app-icon name="settings" /> {{ ss.link }}
+  </a>
+</footer>

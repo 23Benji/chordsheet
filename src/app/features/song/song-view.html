@@ -1,0 +1,311 @@
+@if (song(); as song) {
+  <header class="header">
+    <!-- App bar: what song, and the main actions. -->
+    <div class="app-bar">
+      @if (!layout.sidebarOpen()) {
+        <button type="button" class="btn icon-btn" (click)="layout.toggleSidebar()" [attr.aria-label]="lt.expand" [title]="lt.expand">
+          <app-icon name="sidebar" />
+        </button>
+      }
+      @if (label()) {
+        <span class="pill number">{{ label() }}</span>
+      }
+      <div class="titles">
+        <h1>{{ song.title }}</h1>
+        <p class="key-line">
+          @if (keys().shapeKey; as key) {
+            <span>{{ t.key }} <strong>{{ key }}</strong></span>
+            @if (keys().soundingKey !== keys().originalKey && keys().originalKey) {
+              <span class="muted">({{ t.original(keys().originalKey!) }})</span>
+            }
+          }
+          @if (capo() > 0) {
+            <span>· {{ t.capo(capo()) }}@if (keys().soundingKey; as sounding) {, {{ t.playsIn(sounding) }}}</span>
+          }
+          @if (song.tempo) {
+            <span class="muted">· {{ t.tempo(song.tempo) }}</span>
+          }
+          @if (sheet()?.subtitle; as subtitle) {
+            <span class="muted">· {{ subtitle }}</span>
+          }
+        </p>
+      </div>
+      <div class="actions">
+        <button type="button" class="btn btn-primary perform" (click)="perform()" [title]="pt.enter">
+          <app-icon name="stage" /><span class="perform-label">{{ t.perform }}</span>
+        </button>
+        <a class="btn icon-btn edit-action" [routerLink]="['/canto', song.id, 'modifica']" [attr.aria-label]="t.edit" [title]="t.edit">
+          <app-icon name="edit" />
+        </a>
+        <app-add-to-setlist [song]="song" />
+        <app-export-menu [song]="song" />
+      </div>
+    </div>
+
+    <!-- Song controls: one row of chips, each opens a small panel. -->
+    <div class="controls" role="toolbar" [attr.aria-label]="t.controls">
+      <app-popover [label]="t.keyPanel" triggerClass="chip">
+        <span trigger>
+          <app-icon name="music" />
+          {{ t.key }} <span class="chip-value">{{ keys().shapeKey ?? '–' }}</span>
+          @if (capo() > 0) {
+            <span class="chip-value">· {{ t.capo(capo()) }}</span>
+          }
+          <span class="chip-caret" aria-hidden="true">▼</span>
+        </span>
+        <p class="panel-title">{{ t.keyPanel }}</p>
+        <div class="panel-row">
+          <span class="panel-label">{{ t.transposeLabel }}</span>
+          <span class="stepper">
+            <button type="button" class="btn icon-btn" (click)="changeTranspose(-1)" [disabled]="transpose() <= -11" [attr.aria-label]="t.transposeDown">
+              <app-icon name="minus" />
+            </button>
+            <span class="stepper-value" aria-live="polite">{{ transposeLabel() }}</span>
+            <button type="button" class="btn icon-btn" (click)="changeTranspose(1)" [disabled]="transpose() >= 11" [attr.aria-label]="t.transposeUp">
+              <app-icon name="plus" />
+            </button>
+          </span>
+        </div>
+        @if (transpose() !== 0) {
+          <div class="panel-row">
+            <span class="panel-label">{{ t.key }} {{ keys().soundingKey }} ({{ t.original(keys().originalKey ?? '–') }})</span>
+            <button type="button" class="btn small-btn" (click)="resetTranspose()" [attr.aria-label]="t.transposeReset">
+              <app-icon name="reset" /> {{ t.reset }}
+            </button>
+          </div>
+        }
+        <div class="panel-row">
+          <span class="panel-label">{{ t.capoLabel }}</span>
+          <span class="stepper">
+            <button type="button" class="btn icon-btn" (click)="changeCapo(-1)" [disabled]="capo() <= 0" [attr.aria-label]="t.capoDown">
+              <app-icon name="minus" />
+            </button>
+            <span class="stepper-value" aria-live="polite">{{ capo() }}</span>
+            <button type="button" class="btn icon-btn" (click)="changeCapo(1)" [disabled]="capo() >= 11" [attr.aria-label]="t.capoUp">
+              <app-icon name="plus" />
+            </button>
+          </span>
+        </div>
+        <div class="panel-row">
+          <span class="panel-label">{{ t.accidentals }}</span>
+          <span class="segmented" role="radiogroup" [attr.aria-label]="t.accidentals">
+            @for (option of accidentalOptions; track option.label) {
+              <button type="button" role="radio" [class.selected]="songAccidental() === option.value" [attr.aria-checked]="songAccidental() === option.value" (click)="setAccidental(option.value)">
+                {{ option.label }}
+              </button>
+            }
+          </span>
+        </div>
+      </app-popover>
+
+      <app-popover [label]="t.textPanel" triggerClass="chip">
+        <span trigger><app-icon name="type" /> <span class="chip-value">{{ fontPercent() }}%</span><span class="chip-caret" aria-hidden="true">▼</span></span>
+        <p class="panel-title">{{ t.textPanel }}</p>
+        <div class="panel-row">
+          <span class="panel-label">{{ t.fontLabel }}</span>
+          <span class="stepper">
+            <button type="button" class="btn icon-btn" (click)="changeFont(-0.1)" [disabled]="fontScale() <= fontMin" [attr.aria-label]="t.fontDown">
+              <app-icon name="textSmaller" />
+            </button>
+            <span class="stepper-value">{{ fontPercent() }}%</span>
+            <button type="button" class="btn icon-btn" (click)="changeFont(0.1)" [disabled]="fontScale() >= fontMax" [attr.aria-label]="t.fontUp">
+              <app-icon name="textLarger" />
+            </button>
+          </span>
+        </div>
+        @if (wide()) {
+          <div class="panel-row">
+            <span class="panel-label">{{ t.columnsLabel }}</span>
+            <span class="segmented" role="radiogroup" [attr.aria-label]="t.columnsLabel">
+              <button type="button" role="radio" [class.selected]="columns() === 1" [attr.aria-checked]="columns() === 1" (click)="setColumns(1)" [attr.aria-label]="t.columns1">
+                <app-icon name="columns1" /> 1
+              </button>
+              <button type="button" role="radio" [class.selected]="columns() === 2" [attr.aria-checked]="columns() === 2" (click)="setColumns(2)" [attr.aria-label]="t.columns2">
+                <app-icon name="columns2" /> 2
+              </button>
+            </span>
+          </div>
+        }
+      </app-popover>
+
+      @if (versions().length > 1) {
+        <app-popover [label]="t.versionLabel" triggerClass="chip" [menu]="true">
+          <span trigger><app-icon name="layers" /> {{ t.versionLabel }} <span class="chip-value">{{ label() }}</span><span class="chip-caret" aria-hidden="true">▼</span></span>
+          @for (v of versions(); track v.id) {
+            <a
+              class="menu-item"
+              role="menuitemradio"
+              [routerLink]="['/canto', v.id]"
+              [replaceUrl]="true"
+              [attr.aria-checked]="v.id === song.id"
+              [attr.aria-label]="t.versionOf(numberLabel(v))"
+            >
+              <span class="pill" [class.pill-secondary]="v.id !== song.id">{{ numberLabel(v) }}</span>
+              {{ v.title }}
+              @if (v.id === song.id) {
+                <app-icon name="check" class="menu-hint" />
+              }
+            </a>
+          }
+        </app-popover>
+      }
+
+      <button type="button" class="chip intro-chip" [class.active]="!!intro()" (click)="openIntro()" [title]="t.intro.button">
+        <app-icon name="intro" />{{ t.intro.title }}
+      </button>
+
+      <app-metronome [tempo]="song.tempo" />
+
+      <app-popover [label]="t.notesPanel" triggerClass="chip">
+        <span trigger>
+          <app-icon name="note" /> {{ t.notesChip }}
+          @if (showNotes() && resolved().orphans.length) {
+            <span class="badge">{{ resolved().orphans.length }}</span>
+          }
+        </span>
+        <p class="panel-title">{{ t.notesPanel }}</p>
+        <div class="panel-row">
+          <span class="panel-label">{{ nt.toggle }}</span>
+          <app-switch [checked]="showNotes()" [label]="nt.toggle" (toggled)="toggleNotes()" />
+        </div>
+        @if (showNotes()) {
+          <label class="panel-block">
+            <span class="panel-label">{{ nt.memo }}</span>
+            <textarea #memoInput rows="3" [value]="memo()" [placeholder]="nt.memoPlaceholder" (input)="onMemo(memoInput.value)"></textarea>
+          </label>
+          <p class="panel-hint">{{ nt.selectHint }}</p>
+        }
+      </app-popover>
+    </div>
+
+    @if (showNotes()) {
+      @if (memoPreview(); as preview) {
+        <p class="memo-line"><app-icon name="note" /><strong>{{ nt.memo }}</strong><span>{{ memo() }}</span></p>
+      }
+
+      @if (relinking()) {
+        <p class="banner" role="status">
+          {{ nt.relinkHint }}
+          <button type="button" class="btn small" (click)="relinking.set(null)">{{ nt.cancel }}</button>
+        </p>
+      } @else if (resolved().orphans.length) {
+        <button type="button" class="banner orphans" (click)="openOrphans()">
+          {{ nt.orphansBanner(resolved().orphans.length) }}
+        </button>
+      }
+    }
+  </header>
+
+  @if (sheet(); as sheet) {
+    @if (paged()) {
+      <div class="paged" [style.--lyrics-size.px]="lyricsPx()" appSwipe (swipeLeft)="pager.next()" (swipeRight)="pager.prev()">
+        <article class="pager" appPager="columns" [pagerWatch]="layoutKey()" #pager="pager">
+          <app-song-sheet
+            [sheet]="sheet"
+            [annotations]="displayAnnotations()"
+            [selectable]="showNotes()"
+            [selectedLine]="selectedLine()"
+            [intro]="intro()"
+            [diagrams]="showDiagrams()"
+            [chordStyle]="chordStyle()"
+            (lineSelect)="onLineSelect($event)"
+            (introEdit)="openIntro()"
+            (chordHover)="onChordHover($event)"
+          />
+        </article>
+        <footer class="pager-bar">
+          <span class="page-label" aria-live="polite">{{ t.page(pager.page() + 1, pager.pageCount()) }}</span>
+          <div class="pager-buttons">
+            <button
+              type="button"
+              class="btn icon-btn"
+              (click)="pager.prev()"
+              [disabled]="pager.page() === 0"
+              [attr.aria-label]="t.prevPage"
+              [title]="t.prevPage"
+            >
+              <app-icon name="chevronLeft" />
+            </button>
+            <button
+              type="button"
+              class="btn next"
+              [class.btn-primary]="!pager.atEnd()"
+              (click)="pager.next()"
+              [disabled]="pager.atEnd()"
+              [attr.aria-label]="t.nextPage"
+              [title]="t.nextPage"
+            >
+              @if (!pager.atEnd()) {
+                {{ t.continues }}
+              }
+              <app-icon name="chevronRight" />
+            </button>
+          </div>
+        </footer>
+      </div>
+    } @else {
+      <div class="scroll">
+        <article class="sheet" [style.--lyrics-size.px]="lyricsPx()">
+          <app-song-sheet
+            [sheet]="sheet"
+            [annotations]="displayAnnotations()"
+            [selectable]="showNotes()"
+            [selectedLine]="selectedLine()"
+            [intro]="intro()"
+            [diagrams]="showDiagrams()"
+            [chordStyle]="chordStyle()"
+            (lineSelect)="onLineSelect($event)"
+            (introEdit)="openIntro()"
+            (chordHover)="onChordHover($event)"
+          />
+        </article>
+      </div>
+    }
+  }
+
+  @if (diagram(); as d) {
+    <div
+      class="diagram-pop"
+      [style.left.px]="d.left"
+      [style.top.px]="d.top"
+      (mouseenter)="keepDiagram()"
+      (mouseleave)="onChordHover(null)"
+    >
+      <app-chord-diagram [chord]="d.chord" />
+    </div>
+  }
+
+  @if (introOpen()) {
+    <app-intro-panel
+      class="panel"
+      [intro]="storedIntro()"
+      [sections]="sectionNames()"
+      [toDisplay]="toDisplay()"
+      [toOriginal]="toOriginal()"
+      (saved)="saveIntro($event)"
+      (closed)="introOpen.set(false)"
+    />
+  }
+
+  @if (panelOpen()) {
+    <app-annotation-panel
+      class="panel"
+      [songId]="song.id"
+      [anchor]="selectedAnchor()"
+      [lineText]="selectedText()"
+      [lineChords]="selectedChords()"
+      [annotations]="selectedAnnotations()"
+      [orphans]="resolved().orphans"
+      [showOrphans]="showOrphans()"
+      [toDisplay]="toDisplay()"
+      [toOriginal]="toOriginal()"
+      (closed)="closePanel()"
+      (relink)="startRelink($event)"
+    />
+  }
+} @else {
+  <div class="not-found">
+    <p>{{ t.notFound }}</p>
+    <a class="btn" routerLink="/">{{ t.backToLibrary }}</a>
+  </div>
+}

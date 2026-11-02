@@ -1,0 +1,273 @@
+:host {
+  display: block;
+  height: 100%;
+  overflow-y: auto;
+}
+
+.page {
+  max-width: 980px;
+  padding: max(16px, env(safe-area-inset-top)) 32px 48px;
+}
+
+.back {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--text-muted);
+  text-decoration: none;
+}
+
+.head {
+  margin: 10px 0 18px;
+}
+
+.name {
+  width: 100%;
+  padding: 4px 0;
+  border: none;
+  border-bottom: 1px solid transparent;
+  background: transparent;
+  font-family: var(--font-heading);
+  font-size: 30px;
+  font-weight: 700;
+
+  &:hover,
+  &:focus {
+    outline: none;
+    border-bottom-color: var(--border);
+  }
+}
+
+.head-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-top: 8px;
+}
+
+.date {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--text-muted);
+  font-size: 14px;
+
+  input {
+    height: 38px;
+    padding: 0 10px;
+    border: none;
+    border-radius: var(--radius-s);
+    background: var(--surface);
+  }
+}
+
+.actions,
+.item-actions {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  color: var(--text-muted);
+}
+
+.empty {
+  color: var(--text-muted);
+}
+
+.items {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.item {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 12px;
+  margin-bottom: 8px;
+  padding: 8px 10px;
+  border-radius: var(--radius-l);
+  background: var(--bg-elev-1);
+
+  &.missing {
+    opacity: 0.6;
+  }
+}
+
+// CDK drag & drop states.
+.cdk-drag-preview {
+  box-shadow: var(--shadow);
+}
+.cdk-drag-placeholder {
+  opacity: 0.25;
+}
+.cdk-drag-animating,
+.cdk-drop-list-dragging .item:not(.cdk-drag-placeholder) {
+  transition: transform 0.2s ease;
+}
+
+.handle {
+  display: flex;
+  padding: 8px 4px;
+  border: none;
+  background: none;
+  color: var(--text-muted);
+  cursor: grab;
+  touch-action: none;
+}
+
+.pos {
+  width: 1.6em;
+  color: var(--text-muted);
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+}
+
+.song {
+  display: flex;
+  flex: 1 1 280px;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--text);
+  font-size: 17px;
+  font-weight: 700;
+  text-decoration: none;
+
+  &.muted {
+    color: var(--text-muted);
+    font-style: italic;
+  }
+
+  .pill {
+    font-size: 14px;
+  }
+}
+
+.note {
+  margin-top: 2px;
+  padding: 2px 0;
+  border: none;
+  border-bottom: 1px solid transparent;
+  background: transparent;
+  color: var(--text-muted);
+  font-size: 14px;
+  font-style: italic;
+
+  &:hover,
+  &:focus {
+    outline: none;
+    border-bottom-color: var(--border);
+  }
+}
+
+.transpose {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  padding: 0 4px 0 10px;
+  border-radius: var(--radius-m);
+  background: var(--surface);
+}
+
+.key {
+  margin-right: 4px;
+  color: var(--accent);
+  font-weight: 700;
+}
+
+.value {
+  min-width: 2em;
+  color: var(--text-muted);
+  font-variant-numeric: tabular-nums;
+  text-align: center;
+
+  &.overridden {
+    color: var(--coral);
+    font-weight: 700;
+  }
+}
+
+.play {
+  color: var(--accent);
+}
+
+.add {
+  margin-top: 28px;
+
+  h2 {
+    margin-bottom: 10px;
+    font-size: 20px;
+  }
+}
+
+.search {
+  position: relative;
+
+  input {
+    width: 100%;
+    height: 46px;
+    padding: 0 14px 0 42px;
+    border: 1px solid transparent;
+    border-radius: var(--radius-m);
+    background: var(--surface);
+    font-size: 16px;
+
+    &:focus {
+      outline: none;
+      border-color: var(--accent);
+    }
+  }
+}
+
+.search-icon {
+  position: absolute;
+  top: 13px;
+  left: 14px;
+  color: var(--text-muted);
+}
+
+.results {
+  margin: 8px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.result {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  min-height: 44px;
+  padding: 6px 12px;
+  border: none;
+  border-radius: var(--radius-m);
+  background: transparent;
+  text-align: left;
+  cursor: pointer;
+
+  &:hover,
+  &:focus-visible {
+    background: var(--surface);
+  }
+
+  .pill {
+    min-width: 3.1em;
+    font-size: 14px;
+  }
+}
+
+.result-title {
+  flex: 1;
+}
+
+.plus {
+  color: var(--accent);
+}

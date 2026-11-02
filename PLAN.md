@@ -1,0 +1,231 @@
+# PLAN
+
+## M1 — Foundation + read songs
+
+- [x] `git init`, Angular project (latest, standalone, strict, SCSS) created in this folder, keeping `songs/`, `assets/`, `*.md`
+- [x] Dependencies: `chordsheetjs`, `dexie`, `@angular/pwa`, fonts (`@fontsource/carlito`, `@fontsource/caladea` or vendored woff2)
+- [x] Design tokens `src/styles/_tokens.scss` (dark theme), global styles, self-hosted fonts
+- [x] Strings in `src/app/i18n/it.ts`
+- [x] Bundled songs + logos/backgrounds copied into the build as static assets (`angular.json` assets glob) + generated `public/songs-index.json` manifest
+- [x] Pure logic (`src/app/core/`), with unit tests:
+  - [x] `song-meta.ts`: number/suffix detection from `{meta: numero}` and file name
+  - [x] `chordpro.ts`: parse ChordPro → our own render model (sections, lines, segments; chorus/comment/second-key group)
+  - [x] `transpose.ts`: transpose + capo + accidental spelling (incl. slash chords), key detection
+  - [x] `search.ts`: accent/case-insensitive search across number, title and lyrics
+  - [x] Test: all 166 bundled files parse and keep number/title
+- [x] Dexie schema (`db.ts`): songs, songPrefs, annotations, setlists, settings; `navigator.storage.persist()` on first run
+- [x] Services (signals): `LibraryService` (load, bundled import), `SongPrefsService` (transpose/capo/fontScale per song), `SettingsService` (minimal)
+- [x] Welcome / empty screen (rays background, logo, Psalm verse, "Importa l'innario incluso")
+- [x] Layout: left sidebar library (search, filters, sort, keyboard `/` arrows Enter) + main song view
+- [x] Song view: header (number pill, title, key "Tonalità: G (originale E)", capo "Capo 2 · suona in A"), transpose −/+, capo, font −/+; chords above lyrics; chorus block "Rit."; comments muted italic; second-key groups right-aligned muted
+- [x] PWA: manifest (Innario, `#14100D`, standalone), icons 192/512/maskable/apple-touch 180, service worker caching app shell, fonts, songs
+- [x] GitHub Pages workflow (`.github/workflows/deploy.yml`)
+- [x] `ng build` + `ng test` green, commit `M1: …`, fill in Commands in CLAUDE.md, write `DECISIONS.md`
+- [ ] Manual check in Chrome at 1366×768 and 1920×1080, install + offline test, Lighthouse PWA check (Benji — the browser couldn't be driven from Claude Code)
+
+## M1.1 — Feedback after M1
+
+- [x] `core/versions.ts` (+ spec): group songs by number, collapse search results to one row per number keeping the best-ranked version
+- [x] Library: one row per number, "N versioni" pill, filter "Con più versioni"
+- [x] Song view: version switcher next to transpose
+- [x] Song view on laptops (≥ 900px): two columns, sections never cut, overflow → next page; page numbers, "Continua →", ‹ › buttons, keys →/Space/PageDown and ←/PageUp
+- [x] 1/2 column toggle (persisted in SongPrefs.columns)
+- [x] SPEC: versions, paged columns, visual editor; milestones renumbered (new M2 — Visual editor)
+- [x] DECISIONS.md updated
+- [x] `ng build` + `ng test` green, commit
+
+## M1.2 — Section labels
+
+- [x] Parser: section kinds (verse/chorus/chorusRepeat/bridge/instrumental), verse numbers, Intro/Intermezzo/Finale by position, plain-text headings, "Ritornello" reminders, section directives with labels (+ tests)
+- [x] Song sheet: coloured label tag per section (Strofa, Ritornello, Bridge, Intro/Intermezzo/Finale), "Ritornello (ripeti)" reminder line
+- [x] Checked the labels of all 166 songs; SPEC + DECISIONS updated
+- [x] `ng build` + `ng test` green, commit
+
+## M1.3 — Chord display fixes (song 142 feedback)
+
+- [x] Chords without a syllable under them stay in the chord row; no empty gap on wrapped rows
+- [x] Old-notation chord lines ("B- G D A — D", "C AmDm", "Mi- Do+") recognised, styled and transposed (`core/chord-text.ts` + tests); chords after "Intro:" / "Intermezzo:" headings too
+- [x] "Rit:" lines: dropped inside choruses; outside they start a chorus / chorus reminder
+- [x] Fix: text after a `#` was lost (chordsheetjs comment syntax)
+- [x] Checked all detected chord lines across the 166 songs; `ng build` + `ng test` green, commit
+
+## M2 — Visual editor
+
+Pure logic (`src/app/core/`, with tests):
+- [x] `editor-model.ts`: ChordPro ⇄ editable model (meta, sections with kind/label, lines = text + chords at character positions, comments, untouched raw lines); round-trip test on all 166 songs (same rendered result)
+- [x] Editing operations: edit text (chords follow their syllables), add / move / change / delete chord, split / merge lines, add / delete / move / duplicate sections and lines, convert old-notation chord line (onto the lyric line below, or in place), transpose permanently, chip layout for overlapping chords
+- [x] `chords-over-words.ts`: pasted "chords above lyrics" text → ChordPro (column-aligned)
+- [x] ChordPro syntax highlighting tokens for the source view
+- [x] Export file name (`123c - Title.cho`)
+
+Services:
+- [x] `LibraryService`: save (update/insert), delete (also prefs/annotations), number+suffix uniqueness check, fetch the bundled original of a song ("Ripristina originale")
+
+UI (lazy-loaded route `canto/:id/modifica`, `nuovo`):
+- [x] Editor page: song data form (number, title, key, tempo, capo), tabs Visuale / Sorgente, live preview with the real renderer (side by side on laptops, tab on narrow screens), Salva / Annulla, undo/redo (buttons + Ctrl/Cmd+Z), unsaved-changes guard
+- [x] Visual editor: section cards (kind: Automatico/Strofa, Ritornello, Bridge, Intro, Intermezzo, Finale + free label; move up/down, duplicate, delete), add section/line/note
+- [x] Line editor: monospace lyric input + chord row; click to add chord (popover with the song's chords as palette), drag to move (mouse + touch), click to change/delete; keyboard: Ctrl/Cmd+K add chord at cursor, arrows move a focused chord, Delete removes, Enter splits line, Backspace at start merges, ↑/↓ move between lines
+- [x] "Converti accordi" button on old-notation chord lines
+- [x] Source editor: monospace textarea with highlighted [chords] and {directives}
+- [x] "Incolla testo con accordi sopra" dialog (replace or append)
+- [x] New song from template (sidebar button "Nuovo canto"); title required; number+suffix must be unique
+- [x] Delete song (confirmation dialog), "Ripristina originale" for bundled songs
+- [x] Export `.cho` from editor and song view; "Modifica" button in song view
+- [x] Confirmation dialog component (native `<dialog>`, no dependency)
+- [x] Strings in `it.ts`, tokens only
+
+Done:
+- [x] SPEC/DECISIONS updated, `ng build` + `ng test` green, commit `M2: visual editor`
+
+## M3 — Personal layer
+
+Pure logic (with tests):
+- [x] `core/anchoring.ts`: line anchors (section, line, hash of normalised text, snippet, occurrence); resolve: exact hash+occurrence → same hash nearest → fuzzy snippet (normalised Levenshtein ≥ 0.8) → orphaned; `reanchorAll` after a text change (never deletes)
+
+Data / services:
+- [x] Annotation model: `title` (tab), `chordIndex` (personal chord: which chord of the line), `orphaned`; SongPrefs `memo` (Promemoria); Settings `showNotes`
+- [x] `AnnotationService`: per-song annotations, add / update / delete / relink, re-anchor a song after its text changes
+- [x] `ToastService` + toast in the app shell
+- [x] Editor save re-anchors the song's annotations and shows a toast if some became orphaned
+
+UI:
+- [x] Song sheet renders annotations: highlight (4 colours), notes beside the line (below on narrow columns), tab/solo blocks (monospace, title), personal chord in coral above the original chord (transposed with the song)
+- [x] Click/tap (or Enter) on a line selects it → bottom panel: Nota, Evidenzia, Tab/Assolo, Accordo personale; edit/delete existing annotations of the line
+- [x] Promemoria panel at the top of the song (collapsed by default, shows first line), autosaved
+- [x] Toolbar toggle "Mostra le mie note"
+- [x] Orphaned notes: banner "N note da ricollegare" → list with "Ricollega" (then click a line) and delete
+- [x] Library note/tab icons and "Con le mie note" filter use real data (incl. Promemoria)
+- [x] Strings in `it.ts`, tokens only; pages are re-measured when notes change
+
+Done:
+- [x] SPEC/DECISIONS updated, `ng build` + `ng test` green, commit `M3: personal layer`
+
+## M4 — Performance mode
+
+Pure logic (with tests):
+- [x] `core/paging.ts`: page maths for column pages and vertical screens (count, offsets), auto-scroll speed from tempo
+- [x] `core/keymap.ts`: actions (next, prev, autoscroll, slower, faster), default keys (Space/PageDown/→/↓, PageUp/←/↑, S, [, ]), resolve a key, reassign, Italian key labels
+
+Shared:
+- [x] `Pager` directive (`ui/pager.ts`) extracted from the song view: column pages (landscape/laptop) or screen-by-screen vertical pages; re-measures on content/resize; song view refactored to use it and the configurable keys
+- [x] `ScreenService`: Fullscreen API (incl. webkit prefix) and Screen Wake Lock (re-acquired when the tab becomes visible again)
+- [x] High-contrast performance tokens in `_tokens.scss` (text ≥ 7:1)
+
+Performance view (lazy route `canto/:id/esibizione`, optional `?coda=id1,id2,…` for M5 setlists):
+- [x] Full-screen overlay, wake lock while open, large font (song font × 1.25), title at the top of the sheet, notes shown (not editable)
+- [x] Thin auto-hiding top bar: title, key/capo, song x/y in the queue, page x/y, auto-scroll controls, font −/+, 1/2 columns, pedal keys, full screen, exit
+- [x] Navigation: configurable keys, tap zones (left = back, right = next, middle = show bar), always-visible small page indicator; next at the end of a song → next song in the queue
+- [x] Auto-scroll: S start/stop, [ ] slower/faster, speed per song (seconds per screen); vertical = smooth scroll, columns = automatic page turn with a progress bar; "Da tempo" sets the speed from {tempo}
+- [x] Pedal keys dialog: press a key to assign it to an action, remove, restore defaults (saved in Settings)
+- [x] "Esibizione" button in the song view (enters full screen on the click)
+
+Done:
+- [x] SPEC/DECISIONS updated, `ng build` + `ng test` green, commit `M4: performance mode`
+
+## M5 — Setlists
+
+Pure logic (with tests):
+- [x] `core/setlists.ts`: new setlist / item (with ids), duplicate, move item, effective transpose of an item, share format (`innario-setlist` JSON with number+suffix+title) export and import (match by number+suffix, then title; report missing songs)
+
+Data / services:
+- [x] `@angular/cdk` (allowed by SPEC §2) for drag & drop
+- [x] `SetlistService` (signals + Dexie): create, update, delete, duplicate, add song, import
+- [x] `SetlistItem.id` for stable drag & drop tracking
+
+UI:
+- [x] Sidebar tabs "Libreria | Scalette"
+- [x] Setlists page: list (name, date, number of songs), new setlist (name + date), open, play, duplicate, share, delete (confirmation), import a shared `.json`
+- [x] Setlist page: editable name and date; songs reordered by drag & drop (handle, touch, keyboard ↑/↓ buttons too); per-song transpose override with resulting key, short note, remove, open; add songs with a search box (number + Enter adds); play from the start or from any song
+- [x] "Aggiungi a scaletta" menu in the song view (existing setlists + new one)
+- [x] Performance mode plays a setlist (`?scaletta=…&pos=…`): per-item transpose, item note shown, next/prev through the setlist
+- [x] Share: Web Share with the file when available (iPad), otherwise download
+- [x] Strings in `it.ts`, tokens only
+
+Done:
+- [x] SPEC/DECISIONS updated, `ng build` + `ng test` green, commit `M5: setlists`
+
+## M5.1 — Intro card (Benji's request)
+
+- [x] `SongPrefs.intro` (part, chords, rhythm, note) + `core/intro.ts` (chords stored in the original key, shown transposed) with tests
+- [x] Intro card at the top of the song sheet (song view + performance mode), sage like the Intro label
+- [x] Intro panel in the song view: part (song sections or free text), chords (live preview), rhythm with ↓ ↑ · buttons, note; save / delete
+- [x] SPEC/DECISIONS, build + tests, commit
+
+## M6 — Extras
+
+Pure logic (with tests):
+- [x] `core/chord-diagrams.ts`: guitar fingerings for all roots × (major, m, 7, m7, maj7, sus2, sus4, add9, 6, m6, 9, dim, aug, 5) from open shapes + movable E/A barre shapes; slash chords = base shape + bass note
+- [x] `core/metronome.ts`: tap tempo, BPM limits, beat scheduling maths
+- [x] `core/backup.ts`: backup file (songs, prefs, annotations, setlists, settings); restore "replace" or "merge" (songs matched by id, then number+suffix / title, ids remapped in prefs, notes, setlists)
+- [x] `core/export-notes.ts`: `.cho` export with personal notes embedded as `{comment}` / `{start_of_tab}` lines
+
+UI:
+- [x] Chord diagram (SVG) on hover / tap of a chord in the song view (setting on/off)
+- [x] Metronome widget in the song view: BPM from {tempo} or manual, −/+, tap tempo, amber pulse, optional click (Web Audio, look-ahead scheduling, accent on beat 1)
+- [x] Settings page `/impostazioni`: theme dark/light, global text size, chord style (above / inline), chord diagrams, accidentals (auto / ♯ / ♭), pedal keys, restore bundled songbook, backup / restore (merge or replace), storage usage + persistence, app version, about (logo, credits)
+- [x] Export menu in the song view: `.cho`, `.cho` with my notes, Print / PDF
+- [x] Print stylesheet: A4, black on white, chords above lyrics, no app chrome
+- [x] Light theme completed (all tokens), theme applied everywhere
+- [x] Sidebar link to Impostazioni; strings in `it.ts`, tokens only
+
+Done:
+- [x] SPEC/DECISIONS updated, `ng build` + `ng test` green, commit `M6: extras`
+
+## M7 — iPad & iPhone polish
+
+Pure logic (with tests):
+- [x] `core/gestures.ts`: swipe detection (distance, direction, speed)
+- [x] `core/platform.ts`: iOS/iPadOS Safari detection (iPadOS reports "Macintosh" + touch), installed (standalone) detection
+
+UI:
+- [x] Swipe directive: left = next page, right = previous in performance mode and in the paged song view (vertical scrolling untouched, no accidental tap after a swipe)
+- [x] iPhone (≤ 600px): bottom bar Libreria / Scalette / Impostazioni, single column; iPad portrait: library as slide-over; landscape: side by side
+- [x] Touch targets ≥ 44px on touch screens (also the small buttons), `touch-action: manipulation`, no long-press callout on the stage
+- [x] Safe areas (notch / home indicator) on bars, panels, pages
+- [x] Safari hint "Condividi → Aggiungi alla schermata Home" when running in Safari on iPhone/iPad and not installed (dismissible, remembered)
+- [x] Storage persistence prompt when the data isn't protected yet (dismissible)
+- [x] "Nuova versione disponibile — Aggiorna" toast from the service worker (toast with action button)
+
+Done:
+- [x] SPEC/DECISIONS updated, version 1.0.0, `ng build` + `ng test` green, commit `M7: iPad & iPhone polish`
+
+## 1.1 — Chord voicings + UI coherence pass (Benji's feedback, with screenshots via Playwright)
+
+Chord diagrams:
+- [x] Several fingerings per chord (open, E/A/D/C movable shapes, deduplicated, easiest first) + tests
+- [x] Diagram popover: "‹ 1/3 ›" to browse voicings; stays open while the pointer is on it
+
+Shared UI patterns:
+- [x] One `Popover` component (CDK Overlay: anchored, flips, Esc / outside click close) used by every menu and pop-up panel
+- [x] Shared bottom-sheet and menu styles (annotation, intro panels; export, setlist, more menus)
+
+Song page:
+- [x] App bar: sidebar · number · title (key / capo under it) · **Esibizione** (primary) · Modifica · Aggiungi a scaletta · ⋯ (export, print)
+- [x] Controls row of chips: Tonalità (transpose + capo + ♯/♭ in one popover), Aa (text size, 1/2 columns), Versione (when > 1), Intro, Metronomo, Note; horizontally scrollable on iPhone
+- [x] Fix: clicking a line in the right column shifted the page (focus scroll) — rows inside the column, pager snaps back
+
+Elsewhere:
+- [x] Hint banner inline at the top of the library (never covers content)
+- [x] Sidebar: filters in one scrollable row, cleaner count/sort row, "+" for new song next to the search
+- [x] Editor: secondary tools in a ⋯ menu
+- [x] Screenshots at laptop / iPad / iPhone sizes after the changes; fix what looks wrong
+- [x] DECISIONS, build + tests, commit
+
+## 1.2 — Premium polish (Benji's feedback)
+
+- [x] Lucide icons (vendored, ISC) replacing the hand-drawn ones; icon geometry test
+- [x] Button hierarchy (discreet / secondary / primary / danger, round icon buttons)
+- [x] Settings as grouped rows with icons, plain explanations, switches; restore-backup dialog
+- [x] Song page: chip icons, Note chip panel with Promemoria, memo line only when set
+- [x] Empty state for setlists; textareas use the app font; phone fixes (library default, bottom-bar icons, settings layout)
+- [x] Screenshots checked at laptop and iPhone sizes; build + tests; commit
+
+## 1.3 — Public version (GitHub Pages)
+
+- [x] No church branding: logos removed (app mark instead), neutral texts; songbook-agnostic welcome
+- [x] Songs not in the public repo/build: `songs/` and the generated `songs-index.json` git-ignored; bundled import only when songs are present locally; song tests skip without them (CI)
+- [x] Import songs from files: songbook file (`innario-songbook` JSON, songs only, no personal data), `.cho/.chopro/.chordpro/.txt` (many at once) and backup files; on the welcome screen and in Impostazioni; existing number+suffix → skip or replace (notes kept and re-anchored)
+- [x] "Condividi i canti": export the library as a songbook file (to share on WhatsApp/e-mail)
+- [x] `scripts/build-songbook-file.mjs`: songs/*.cho → songbook file (for Benji to share)
+- [x] Fresh public git history (no songs/logos in it); private history kept locally
+- [ ] `gh` installed, repo created, GitHub Pages enabled, first deploy checked

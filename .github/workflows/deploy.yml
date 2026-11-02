@@ -1,0 +1,50 @@
+# Builds, tests and publishes the app to GitHub Pages on every push to main.
+# One-time setup on GitHub: Settings → Pages → Source: "GitHub Actions".
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      # No songs/ folder in the repository: this writes an empty songs index,
+      # so the published app offers "Importa canti da file".
+      - run: npm run songs:index
+      - run: npx ng test --watch=false
+      # The site lives at https://<user>.github.io/<repo>/, hence the base href.
+      - run: npx ng build --base-href "/${{ github.event.repository.name }}/"
+      # GitHub Pages serves 404.html for unknown paths: reuse the app so deep
+      # links like /canto/<id> work on the very first visit.
+      - run: cp dist/innario/browser/index.html dist/innario/browser/404.html
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist/innario/browser
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

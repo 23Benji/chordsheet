@@ -1,0 +1,130 @@
+@if (song(); as song) {
+  <header class="bar" [class.hidden]="!barVisible()" (focusin)="showBar()">
+    <button type="button" class="btn icon-btn" (click)="exit()" [attr.aria-label]="t.exit" [title]="t.exit">
+      <app-icon name="close" />
+    </button>
+    <div class="info">
+      <span class="title">{{ song.title }}</span>
+      <span class="meta">
+        @if (keys().shapeKey; as key) {
+          {{ key }}
+        }
+        @if (capoValue() > 0) {
+          · Capo {{ capoValue() }}
+        }
+        @if (queue().length > 1 && queueIndex() >= 0) {
+          · {{ t.songOf(queueIndex() + 1, queue().length) }}
+        }
+        @if (setlist(); as setlist) {
+          · {{ setlist.name }}
+        }
+      </span>
+    </div>
+
+    <div class="controls">
+      <div class="group" role="group" [attr.aria-label]="t.autoscroll">
+        <button
+          type="button"
+          class="btn icon-btn"
+          [class.on]="running()"
+          (click)="toggleAutoscroll()"
+          [attr.aria-label]="running() ? t.autoscrollStop : t.autoscrollStart"
+          [title]="running() ? t.autoscrollStop : t.autoscrollStart"
+        >
+          <app-icon [name]="running() ? 'pause' : 'play'" />
+        </button>
+        <button type="button" class="btn icon-btn" (click)="setSpeed(secondsPerScreen() + 3)" [attr.aria-label]="t.slower" [title]="t.slower">
+          <app-icon name="slower" />
+        </button>
+        <span class="speed">{{ t.seconds(secondsPerScreen()) }}</span>
+        <button type="button" class="btn icon-btn" (click)="setSpeed(secondsPerScreen() - 3)" [attr.aria-label]="t.faster" [title]="t.faster">
+          <app-icon name="faster" />
+        </button>
+        @if (song.tempo) {
+          <button type="button" class="btn small" (click)="speedFromTempo()" [title]="t.fromTempoHint(song.tempo)">{{ t.fromTempo }}</button>
+        }
+      </div>
+
+      <div class="group">
+        <button type="button" class="btn icon-btn" (click)="changeFont(-0.1)" [attr.aria-label]="t.fontDown" [title]="t.fontDown">
+          <app-icon name="textSmaller" />
+        </button>
+        <button type="button" class="btn icon-btn" (click)="changeFont(0.1)" [attr.aria-label]="t.fontUp" [title]="t.fontUp">
+          <app-icon name="textLarger" />
+        </button>
+        @if (canColumns()) {
+          <button
+            type="button"
+            class="btn icon-btn"
+            (click)="setColumns(columns() === 2 ? 1 : 2)"
+            [attr.aria-label]="columns() === 2 ? t.columns1 : t.columns2"
+            [title]="columns() === 2 ? t.columns1 : t.columns2"
+          >
+            <app-icon [name]="columns() === 2 ? 'columns1' : 'columns2'" />
+          </button>
+        }
+        <button type="button" class="btn icon-btn" (click)="openKeys()" [attr.aria-label]="t.keys" [title]="t.keys">
+          <app-icon name="keyboard" />
+        </button>
+        @if (screen.canFullscreen && !screen.isFullscreen()) {
+          <button type="button" class="btn icon-btn" (click)="screen.enterFullscreen()" [attr.aria-label]="t.fullscreen" [title]="t.fullscreen">
+            <app-icon name="fullscreen" />
+          </button>
+        }
+      </div>
+    </div>
+  </header>
+
+  <div
+    class="stage"
+    appSwipe
+    #swipe="swipe"
+    (swipeLeft)="next()"
+    (swipeRight)="prev()"
+    (click)="onStageClick($event, swipe.justSwiped)"
+    [title]="t.tapHint"
+  >
+    @if (sheet(); as sheet) {
+      <article
+        class="pager"
+        [class.columns]="mode() === 'columns'"
+        [appPager]="mode()"
+        [pagerWatch]="layoutKey()"
+        #pager="pager"
+        [style.--lyrics-size.px]="lyricsPx()"
+      >
+        <h1 class="song-title">
+          @if (numberLabel(song); as label) {
+            <span class="pill">{{ label }}</span>
+          }
+          {{ song.title }}
+        </h1>
+        @if (item()?.note; as note) {
+          <p class="item-note">{{ note }}</p>
+        }
+        <app-song-sheet [sheet]="sheet" [annotations]="notes()" [intro]="intro()" [chordStyle]="chordStyle()" />
+        @if (nextSong(); as next) {
+          <p class="up-next">{{ t.nextSong(next.title) }}</p>
+        }
+      </article>
+
+      <!-- Always visible, tiny: where am I, is there more? -->
+      <div class="indicator" aria-live="polite">
+        {{ t.page(pager.page() + 1, pager.pageCount()) }}
+        @if (!pager.atEnd()) {
+          <app-icon name="chevronRight" />
+        } @else if (nextSong()) {
+          <app-icon name="chevronRight" />
+        } @else {
+          · {{ t.end }}
+        }
+      </div>
+    }
+  </div>
+
+  @if (running() && mode() === 'columns') {
+    <div class="progress" [style.width.%]="progress() * 100" aria-hidden="true"></div>
+  }
+
+  <app-keymap-dialog />
+}

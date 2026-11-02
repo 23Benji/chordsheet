@@ -1,0 +1,143 @@
+<div class="page">
+  <a class="back" routerLink="/scalette"><app-icon name="chevronLeft" /> {{ t.back }}</a>
+
+  @if (setlist(); as setlist) {
+    <header class="head">
+      <input
+        #name
+        class="name"
+        type="text"
+        [value]="setlist.name"
+        [attr.aria-label]="t.name"
+        (change)="rename(name.value)"
+        (keydown.enter)="name.blur()"
+      />
+      <div class="head-row">
+        <label class="date">
+          <span>{{ t.date }}</span>
+          <input #date type="date" [value]="setlist.date ?? ''" (change)="setDate(date.value)" />
+        </label>
+        <div class="actions">
+          <button type="button" class="btn btn-primary" [disabled]="!canPlay()" (click)="play()"><app-icon name="play" /> {{ t.play }}</button>
+          <button type="button" class="btn icon-btn" (click)="duplicate()" [attr.aria-label]="t.duplicate" [title]="t.duplicate">
+            <app-icon name="copy" />
+          </button>
+          <button type="button" class="btn icon-btn" (click)="share()" [attr.aria-label]="t.share" [title]="t.share">
+            <app-icon name="share" />
+          </button>
+          <button type="button" class="btn icon-btn" (click)="deleteSetlist()" [attr.aria-label]="t.delete" [title]="t.delete">
+            <app-icon name="trash" />
+          </button>
+        </div>
+      </div>
+    </header>
+
+    @if (rows().length === 0) {
+      <p class="empty">{{ t.noSongs }}</p>
+    }
+
+    <ol class="items" cdkDropList (cdkDropListDropped)="drop($event)">
+      @for (row of rows(); track row.item.id; let i = $index, first = $first, last = $last) {
+        <li class="item" cdkDrag cdkDragLockAxis="y" [class.missing]="!row.song">
+          <button type="button" class="handle" cdkDragHandle [attr.aria-label]="t.dragHandle" [title]="t.dragHandle">
+            <app-icon name="grip" />
+          </button>
+          <span class="pos">{{ i + 1 }}</span>
+
+          <div class="song">
+            @if (row.song; as song) {
+              <a class="title" [routerLink]="['/canto', song.id]" [title]="t.openSong">
+                @if (numberLabel(song); as label) {
+                  <span class="pill">{{ label }}</span>
+                }
+                <span>{{ song.title }}</span>
+              </a>
+            } @else {
+              <span class="title muted">{{ t.missingSong }}</span>
+            }
+            <input
+              #note
+              class="note"
+              type="text"
+              [value]="row.item.note ?? ''"
+              [placeholder]="t.notePlaceholder"
+              [attr.aria-label]="t.notePlaceholder"
+              (change)="setNote(row.item, note.value)"
+              (keydown.enter)="note.blur()"
+            />
+          </div>
+
+          @if (row.song) {
+            <div class="transpose" role="group" [attr.aria-label]="t.transpose" [title]="t.transpose">
+              @if (row.key) {
+                <span class="key">{{ row.key }}</span>
+              }
+              <button type="button" class="btn icon-btn" (click)="transpose(row, -1)" [attr.aria-label]="t.transposeDown">
+                <app-icon name="minus" />
+              </button>
+              <span class="value" [class.overridden]="row.overridden">{{ transposeLabel(row.transpose) }}</span>
+              <button type="button" class="btn icon-btn" (click)="transpose(row, 1)" [attr.aria-label]="t.transposeUp">
+                <app-icon name="plus" />
+              </button>
+              @if (row.overridden) {
+                <button type="button" class="btn icon-btn" (click)="resetTranspose(row)" [attr.aria-label]="t.transposeReset" [title]="t.transposeReset">
+                  <app-icon name="reset" />
+                </button>
+              }
+            </div>
+          }
+
+          <div class="item-actions">
+            @if (row.song) {
+              <button type="button" class="btn icon-btn play" (click)="play(row)" [attr.aria-label]="t.playFrom" [title]="t.playFrom">
+                <app-icon name="play" />
+              </button>
+            }
+            <button type="button" class="btn icon-btn" [disabled]="first" (click)="move(i, -1)" [attr.aria-label]="t.moveUp" [title]="t.moveUp">
+              <app-icon name="arrowUp" />
+            </button>
+            <button type="button" class="btn icon-btn" [disabled]="last" (click)="move(i, 1)" [attr.aria-label]="t.moveDown" [title]="t.moveDown">
+              <app-icon name="arrowDown" />
+            </button>
+            <button type="button" class="btn icon-btn" (click)="remove(row.item)" [attr.aria-label]="t.remove" [title]="t.remove">
+              <app-icon name="trash" />
+            </button>
+          </div>
+        </li>
+      }
+    </ol>
+
+    <section class="add">
+      <h2>{{ t.addSongs }}</h2>
+      <div class="search">
+        <app-icon name="search" class="search-icon" />
+        <input
+          #search
+          type="search"
+          autocomplete="off"
+          [placeholder]="t.searchPlaceholder"
+          [attr.aria-label]="t.addSongs"
+          (input)="query.set(search.value)"
+          (keydown.enter)="onSearchEnter(search)"
+        />
+      </div>
+      <ul class="results">
+        @for (song of results(); track song.id) {
+          <li>
+            <button type="button" class="result" (click)="add(song)" [attr.aria-label]="t.add(song.title)">
+              @if (numberLabel(song); as label) {
+                <span class="pill">{{ label }}</span>
+              }
+              <span class="result-title">{{ song.title }}</span>
+              <app-icon name="plus" class="plus" />
+            </button>
+          </li>
+        }
+      </ul>
+    </section>
+  } @else {
+    <p class="empty">{{ t.empty }}</p>
+  }
+</div>
+
+<app-confirm-dialog />

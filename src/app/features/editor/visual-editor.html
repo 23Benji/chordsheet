@@ -1,0 +1,109 @@
+<p class="help">{{ t.help }}</p>
+
+@for (section of song().sections; track section.id; let si = $index, first = $first, last = $last) {
+  <section class="card" [class]="section.kind">
+    <header class="card-head">
+      <select
+        class="kind"
+        [value]="section.kind"
+        [attr.aria-label]="t.kindLabel"
+        (change)="setKind(section, $any($event.target).value)"
+      >
+        @for (kind of kinds; track kind) {
+          <option [value]="kind" [selected]="kind === section.kind">{{ t.kinds[kind] }}</option>
+        }
+      </select>
+      <input
+        #label
+        class="label"
+        type="text"
+        [value]="section.label"
+        [placeholder]="t.labelPlaceholder"
+        [attr.aria-label]="t.labelPlaceholder"
+        (input)="setLabel(section, label.value)"
+      />
+      <div class="card-actions">
+        <button type="button" class="btn icon-btn" [disabled]="first" (click)="move(section, -1)" [attr.aria-label]="t.sectionUp" [title]="t.sectionUp">
+          <app-icon name="arrowUp" />
+        </button>
+        <button type="button" class="btn icon-btn" [disabled]="last" (click)="move(section, 1)" [attr.aria-label]="t.sectionDown" [title]="t.sectionDown">
+          <app-icon name="arrowDown" />
+        </button>
+        <button type="button" class="btn icon-btn" (click)="duplicate(section)" [attr.aria-label]="t.sectionDuplicate" [title]="t.sectionDuplicate">
+          <app-icon name="copy" />
+        </button>
+        <button type="button" class="btn icon-btn" (click)="remove(section)" [attr.aria-label]="t.sectionDelete" [title]="t.sectionDelete">
+          <app-icon name="trash" />
+        </button>
+      </div>
+    </header>
+
+    @for (line of section.lines; track line.id; let li = $index) {
+      <div class="row">
+        <div class="row-main">
+          @switch (line.kind) {
+            @case ('lyrics') {
+              <app-line-editor
+                [line]="asLyrics(line)"
+                [palette]="palette()"
+                [focusRequest]="focusRequest()"
+                (changed)="onLineChange(section, $event)"
+                (split)="onSplit(section, asLyrics(line), $event)"
+                (mergePrevious)="onMergePrevious(section, li)"
+                (navigate)="onNavigate(asLyrics(line), $event.delta, $event.caret)"
+              />
+            }
+            @case ('comment') {
+              <div class="note">
+                <span class="tag">{{ t.noteTag }}</span>
+                <input
+                  #note
+                  type="text"
+                  [value]="line.text"
+                  [placeholder]="t.notePlaceholder"
+                  [attr.aria-label]="t.noteTag"
+                  (input)="setNote(section, line, note.value)"
+                />
+              </div>
+            }
+            @case ('raw') {
+              <div class="raw">
+                <span class="tag">{{ t.rawTag }}</span>
+                <code>{{ line.text }}</code>
+              </div>
+            }
+          }
+        </div>
+        <div class="row-actions">
+          @if (isOldChordLine(line)) {
+            <button type="button" class="btn convert" (click)="convert(section, li)" [title]="t.convertHint">
+              <app-icon name="wand" /> {{ t.convert }}
+            </button>
+          }
+          <button type="button" class="btn icon-btn" (click)="insertBelow(section, li, 'lyrics')" [attr.aria-label]="t.lineBelow" [title]="t.lineBelow">
+            <app-icon name="plus" />
+          </button>
+          <button type="button" class="btn icon-btn" (click)="removeLine(section, line)" [attr.aria-label]="t.lineDelete" [title]="t.lineDelete">
+            <app-icon name="trash" />
+          </button>
+        </div>
+      </div>
+    }
+
+    <footer class="card-foot">
+      <button type="button" class="btn small" (click)="insertBelow(section, section.lines.length - 1, 'lyrics')">
+        <app-icon name="plus" /> {{ t.addLine }}
+      </button>
+      <button type="button" class="btn small" (click)="insertBelow(section, section.lines.length - 1, 'comment')">
+        <app-icon name="plus" /> {{ t.addNote }}
+      </button>
+    </footer>
+  </section>
+}
+
+<div class="add-sections">
+  <span class="add-label">{{ t.addSection }}:</span>
+  @for (kind of kinds; track kind) {
+    <button type="button" class="btn small" (click)="add(kind)"><app-icon name="plus" /> {{ t.kinds[kind] }}</button>
+  }
+</div>

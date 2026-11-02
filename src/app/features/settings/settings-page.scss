@@ -1,0 +1,167 @@
+:host {
+  display: block;
+  height: 100%;
+  overflow-y: auto;
+}
+
+.page {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: max(24px, env(safe-area-inset-top)) 24px 56px;
+
+  h1 {
+    font-size: 32px;
+  }
+}
+
+.muted {
+  color: var(--text-muted);
+}
+
+.segmented {
+  display: inline-flex;
+  flex: none;
+  gap: 2px;
+  padding: 3px;
+  border-radius: var(--radius-m);
+  background: var(--surface);
+
+  button {
+    min-width: 48px;
+    min-height: calc(var(--tap) - 6px);
+    padding: 0 12px;
+    border: none;
+    border-radius: var(--radius-s);
+    background: transparent;
+    color: var(--text-muted);
+    font-weight: 700;
+    cursor: pointer;
+
+    &.selected {
+      background: var(--bg-elev-1);
+      color: var(--accent);
+      box-shadow: 0 1px 2px rgb(0 0 0 / 25%);
+    }
+  }
+}
+
+label.list-row {
+  cursor: pointer;
+}
+
+.about {
+  padding: 24px;
+  text-align: center;
+
+  .app-icon {
+    width: 72px;
+    height: 72px;
+    border-radius: 18px;
+  }
+
+  h3 {
+    margin: 8px 0 4px;
+    font-family: var(--font-heading);
+    font-size: 24px;
+  }
+
+  p {
+    margin: 6px auto;
+    max-width: 480px;
+  }
+}
+
+.credits {
+  font-size: 13px;
+}
+
+.restore-dialog {
+  width: min(480px, 94vw);
+  padding: 0;
+  border: none;
+  border-radius: var(--radius-l);
+  background: var(--bg-elev-1);
+  color: var(--text);
+  box-shadow: var(--shadow);
+
+  &::backdrop {
+    background: var(--scrim);
+  }
+}
+
+.dialog-body {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 24px;
+
+  h2 {
+    font-size: 22px;
+  }
+
+  p {
+    margin: 0 0 6px;
+  }
+}
+
+.option {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  padding: 14px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-m);
+  background: none;
+  color: var(--text);
+  text-align: left;
+  cursor: pointer;
+
+  &:hover {
+    background: var(--surface);
+  }
+
+  .row-text {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .row-label {
+    font-size: 16px;
+    font-weight: 700;
+  }
+
+  .row-hint {
+    color: var(--text-muted);
+    font-size: 14px;
+    line-height: 1.4;
+  }
+}
+
+.dialog-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 6px;
+}
+
+@media (max-width: 600px) {
+  .page {
+    padding-inline: 14px;
+  }
+
+  // On phones the text gets the full width; segmented controls and steppers
+  // drop onto their own line under it (aligned with the text, after the icon).
+  .list-row:has(.segmented, .stepper) {
+    flex-wrap: wrap;
+    row-gap: 10px;
+
+    .row-text {
+      flex: 1 1 calc(100% - 60px);
+    }
+
+    .segmented,
+    .stepper {
+      margin-left: 50px;
+    }
+  }
+}

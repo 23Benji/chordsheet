@@ -1,0 +1,115 @@
+@if (intro(); as intro) {
+  <!-- Personal Intro card: how to start the song. -->
+  <section
+    class="section instrumental my-intro"
+    [class.selectable]="selectable()"
+    [attr.tabindex]="selectable() ? 0 : null"
+    (click)="editIntro()"
+    (keydown.enter)="editIntro()"
+  >
+    <span class="tag">{{ t.intro.title }}</span>
+    @if (intro.part) {
+      <p class="intro-row"><span class="intro-label">{{ t.intro.part }}</span>{{ intro.part }}</p>
+    }
+    @if (intro.chords.length) {
+      <p class="chord-line">
+        @for (item of intro.chords; track $index) {
+          @if ('chord' in item) {
+            <span class="chord">{{ item.chord }}</span>
+          } @else {
+            <span class="chord-text">{{ item.text }}</span>
+          }
+        }
+      </p>
+    }
+    @if (intro.rhythm) {
+      <p class="intro-row"><span class="intro-label">{{ t.intro.rhythm }}</span><span class="rhythm">{{ intro.rhythm }}</span></p>
+    }
+    @if (intro.note) {
+      <p class="comment">{{ intro.note }}</p>
+    }
+  </section>
+}
+@for (section of sheet().sections; track section.index) {
+  <section class="section" [class]="section.type">
+    @let name = label(section);
+    @if (name) {
+      <span class="tag">{{ name }}</span>
+    }
+    @if (section.type === 'chorusRepeat') {
+      <span class="repeat">({{ t.sections.repeat }})</span>
+    }
+    @for (line of section.lines; track line.index) {
+      @let notes = annotationsOf(line.index);
+      <!-- A row = the line + its personal notes; clickable to select the line. -->
+      <div
+        class="row"
+        [class]="highlightClass(notes)"
+        [class.selectable]="selectable()"
+        [class.selected]="selectedLine() === line.index"
+        [attr.tabindex]="selectable() ? 0 : null"
+        [attr.aria-pressed]="selectable() ? selectedLine() === line.index : null"
+        (click)="select(line.index, $event)"
+        (keydown.enter)="select(line.index)"
+      >
+        <div class="content">
+          @if (line.kind === 'comment') {
+            <p class="comment">{{ line.text }}</p>
+          } @else if (line.kind === 'chords') {
+            <div class="line">
+              <p class="chord-line">
+                @for (item of line.items; track $index) {
+                  @if ('chord' in item) {
+                    <span class="chord">{{ item.chord }}</span>
+                  } @else {
+                    <span class="chord-text">{{ item.text }}</span>
+                  }
+                }
+              </p>
+              @if (line.secondKey) {
+                <span class="second-key" [title]="t.secondKey">{{ line.secondKey }}</span>
+              }
+            </div>
+          } @else {
+            <div class="line" [class.no-chords]="!line.hasChords && !hasPersonalChord(notes)">
+              <span class="lyrics">
+                @for (word of line.words; track $index) {
+                  <span class="word">
+                    @for (seg of word.segments; track $index) {
+                      <!-- No chord element at all when there is no chord: a wrapped
+                           row without chords then takes no extra height. -->
+                      <span class="seg"
+                        >@if (personalChords().get(seg); as personal) {<span class="chord personal" [title]="t.personalChord">{{ personal }}</span>}@if (seg.chord) {<span class="chord">{{ seg.chord }}</span>}<span class="lyric">{{
+                          seg.lyric
+                        }}</span></span
+                      >
+                    }
+                  </span>
+                }
+              </span>
+              @if (line.secondKey) {
+                <span class="second-key" [title]="t.secondKey">{{ line.secondKey }}</span>
+              }
+            </div>
+          }
+        </div>
+
+        @for (note of notes; track note.id) {
+          @if (note.type === 'note') {
+            <p class="note" [class]="'note-' + (note.color ?? 'amber')">{{ note.text }}</p>
+          }
+        }
+        @for (tab of notes; track tab.id) {
+          @if (tab.type === 'tab') {
+            <figure class="tab">
+              @if (tab.title) {
+                <figcaption>{{ tab.title }}</figcaption>
+              }
+              <pre>{{ tab.text }}</pre>
+            </figure>
+          }
+        }
+      </div>
+    }
+  </section>
+}

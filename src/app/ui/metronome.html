@@ -1,0 +1,31 @@
+<app-popover [label]="t.title" triggerClass="chip">
+  <span trigger class="trigger" [class.running]="running()">
+    <app-icon name="metronome" />
+    <span class="chip-value">{{ bpm() }}</span>
+    @if (running()) {
+      <span class="mini-dot" [class.on]="flash() !== null" aria-hidden="true"></span>
+    }
+  </span>
+  <div class="panel">
+    <p class="panel-title">{{ t.title }}</p>
+    <div class="pulse" [class.on]="flash() !== null" [class.accent]="flash() === 0" aria-hidden="true"></div>
+    <div class="bpm-row">
+      <button type="button" class="btn icon-btn" (click)="setBpm(bpm() - 1)" [attr.aria-label]="t.slower"><app-icon name="minus" /></button>
+      <label class="bpm">
+        <input #bpmInput type="number" inputmode="numeric" [value]="bpm()" (change)="setBpm(+bpmInput.value)" [attr.aria-label]="t.bpm" />
+        <span>BPM</span>
+      </label>
+      <button type="button" class="btn icon-btn" (click)="setBpm(bpm() + 1)" [attr.aria-label]="t.faster"><app-icon name="plus" /></button>
+    </div>
+    <div class="row">
+      <button type="button" class="btn tap" (click)="tap()">{{ t.tap }}</button>
+      <label class="sound">
+        <input type="checkbox" [checked]="sound()" (change)="sound.set(!sound())" />
+        {{ t.sound }}
+      </label>
+    </div>
+    <button type="button" class="btn btn-primary start" (click)="toggle()">
+      <app-icon [name]="running() ? 'pause' : 'play'" /> {{ running() ? t.stop : t.start }}
+    </button>
+  </div>
+</app-popover>

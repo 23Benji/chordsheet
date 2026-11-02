@@ -1,0 +1,37 @@
+<!-- Relative URL in the template so it follows <base href> (GitHub Pages subfolder). -->
+<div class="welcome" style="background-image: url(assets/bg-dark-rays.jpg)">
+  <div class="brand">
+    <img src="icons/icon-192.png" alt="" />
+    <span>{{ appName }}</span>
+  </div>
+
+  <div class="content">
+    <p class="verse">{{ t.verse }}</p>
+    <p class="reference">{{ t.reference }}</p>
+
+    <p class="intro">{{ t.intro }}</p>
+
+    @if (progress(); as p) {
+      <p class="progress" role="status">{{ t.importing(p.done, p.total) }}</p>
+    } @else {
+      <div class="actions">
+        @if (bundled()) {
+          <button type="button" class="btn btn-primary big" (click)="importBundled()">
+            <app-icon name="library" /> {{ t.importBundled }}
+          </button>
+        }
+        <label class="btn big" [class.btn-primary]="!bundled()" [class.btn-secondary]="bundled()" [class.busy]="busy()">
+          <app-icon name="fileUp" /> {{ t.importFile }}
+          <input #file type="file" multiple [accept]="accept" class="visually-hidden" (change)="importFiles(file)" />
+        </label>
+      </div>
+      <p class="or">
+        {{ t.orCreate }}
+        <button type="button" class="link" (click)="writeFirstSong()">{{ t.createSong }}</button>
+      </p>
+    }
+    @if (error()) {
+      <p class="error" role="alert">{{ t.importError }}</p>
+    }
+  </div>
+</div>

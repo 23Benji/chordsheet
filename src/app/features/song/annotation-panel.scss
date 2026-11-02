@@ -1,0 +1,162 @@
+:host {
+  display: block;
+}
+
+.help {
+  margin: 4px 0 10px;
+  color: var(--text-muted);
+  font-size: 14px;
+}
+
+.list {
+  margin: 6px 0 10px;
+  padding: 0;
+  list-style: none;
+
+  li {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 0;
+  }
+}
+
+.summary {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.actions,
+.row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+.action {
+  background: var(--surface);
+}
+
+.highlight {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0 8px 0 12px;
+  border-radius: var(--radius-m);
+  background: var(--surface);
+  min-height: var(--tap);
+}
+
+.group-label {
+  color: var(--text-muted);
+  font-size: 14px;
+}
+
+.swatch {
+  width: 28px;
+  height: 28px;
+  border: 2px solid transparent;
+  border-radius: 50%;
+  cursor: pointer;
+
+  &.selected {
+    border-color: var(--text);
+  }
+}
+
+// Swatches show the highlight tint over the text colour, like on the page.
+.swatch-amber {
+  background: var(--accent);
+}
+.swatch-coral {
+  background: var(--coral);
+}
+.swatch-sage {
+  background: var(--sage);
+}
+.swatch-sky {
+  background: var(--sky);
+}
+.swatch-text-coral {
+  color: var(--coral);
+}
+.swatch-text-sage {
+  color: var(--sage);
+}
+.swatch-text-sky {
+  color: var(--sky);
+}
+
+.personal-icon {
+  color: var(--coral);
+  font-weight: 700;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 6px;
+
+  textarea,
+  input {
+    width: 100%;
+    padding: 8px 10px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-s);
+    background: var(--surface);
+    font-size: 16px;
+
+    &:focus {
+      outline: none;
+      border-color: var(--accent);
+    }
+  }
+}
+
+.mono {
+  font-family: var(--font-mono);
+  white-space: pre;
+}
+
+.chord-input {
+  flex: 1;
+  width: auto;
+  min-width: 160px;
+  color: var(--coral);
+  font-weight: 700;
+}
+
+.chord-choice {
+  min-width: 44px;
+  min-height: 36px;
+  border: none;
+  border-radius: var(--radius-s);
+  background: var(--surface);
+  color: var(--accent);
+  font-weight: 700;
+  cursor: pointer;
+
+  &.selected {
+    background: var(--accent);
+    color: var(--accent-ink);
+  }
+}
+
+.spacer {
+  flex: 1;
+}
+
+.small {
+  min-height: var(--tap-small);
+  padding: 0 10px;
+  font-size: 14px;
+}
+
+.danger {
+  color: var(--coral);
+}

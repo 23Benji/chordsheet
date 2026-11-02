@@ -1,0 +1,35 @@
+@if (library.isEmpty() && !layout.forceShell()) {
+  <app-welcome />
+} @else if (library.loaded()) {
+  <div class="shell" [class.sidebar-closed]="!layout.sidebarOpen()">
+    <app-library-sidebar class="sidebar" [attr.inert]="layout.sidebarOpen() ? null : ''" />
+    <div class="scrim" (click)="layout.sidebarOpen.set(false)" aria-hidden="true"></div>
+    <main class="main">
+      <router-outlet />
+    </main>
+  </div>
+
+  <!-- iPhone: bottom navigation bar -->
+  <nav class="bottom-bar" [attr.aria-label]="t.nav">
+    <button type="button" class="tab" [class.selected]="section() === 'library'" (click)="openLibrary()">
+      <app-icon name="library" /><span>{{ t.library }}</span>
+    </button>
+    <a class="tab" routerLink="/scalette" [class.selected]="section() === 'setlists'" (click)="layout.sidebarOpen.set(false)">
+      <app-icon name="list" /><span>{{ t.setlists }}</span>
+    </a>
+    <a class="tab" routerLink="/impostazioni" [class.selected]="section() === 'settings'" (click)="layout.sidebarOpen.set(false)">
+      <app-icon name="settings" /><span>{{ t.settings }}</span>
+    </a>
+  </nav>
+}
+
+@if (toast.toast(); as current) {
+  <div class="toast" role="status" (click)="toast.dismiss()">
+    <span>{{ current.message }}</span>
+    @if (current.action; as action) {
+      <button type="button" class="btn btn-primary toast-action" (click)="$event.stopPropagation(); toast.runAction()">
+        {{ action.label }}
+      </button>
+    }
+  </div>
+}

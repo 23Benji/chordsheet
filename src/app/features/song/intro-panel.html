@@ -1,0 +1,73 @@
+<div class="bottom-sheet" role="region" [attr.aria-label]="t.panelTitle">
+  <header class="sheet-head">
+    <h2>{{ t.panelTitle }}</h2>
+    <button type="button" class="btn icon-btn" (click)="closed.emit()" [attr.aria-label]="t.close" [title]="t.close">
+      <app-icon name="close" />
+    </button>
+  </header>
+
+  <div class="grid">
+    <label class="field">
+      <span>{{ t.part }}</span>
+      <input #part type="text" [value]="intro()?.part ?? ''" [placeholder]="t.partPlaceholder" />
+    </label>
+    @if (sections().length) {
+      <div class="chips" [attr.aria-label]="t.partSuggestions">
+        @for (name of sections(); track name) {
+          <button type="button" class="chip" (click)="pickPart(name)">{{ name }}</button>
+        }
+      </div>
+    }
+
+    <label class="field">
+      <span>{{ t.chords }}</span>
+      <input
+        #chords
+        class="mono"
+        type="text"
+        autocapitalize="off"
+        spellcheck="false"
+        [value]="initialChords()"
+        [placeholder]="t.chordsPlaceholder"
+        (input)="chordsText.set(chords.value)"
+      />
+    </label>
+    @if (preview().length) {
+      <p class="preview" aria-hidden="true">
+        @for (chord of preview(); track $index) {
+          <span>{{ chord }}</span>
+        }
+      </p>
+    }
+
+    <label class="field">
+      <span>{{ t.rhythm }}</span>
+      <input #rhythm class="mono rhythm" type="text" spellcheck="false" [value]="intro()?.rhythm ?? ''" [placeholder]="t.rhythmPlaceholder" />
+    </label>
+    <div class="chips">
+      @for (s of symbols; track s.key) {
+        <button type="button" class="chip symbol" (click)="insertSymbol(s.symbol)" [attr.aria-label]="t.rhythmKeys[s.key]" [title]="t.rhythmKeys[s.key]">
+          {{ s.symbol }}
+        </button>
+      }
+      <span class="sep" aria-hidden="true"></span>
+      @for (preset of presets; track preset) {
+        <button type="button" class="chip" (click)="setPreset(preset)" [title]="t.presets">{{ preset }}</button>
+      }
+    </div>
+
+    <label class="field">
+      <span>{{ t.note }}</span>
+      <input #note type="text" [value]="intro()?.note ?? ''" [placeholder]="t.notePlaceholder" />
+    </label>
+  </div>
+
+  <div class="sheet-actions">
+    @if (exists()) {
+      <button type="button" class="btn danger" (click)="remove()">{{ t.remove }}</button>
+    }
+    <span class="spacer"></span>
+    <button type="button" class="btn" (click)="closed.emit()">{{ t.cancel }}</button>
+    <button type="button" class="btn btn-primary" (click)="save(part.value, chords.value, rhythm.value, note.value)">{{ t.save }}</button>
+  </div>
+</div>

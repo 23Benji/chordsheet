@@ -1,0 +1,70 @@
+<div class="page">
+  <header class="head">
+    <h1>{{ t.title }}</h1>
+    <div class="head-actions">
+      <label class="btn btn-secondary">
+        <app-icon name="fileUp" /> {{ t.import }}
+        <input #file type="file" accept=".json,application/json" class="visually-hidden" (change)="importFile(file)" />
+      </label>
+      <button type="button" class="btn btn-primary" (click)="creating.set(true)"><app-icon name="plus" /> {{ t.new }}</button>
+    </div>
+  </header>
+
+  @if (importError(); as error) {
+    <p class="error" role="alert">{{ error }}</p>
+  }
+
+  @if (creating()) {
+    <form class="new" (submit)="$event.preventDefault(); create(name.value, date.value)">
+      <label class="field grow">
+        <span>{{ t.name }}</span>
+        <input #name type="text" [placeholder]="t.namePlaceholder" autofocus />
+      </label>
+      <label class="field">
+        <span>{{ t.date }}</span>
+        <input #date type="date" [value]="today" />
+      </label>
+      <button type="button" class="btn" (click)="creating.set(false)">{{ t.cancel }}</button>
+      <button type="submit" class="btn btn-primary">{{ t.create }}</button>
+    </form>
+  }
+
+  <ul class="list">
+    @for (setlist of service.setlists(); track setlist.id) {
+      <li class="card">
+        <a class="main" [routerLink]="['/scalette', setlist.id]">
+          <span class="name">{{ setlist.name }}</span>
+          <span class="meta">
+            @if (setlist.date) {
+              {{ formatDate(setlist.date) }} ·
+            }
+            {{ t.count(setlist.items.length) }}
+          </span>
+        </a>
+        <div class="actions">
+          <button type="button" class="btn play" [disabled]="!playable(setlist)" (click)="play(setlist)">
+            <app-icon name="play" /> {{ t.play }}
+          </button>
+          <button type="button" class="btn icon-btn" (click)="duplicate(setlist)" [attr.aria-label]="t.duplicate" [title]="t.duplicate">
+            <app-icon name="copy" />
+          </button>
+          <button type="button" class="btn icon-btn" (click)="share(setlist)" [attr.aria-label]="t.share" [title]="t.share">
+            <app-icon name="share" />
+          </button>
+          <button type="button" class="btn icon-btn" (click)="remove(setlist)" [attr.aria-label]="t.delete" [title]="t.delete">
+            <app-icon name="trash" />
+          </button>
+        </div>
+      </li>
+    } @empty {
+      <li class="empty-state">
+        <span class="empty-icon"><app-icon name="list" /></span>
+        <h2>{{ t.emptyTitle }}</h2>
+        <p>{{ t.empty }}</p>
+        <button type="button" class="btn btn-primary" (click)="creating.set(true)"><app-icon name="plus" /> {{ t.new }}</button>
+      </li>
+    }
+  </ul>
+</div>
+
+<app-confirm-dialog />

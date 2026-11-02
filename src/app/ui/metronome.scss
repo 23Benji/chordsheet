@@ -1,0 +1,92 @@
+.trigger {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+
+  &.running .chip-value {
+    color: var(--accent);
+  }
+}
+
+.mini-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--surface);
+
+  &.on {
+    background: var(--accent);
+  }
+}
+
+.panel {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  width: 220px;
+
+  .panel-title {
+    align-self: flex-start;
+  }
+}
+
+.pulse {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: var(--surface);
+  transition: transform 0.08s;
+
+  &.on {
+    background: var(--accent);
+    transform: scale(1.1);
+  }
+
+  &.accent {
+    box-shadow: 0 0 0 4px var(--highlight-amber);
+  }
+}
+
+.bpm-row,
+.row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.bpm {
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
+  color: var(--text-muted);
+  font-size: 13px;
+
+  input {
+    width: 64px;
+    padding: 4px;
+    border: none;
+    border-radius: var(--radius-s);
+    background: var(--surface);
+    font-size: 24px;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+    text-align: center;
+  }
+}
+
+.tap {
+  background: var(--surface);
+}
+
+.sound {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 14px;
+}
+
+.start {
+  width: 100%;
+}

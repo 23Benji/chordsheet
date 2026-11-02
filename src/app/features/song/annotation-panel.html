@@ -1,0 +1,137 @@
+<div class="bottom-sheet" role="region" [attr.aria-label]="showOrphans() ? t.orphansTitle : t.line(snippet())">
+  <header class="sheet-head">
+    <h2>{{ showOrphans() ? t.orphansTitle : t.line(snippet()) }}</h2>
+    <button type="button" class="btn icon-btn" (click)="closed.emit()" [attr.aria-label]="t.close" [title]="t.close">
+      <app-icon name="close" />
+    </button>
+  </header>
+
+  @if (showOrphans()) {
+    <p class="help">{{ t.orphansHelp }}</p>
+    <ul class="list">
+      @for (a of orphans(); track a.id) {
+        <li>
+          <span class="summary">{{ summary(a) }}</span>
+          <button type="button" class="btn small" (click)="relink.emit(a)">{{ t.relink }}</button>
+          <button type="button" class="btn small danger" (click)="remove(a)">{{ t.remove }}</button>
+        </li>
+      }
+    </ul>
+  } @else {
+    @if (mode() === 'menu') {
+      @if (annotations().length) {
+        <ul class="list">
+          @for (a of annotations(); track a.id) {
+            <li>
+              <span class="summary" [class]="'swatch-text-' + (a.color ?? 'amber')">{{ summary(a) }}</span>
+              @if (a.type !== 'highlight') {
+                <button type="button" class="btn small" (click)="open(a.type, a)">{{ t.edit }}</button>
+              }
+              <button type="button" class="btn small danger" (click)="remove(a)">{{ t.remove }}</button>
+            </li>
+          }
+        </ul>
+      }
+      <div class="actions">
+        <button type="button" class="btn action" (click)="open('note')"><app-icon name="note" /> {{ t.actions.note }}</button>
+        <div class="highlight" role="group" [attr.aria-label]="t.actions.highlight">
+          <span class="group-label">{{ t.actions.highlight }}</span>
+          @for (c of colors; track c) {
+            <button
+              type="button"
+              class="swatch"
+              [class]="'swatch-' + c"
+              [class.selected]="highlight()?.color === c"
+              [attr.aria-pressed]="highlight()?.color === c"
+              [attr.aria-label]="t.colors[c]"
+              [title]="t.colors[c]"
+              (click)="setHighlight(c)"
+            ></button>
+          }
+          @if (highlight()) {
+            <button type="button" class="btn small" (click)="setHighlight(null)">{{ t.noHighlight }}</button>
+          }
+        </div>
+        <button type="button" class="btn action" (click)="open('tab')"><app-icon name="tab" /> {{ t.actions.tab }}</button>
+        <button
+          type="button"
+          class="btn action"
+          [disabled]="!lineChords().length"
+          [title]="lineChords().length ? t.actions.chord : t.chordDisabled"
+          (click)="open('chord')"
+        >
+          <span class="personal-icon" aria-hidden="true">♯</span> {{ t.actions.chord }}
+        </button>
+      </div>
+    }
+
+    @if (mode() === 'note') {
+      <div class="form">
+        <textarea #note rows="2" [value]="editing()?.text ?? ''" [placeholder]="t.notePlaceholder" autofocus></textarea>
+        <div class="row">
+          @for (c of colors; track c) {
+            <button
+              type="button"
+              class="swatch"
+              [class]="'swatch-' + c"
+              [class.selected]="color() === c"
+              [attr.aria-pressed]="color() === c"
+              [attr.aria-label]="t.colors[c]"
+              (click)="color.set(c)"
+            ></button>
+          }
+          <span class="spacer"></span>
+          <button type="button" class="btn" (click)="back()">{{ t.cancel }}</button>
+          <button type="button" class="btn btn-primary" (click)="saveNote(note.value)">{{ t.save }}</button>
+        </div>
+      </div>
+    }
+
+    @if (mode() === 'tab') {
+      <div class="form">
+        <input #tabTitle type="text" [value]="editing()?.title ?? ''" [placeholder]="t.tabTitle" />
+        <textarea #tab class="mono" rows="7" spellcheck="false" [value]="editing()?.text ?? ''" [placeholder]="t.tabPlaceholder"></textarea>
+        <div class="row">
+          <span class="spacer"></span>
+          <button type="button" class="btn" (click)="back()">{{ t.cancel }}</button>
+          <button type="button" class="btn btn-primary" (click)="saveTab(tabTitle.value, tab.value)">{{ t.save }}</button>
+        </div>
+      </div>
+    }
+
+    @if (mode() === 'chord') {
+      <div class="form">
+        <div class="row" role="radiogroup" [attr.aria-label]="t.chordWhich">
+          <span class="group-label">{{ t.chordWhich }}</span>
+          @for (chord of lineChords(); track $index) {
+            <button
+              type="button"
+              class="chord-choice"
+              role="radio"
+              [class.selected]="chordIndex() === $index"
+              [attr.aria-checked]="chordIndex() === $index"
+              (click)="chordIndex.set($index)"
+            >
+              {{ chord }}
+            </button>
+          }
+        </div>
+        <div class="row">
+          <input
+            #chord
+            class="mono chord-input"
+            type="text"
+            autocapitalize="off"
+            spellcheck="false"
+            [value]="editing() ? toDisplay()(editing()!.text) : ''"
+            [placeholder]="t.chordPlaceholder"
+            (keydown.enter)="saveChord(chord.value)"
+          />
+          <span class="spacer"></span>
+          <button type="button" class="btn" (click)="back()">{{ t.cancel }}</button>
+          <button type="button" class="btn btn-primary" (click)="saveChord(chord.value)">{{ t.save }}</button>
+        </div>
+      </div>
+    }
+  }
+</div>
