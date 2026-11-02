@@ -13,6 +13,7 @@ import { SetlistService } from '../../services/setlist.service';
 import { SongPrefsService } from '../../services/song-prefs.service';
 import { ConfirmDialog } from '../../ui/confirm-dialog';
 import { Icon } from '../../ui/icon';
+import { SidebarToggle } from '../../ui/sidebar-toggle';
 
 interface Row {
   item: SetlistItem;
@@ -27,7 +28,7 @@ interface Row {
 /** One setlist: reorder (drag & drop), per-song transpose and note, add songs, play. */
 @Component({
   selector: 'app-setlist-page',
-  imports: [RouterLink, Icon, ConfirmDialog, CdkDropList, CdkDrag, CdkDragHandle],
+  imports: [RouterLink, Icon, ConfirmDialog, CdkDropList, CdkDrag, CdkDragHandle, SidebarToggle],
   templateUrl: './setlist-page.html',
   styleUrl: './setlist-page.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

@@ -1,13 +1,17 @@
-import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { IT } from '../../i18n/it';
+import { LayoutService } from '../../services/layout.service';
+import { SidebarToggle } from '../../ui/sidebar-toggle';
 
 /** Main area when no song is open. */
 @Component({
   selector: 'app-home',
+  imports: [SidebarToggle],
   template: `
     <div class="home" style="background-image: url(assets/bg-dark.jpg)">
+      <div class="corner"><app-sidebar-toggle /></div>
       <h1>{{ t.title }}</h1>
-      <p>{{ t.hint }}</p>
+      <p>{{ layout.sidebarOpen() ? t.hint : t.hintClosed }}</p>
     </div>
   `,
   styles: `
@@ -15,7 +19,13 @@ import { IT } from '../../i18n/it';
       display: block;
       height: 100%;
     }
+    .corner {
+      position: absolute;
+      top: max(14px, env(safe-area-inset-top));
+      left: 14px;
+    }
     .home {
+      position: relative;
       display: flex;
       flex-direction: column;
       align-items: center;
@@ -42,4 +52,5 @@ import { IT } from '../../i18n/it';
 })
 export class Home {
   protected readonly t = IT.home;
+  protected readonly layout = inject(LayoutService);
 }

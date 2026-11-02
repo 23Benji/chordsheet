@@ -12,6 +12,7 @@ import { ToastService } from '../../services/toast.service';
 import { ConfirmDialog } from '../../ui/confirm-dialog';
 import { Icon } from '../../ui/icon';
 import { KeymapDialog } from '../../ui/keymap-dialog';
+import { SidebarToggle } from '../../ui/sidebar-toggle';
 import { Switch } from '../../ui/switch';
 import { APP_VERSION } from '../../version';
 
@@ -21,7 +22,7 @@ const FONT_MAX = 1.6;
 /** Settings as grouped rows: icon · what it does · control on the right. */
 @Component({
   selector: 'app-settings-page',
-  imports: [Icon, ConfirmDialog, KeymapDialog, Switch],
+  imports: [Icon, ConfirmDialog, KeymapDialog, Switch, SidebarToggle],
   templateUrl: './settings-page.html',
   styleUrl: './settings-page.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

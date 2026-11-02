@@ -42,6 +42,7 @@ export const IT = {
   home: {
     title: 'Scegli un canto',
     hint: 'Cerca un canto a sinistra, oppure scrivi il numero e premi Invio.',
+    hintClosed: 'Apri la libreria con il pulsante in alto a sinistra, oppure premi / per cercare un canto.',
   },
 
   song: {

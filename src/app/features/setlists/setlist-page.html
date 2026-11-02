@@ -1,5 +1,8 @@
 <div class="page">
-  <a class="back" routerLink="/scalette"><app-icon name="chevronLeft" /> {{ t.back }}</a>
+  <div class="top">
+    <app-sidebar-toggle />
+    <a class="back" routerLink="/scalette"><app-icon name="chevronLeft" /> {{ t.back }}</a>
+  </div>
 
   @if (setlist(); as setlist) {
     <header class="head">

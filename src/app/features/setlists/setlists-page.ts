@@ -9,11 +9,12 @@ import { SetlistService } from '../../services/setlist.service';
 import { ToastService } from '../../services/toast.service';
 import { ConfirmDialog } from '../../ui/confirm-dialog';
 import { Icon } from '../../ui/icon';
+import { SidebarToggle } from '../../ui/sidebar-toggle';
 
 /** All setlists: create, import, and quick actions. */
 @Component({
   selector: 'app-setlists-page',
-  imports: [RouterLink, Icon, ConfirmDialog],
+  imports: [RouterLink, Icon, ConfirmDialog, SidebarToggle],
   templateUrl: './setlists-page.html',
   styleUrl: './setlists-page.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
