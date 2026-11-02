@@ -1,4 +1,4 @@
-# Innario
+# Chordsheet
 
 Offline-first songbook app (PWA) for worship musicians: chords above lyrics, transposition, capo, personal notes, setlists and a
 performance mode, setlists, an editor that needs no ChordPro knowledge, backup
@@ -17,16 +17,16 @@ npx ng build      # production build in dist/innario/browser
 
 The app ships **without songs**. Import them on the welcome screen or in
 Impostazioni → Importa canti: a songbook file shared by your church/group
-(`innario-songbook` JSON), ChordPro files (`.cho`, `.chopro`, `.txt`), or a
+(`innario-songbook` JSON — the format id keeps the app's original name), ChordPro files (`.cho`, `.chopro`, `.txt`), or a
 backup. To turn a folder of ChordPro files into one songbook file to share:
 
 ```sh
-node scripts/build-songbook-file.mjs path/to/songs innario-canti.json
+node scripts/build-songbook-file.mjs path/to/songs chordsheet-canti.json
 ```
 
 If a `songs/` folder with `.cho` files is present when building (it is
 git-ignored), run `npm run songs:index` and the app also offers
-"Importa l'innario incluso".
+"Importa i canti inclusi".
 
 ## Licences
 

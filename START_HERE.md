@@ -1,6 +1,6 @@
 # Start here (for Benji)
 
-This folder is a starter kit for building the Innario app with **Claude Code**.
+This folder is a starter kit for building the Chordsheet app (originally "Innario") with **Claude Code**.
 
 ## What's inside
 - `SPEC.md` — the full specification (features, design, data model, milestones). Claude Code reads it.

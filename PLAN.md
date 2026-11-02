@@ -236,3 +236,9 @@ Elsewhere:
 - [x] "Proteggi i dati": clear message when the browser refuses (install the app, make backups)
 - [x] Backup reminder: "Ultimo backup: …" in Impostazioni; a hint when the last backup is older than 14 days (snooze 14 days)
 - [x] Automatic backup file (Chrome/Edge on computers): choose a file once (e.g. in an iCloud/Google Drive folder), rewritten a few seconds after every change; "Riattiva" when the browser asks for permission again
+
+## 1.5 — Rename to Chordsheet
+
+- [x] Visible name everywhere (app, manifest, page title, messages, file names); neutral wording instead of "innario"
+- [x] Internal ids kept (database, file formats, local keys) for compatibility
+- [x] Repository renamed → 23benji.github.io/chordsheet/; build + tests; deploy checked

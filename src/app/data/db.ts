@@ -5,7 +5,7 @@ import { Annotation, Setlist, Settings, Song, SongPrefs } from '../core/models';
 
 export type StoredSettings = Settings & { id: 'settings' };
 
-export class InnarioDb extends Dexie {
+export class AppDb extends Dexie {
   songs!: EntityTable<Song, 'id'>;
   songPrefs!: EntityTable<SongPrefs, 'songId'>;
   annotations!: EntityTable<Annotation, 'id'>;
@@ -15,6 +15,7 @@ export class InnarioDb extends Dexie {
   kv!: EntityTable<{ key: string; value: unknown }, 'key'>;
 
   constructor() {
+    // The IndexedDB name keeps the app's original name: renaming it would lose existing data.
     super('innario');
     // Only indexed fields are listed; every other field is stored anyway.
     this.version(1).stores({
@@ -31,9 +32,9 @@ export class InnarioDb extends Dexie {
 
 /**
  * The database is provided through an InjectionToken (instead of a global
- * `new InnarioDb()`) so tests can swap in a fake.
+ * `new AppDb()`) so tests can swap in a fake.
  */
-export const DB = new InjectionToken<InnarioDb>('InnarioDb', {
+export const DB = new InjectionToken<AppDb>('AppDb', {
   providedIn: 'root',
-  factory: () => new InnarioDb(),
+  factory: () => new AppDb(),
 });

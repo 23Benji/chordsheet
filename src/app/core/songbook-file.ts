@@ -6,6 +6,7 @@ import { BACKUP_FORMAT } from './backup';
 import { choFileName } from './export';
 import { Song } from './models';
 
+// The id keeps the app's original name so songbook files made earlier still import.
 export const SONGBOOK_FORMAT = 'innario-songbook';
 
 export interface SongbookEntry {
@@ -29,7 +30,7 @@ export function createSongbookFile(songs: readonly Song[]): SongbookFile {
 }
 
 export function songbookFileName(now = new Date()): string {
-  return `innario-canti-${now.toISOString().slice(0, 10)}.json`;
+  return `chordsheet-canti-${now.toISOString().slice(0, 10)}.json`;
 }
 
 const CHORDPRO_FILE = /\.(cho|chopro|chordpro|crd|pro|txt)$/i;

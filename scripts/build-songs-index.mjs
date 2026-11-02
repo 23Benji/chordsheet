@@ -1,5 +1,5 @@
 // Writes public/songs-index.json: the list of bundled ChordPro files, which the
-// app fetches on first run ("Importa l'innario incluso"). Run after adding or
+// app fetches on first run ("Importa i canti inclusi"). Run after adding or
 // removing files in songs/: `npm run songs:index` (a unit test checks it is
 // up to date).
 import { existsSync, readdirSync, writeFileSync } from 'node:fs';

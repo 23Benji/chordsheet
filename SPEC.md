@@ -1,4 +1,6 @@
-# Innario — Product & Technical Specification
+# Chordsheet (originally “Innario”) — Product & Technical Specification
+
+> Renamed to **Chordsheet** in 1.5 (see DECISIONS.md). Internal ids (database name, file-format ids) keep “innario” for compatibility.
 
 A free, offline-first songbook app for a worship guitarist: chords over lyrics, transposition, personal notes and solos, setlists and a stage-ready performance mode. It replaces SongbookPro for one musician (Benji) and is designed so others in the church could use it later.
 

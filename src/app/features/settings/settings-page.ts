@@ -52,7 +52,7 @@ export class SettingsPage implements OnInit {
     const at = this.backup.lastBackupAt();
     return at ? daysAgo(at, Date.now()) : null;
   });
-  /** "Canti dell'innario" only makes sense when this build ships songs. */
+  /** "Canti inclusi" only makes sense when this build ships songs. */
   protected readonly bundled = signal(false);
   /** Files chosen in "Importa canti", waiting for a decision about songs that already exist. */
   protected readonly pendingImport = signal<{ files: ImportedFiles; conflicts: number } | null>(null);

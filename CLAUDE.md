@@ -1,7 +1,7 @@
 # CLAUDE.md — working agreement for this repo
 
 ## What this is
-"Innario": an offline-first Angular PWA songbook (chords over lyrics, transpose, personal notes/solos, setlists, performance mode). **Read `SPEC.md` first — it is the source of truth.**
+"Chordsheet" (originally "Innario"; internal ids such as the database name and file-format ids keep that name): an offline-first Angular PWA songbook (chords over lyrics, transpose, personal notes/solos, setlists, performance mode). **Read `SPEC.md` first — it is the source of truth.**
 
 ## Owner
 Benji — first-year Computer Science student, knows Angular basics and Java. Explain non-obvious Angular/RxJS/signals choices briefly in commit messages or code comments so he can learn from the code. UI language: Italian.

@@ -96,8 +96,8 @@ export class BackupService {
     if (!window.showSaveFilePicker) return false;
     try {
       this.handle = await window.showSaveFilePicker({
-        suggestedName: 'innario-backup-automatico.json',
-        types: [{ description: 'Backup Innario', accept: { 'application/json': ['.json'] } }],
+        suggestedName: 'chordsheet-backup-automatico.json',
+        types: [{ description: 'Backup Chordsheet', accept: { 'application/json': ['.json'] } }],
       });
     } catch {
       return false; // the user cancelled

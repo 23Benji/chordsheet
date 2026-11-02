@@ -11,6 +11,7 @@ export interface BackupData {
   settings: Settings | null;
 }
 
+// Format ids keep the app's original name so files made earlier still import.
 export const BACKUP_FORMAT = 'innario-backup';
 
 export interface BackupFile {
@@ -25,7 +26,7 @@ export function createBackup(data: BackupData, now = new Date()): BackupFile {
 }
 
 export function backupFileName(now = new Date()): string {
-  return `innario-backup-${now.toISOString().slice(0, 10)}.json`;
+  return `chordsheet-backup-${now.toISOString().slice(0, 10)}.json`;
 }
 
 /** Reads a backup file; throws on anything else. */

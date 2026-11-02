@@ -4,7 +4,7 @@
 import { readdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 
-const [folder = 'songs', output = 'innario-canti.json'] = process.argv.slice(2);
+const [folder = 'songs', output = 'chordsheet-canti.json'] = process.argv.slice(2);
 const files = readdirSync(folder)
   .filter((f) => /\.(cho|chopro|chordpro)$/i.test(f))
   .sort();

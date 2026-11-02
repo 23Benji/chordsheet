@@ -1,19 +1,19 @@
 // Every string shown to the user lives here, so the UI can be translated later.
 export const IT = {
-  appName: 'Innario',
+  appName: 'Chordsheet',
 
   welcome: {
     verse: 'Ogni creatura che respira lodi il SIGNORE.',
     reference: 'Salmo 150:6',
-    intro: 'La libreria è vuota. Importa i canti per iniziare: il file dell’innario che ti hanno condiviso, oppure i tuoi file ChordPro (.cho).',
-    importBundled: "Importa l'innario incluso",
+    intro: 'La libreria è vuota. Importa i canti per iniziare: il file dei canti che ti hanno condiviso, oppure i tuoi file ChordPro (.cho).',
+    importBundled: 'Importa i canti inclusi',
     importFile: 'Importa canti da file',
     orCreate: 'oppure',
     createSong: 'scrivi il primo canto',
     imported: (n: number) => (n === 1 ? '1 canto importato.' : `${n} canti importati.`),
     importNothing: 'Nessun canto trovato nei file scelti.',
     importing: (done: number, total: number) => `Importazione… ${done} / ${total}`,
-    importError: "Non è stato possibile importare l'innario. Riprova.",
+    importError: 'Non è stato possibile importare i canti. Riprova.',
   },
 
   library: {
@@ -128,7 +128,7 @@ export const IT = {
   },
 
   hints: {
-    install: 'Per usare l’Innario senza internet e non perdere i dati: tocca Condividi e poi “Aggiungi alla schermata Home”.',
+    install: 'Per usare Chordsheet senza internet e non perdere i dati: tocca Condividi e poi “Aggiungi alla schermata Home”.',
     persist: 'Il browser potrebbe cancellare canti e note se manca spazio.',
     persistButton: 'Proteggi i dati',
     dismiss: 'Non mostrare più',
@@ -244,10 +244,10 @@ export const IT = {
     autoBackupResume: 'Riattiva',
     backupRestore: 'Ripristina un backup',
     backupRestoreHint: 'Da un file creato su questo o su un altro dispositivo (es. computer → iPad)',
-    bundled: 'Canti dell’innario',
-    bundledHint: 'Rimetti nella libreria i canti dell’innario che hai eliminato',
+    bundled: 'Canti inclusi',
+    bundledHint: 'Rimetti nella libreria i canti inclusi che hai eliminato',
     importSongs: 'Importa canti',
-    importSongsHint: 'Da un file dell’innario condiviso, da file ChordPro (.cho) o da un backup',
+    importSongsHint: 'Da un file di canti condiviso, da file ChordPro (.cho) o da un backup',
     shareSongs: 'Condividi i canti',
     shareSongsHint: 'Crea un file con tutti i canti (senza le tue note) da mandare ad altri',
     storage: 'Spazio usato',
@@ -268,7 +268,7 @@ export const IT = {
       cancel: 'Annulla',
     },
     restored: (songs: number, setlists: number) => `Backup ripristinato: ${songs} canti, ${setlists} scalette.`,
-    restoreError: 'Questo file non è un backup dell’Innario.',
+    restoreError: 'Questo file non è un backup di Chordsheet.',
     confirmReplace: {
       title: 'Sostituire tutto?',
       message: 'Canti, note, scalette e impostazioni di questo dispositivo verranno sostituiti da quelli del backup.',
@@ -276,10 +276,10 @@ export const IT = {
       cancel: 'Annulla',
     },
     bundledAdded: (n: number) => (n === 1 ? '1 canto rimesso nella libreria.' : `${n} canti rimessi nella libreria.`),
-    bundledNone: 'Tutti i canti dell’innario sono già nella libreria.',
+    bundledNone: 'Tutti i canti inclusi sono già nella libreria.',
     confirmBundled: {
-      title: 'Rimettere i canti dell’innario?',
-      message: 'I canti dell’innario che mancano verranno aggiunti. Quelli che hai modificato non vengono toccati.',
+      title: 'Rimettere i canti inclusi?',
+      message: 'I canti inclusi che mancano verranno aggiunti. Quelli che hai modificato non vengono toccati.',
       confirm: 'Rimetti',
       cancel: 'Annulla',
     },
@@ -342,7 +342,7 @@ export const IT = {
     importDone: (name: string) => `Scaletta “${name}” importata.`,
     importMissing: (n: number, list: string) =>
       n === 1 ? `1 canto non trovato nella libreria: ${list}` : `${n} canti non trovati nella libreria: ${list}`,
-    importError: 'Questo file non è una scaletta dell’Innario.',
+    importError: 'Questo file non è una scaletta di Chordsheet.',
     emptyTitle: 'Nessuna scaletta',
     empty: 'Prepara la lista dei canti per la prossima domenica: li suonerai uno dopo l’altro in modalità esibizione.',
     count: (n: number) => (n === 1 ? '1 canto' : `${n} canti`),
@@ -522,13 +522,13 @@ export const IT = {
     },
     confirmDelete: {
       title: 'Eliminare questo canto?',
-      message: 'Il canto verrà tolto dalla libreria di questo dispositivo, insieme alle sue impostazioni. I file originali dell’innario non vengono toccati.',
+      message: 'Il canto verrà tolto dalla libreria di questo dispositivo, insieme alle sue impostazioni. I file originali dei canti non vengono toccati.',
       confirm: 'Elimina',
       cancel: 'Annulla',
     },
     confirmRestore: {
       title: 'Ripristinare l’originale?',
-      message: 'Il testo torna quello dell’innario incluso. Puoi ancora annullare prima di salvare.',
+      message: 'Il testo torna quello originale incluso. Puoi ancora annullare prima di salvare.',
       confirm: 'Ripristina',
       cancel: 'Annulla',
     },
