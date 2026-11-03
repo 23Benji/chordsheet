@@ -1,4 +1,6 @@
 <div class="head">
+  <!-- iPhone: a plain title; the bottom bar switches between sections. -->
+  <h1 class="phone-title">{{ t.title }}</h1>
   <nav class="tabs" [attr.aria-label]="st.title">
     <a class="tab" routerLink="/" [class.selected]="!onSetlists()" [attr.aria-current]="!onSetlists() ? 'page' : null">{{ st.tabLibrary }}</a>
     <a class="tab" routerLink="/scalette" [class.selected]="onSetlists()" [attr.aria-current]="onSetlists() ? 'page' : null" (click)="closeOnNarrowScreen()">{{ st.tabSetlists }}</a>
@@ -9,7 +11,7 @@
   </a>
   <button
     type="button"
-    class="btn icon-btn"
+    class="btn icon-btn collapse"
     (click)="layout.toggleSidebar()"
     [attr.aria-label]="t.collapse"
     [title]="t.collapse"

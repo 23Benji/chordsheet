@@ -143,9 +143,22 @@
     padding-bottom: var(--bottom-bar);
   }
 
+  // Library is a tab here: it appears in place, no drawer slide or shadow.
   .sidebar {
     bottom: var(--bottom-bar) !important;
     width: 100vw !important;
+    // The sidebar's own height: 100% would win over bottom and reach under the bar.
+    height: auto;
+    box-shadow: none;
+    transition: none;
+  }
+
+  .sidebar-closed .sidebar {
+    visibility: hidden;
+  }
+
+  .scrim {
+    display: none !important;
   }
 
   .toast {

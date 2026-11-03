@@ -16,6 +16,10 @@
   flex: 1;
 }
 
+.phone-title {
+  display: none;
+}
+
 .hint {
   display: block;
   margin: 6px 16px 0;
@@ -227,8 +231,57 @@
   font-weight: 400;
 }
 
+// iPhone: the library is a full screen tab, not a drawer. The bottom bar
+// switches sections, so no Libreria/Scalette tabs and no "hide" button; the
+// title is a plain heading and "new song" is a floating glass button.
 @media (max-width: 600px) {
-  .foot {
+  :host {
+    position: relative;
+  }
+
+  .foot,
+  .tabs,
+  .collapse {
     display: none;
+  }
+
+  .head {
+    padding-top: max(20px, env(safe-area-inset-top));
+  }
+
+  .phone-title {
+    display: block;
+    font-size: 30px;
+  }
+
+  // Room under the last song so the floating button never covers it.
+  .list {
+    padding-bottom: 96px;
+  }
+
+  .new {
+    position: absolute;
+    right: max(18px, env(safe-area-inset-right));
+    bottom: 18px;
+    z-index: 2;
+    width: 58px;
+    height: 58px;
+    border: 1px solid color-mix(in srgb, var(--accent) 55%, transparent);
+    // Semi-transparent accent + blur of the list behind it = "glass".
+    background: color-mix(in srgb, var(--accent) 72%, transparent);
+    color: var(--accent-ink);
+    box-shadow: var(--shadow);
+    -webkit-backdrop-filter: blur(14px) saturate(1.6);
+    backdrop-filter: blur(14px) saturate(1.6);
+
+    &:hover,
+    &:active {
+      color: var(--accent-ink);
+      background: color-mix(in srgb, var(--accent) 85%, transparent);
+    }
+
+    app-icon {
+      --icon-size: 26px;
+    }
   }
 }
