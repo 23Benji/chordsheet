@@ -1,4 +1,4 @@
-<p class="help">{{ t.help }}</p>
+<p class="help">{{ help }}</p>
 
 @for (section of song().sections; track section.id; let si = $index, first = $first, last = $last) {
   <section class="card" [class]="section.kind">

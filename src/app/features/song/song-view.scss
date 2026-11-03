@@ -228,14 +228,31 @@
   font-size: 14px;
 }
 
+.phone-only {
+  display: none;
+}
+
 @media (max-width: 600px) {
+  .wide-only {
+    display: none;
+  }
+
+  .phone-only {
+    display: inline-flex;
+  }
+
+  // The back arrow sits flush with the 16px margin, like iOS.
+  .back {
+    margin-left: -10px;
+  }
+
   .header {
-    padding-inline: 14px;
+    padding-inline: 16px;
   }
 
   .controls {
-    margin-inline: -14px;
-    padding-inline: 14px;
+    margin-inline: -16px;
+    padding-inline: 16px;
   }
 
   .titles h1 {

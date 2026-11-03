@@ -10,7 +10,7 @@
   </div>
 
   <!-- iPhone: bottom navigation bar -->
-  <nav class="bottom-bar" [attr.aria-label]="t.nav">
+  <nav class="bottom-bar" [class.hidden]="editing()" [attr.aria-label]="t.nav">
     <button type="button" class="tab" [class.selected]="section() === 'library'" (click)="openLibrary()">
       <app-icon name="library" /><span>{{ t.library }}</span>
     </button>

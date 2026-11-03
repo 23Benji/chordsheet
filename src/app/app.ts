@@ -33,6 +33,8 @@ export class App {
     ),
     { initialValue: this.router.url },
   );
+  /** Editor open: a full-screen task with its own Annulla/Salva, so no bottom bar. */
+  protected readonly editing = computed(() => /^\/nuovo|\/modifica(\?|$)/.test(this.url()));
   /** Which bottom-bar tab is active. */
   protected readonly section = computed(() => {
     const url = this.url();

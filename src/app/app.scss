@@ -107,6 +107,15 @@
     --bottom-bar: calc(58px + env(safe-area-inset-bottom));
   }
 
+  // While editing the bar is gone and nothing reserves room for it.
+  :host:has(.bottom-bar.hidden) {
+    --bottom-bar: 0px;
+  }
+
+  .bottom-bar.hidden {
+    display: none;
+  }
+
   .bottom-bar {
     position: fixed;
     right: 0;

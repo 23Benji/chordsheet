@@ -55,6 +55,12 @@
   background: var(--bg-elev-1);
 }
 
+.form-actions {
+  display: flex;
+  gap: 8px;
+  margin-left: auto;
+}
+
 .field {
   display: flex;
   flex-direction: column;
@@ -143,4 +149,11 @@
   padding: 40px 0;
   color: var(--text-muted);
   text-align: center;
+}
+
+// Phones: same 16px side margin as the library and the other screens.
+@media (max-width: 600px) {
+  .page {
+    padding-inline: 16px;
+  }
 }

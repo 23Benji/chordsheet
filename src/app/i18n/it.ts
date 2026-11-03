@@ -356,7 +356,7 @@ export const IT = {
     back: 'Tutte le scalette',
     name: 'Nome',
     addSongs: 'Aggiungi canti',
-    searchPlaceholder: 'Cerca un canto da aggiungere (numero + Invio)…',
+    searchPlaceholder: 'Cerca un canto da aggiungere…',
     add: (title: string) => `Aggiungi ${title}`,
     added: (title: string, setlist: string) => `“${title}” aggiunto a “${setlist}”.`,
     noSongs: 'La scaletta è vuota: cerca qui sotto i canti da aggiungere.',
@@ -441,7 +441,7 @@ export const IT = {
 
     meta: {
       number: 'Numero',
-      numberHint: 'es. 12 o 123b',
+      numberHint: 'es. 12b',
       title: 'Titolo',
       key: 'Tonalità',
       keyDetected: (key: string) => `rilevata: ${key}`,
@@ -461,6 +461,7 @@ export const IT = {
     },
 
     help: 'Clicca sopra una lettera per aggiungere un accordo, trascinalo per spostarlo, cliccalo per cambiarlo. Ctrl/Cmd+K aggiunge un accordo dove si trova il cursore.',
+    helpTouch: 'Tocca sopra una lettera per aggiungere un accordo, trascinalo per spostarlo, toccalo per cambiarlo.',
 
     kinds: {
       auto: 'Strofa (automatica)',

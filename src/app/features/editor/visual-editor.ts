@@ -43,6 +43,8 @@ export class VisualEditor {
   readonly changed = output<SongChange>();
 
   protected readonly t = IT.editor;
+  /** Touch screens: "tocca" and no keyboard shortcut in the hint. */
+  protected readonly help = window.matchMedia?.('(pointer: coarse)').matches ? IT.editor.helpTouch : IT.editor.help;
   protected readonly kinds = KINDS;
   protected readonly isOldChordLine = isOldChordLine;
   protected readonly palette = computed(() => chordPalette(this.song()));

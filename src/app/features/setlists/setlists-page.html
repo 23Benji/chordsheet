@@ -18,14 +18,16 @@
     <form class="new" (submit)="$event.preventDefault(); create(name.value, date.value)">
       <label class="field grow">
         <span>{{ t.name }}</span>
-        <input #name type="text" [placeholder]="t.namePlaceholder" autofocus />
+        <input #name type="text" enterkeyhint="done" [placeholder]="t.namePlaceholder" />
       </label>
       <label class="field">
         <span>{{ t.date }}</span>
         <input #date type="date" [value]="today" />
       </label>
-      <button type="button" class="btn" (click)="creating.set(false)">{{ t.cancel }}</button>
-      <button type="submit" class="btn btn-primary">{{ t.create }}</button>
+      <div class="form-actions">
+        <button type="button" class="btn" (click)="creating.set(false)">{{ t.cancel }}</button>
+        <button type="submit" class="btn btn-primary">{{ t.create }}</button>
+      </div>
     </form>
   }
 
@@ -57,12 +59,15 @@
         </div>
       </li>
     } @empty {
-      <li class="empty-state">
-        <span class="empty-icon"><app-icon name="list" /></span>
-        <h2>{{ t.emptyTitle }}</h2>
-        <p>{{ t.empty }}</p>
-        <button type="button" class="btn btn-primary" (click)="creating.set(true)"><app-icon name="plus" /> {{ t.new }}</button>
-      </li>
+      <!-- Hidden while the "new setlist" form is open: one call to action at a time. -->
+      @if (!creating()) {
+        <li class="empty-state">
+          <span class="empty-icon"><app-icon name="list" /></span>
+          <h2>{{ t.emptyTitle }}</h2>
+          <p>{{ t.empty }}</p>
+          <button type="button" class="btn btn-primary" (click)="creating.set(true)"><app-icon name="plus" /> {{ t.new }}</button>
+        </li>
+      }
     }
   </ul>
 </div>

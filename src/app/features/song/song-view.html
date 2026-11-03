@@ -3,8 +3,12 @@
     <!-- App bar: what song, and the main actions. -->
     <div class="app-bar">
       @if (!layout.sidebarOpen()) {
-        <button type="button" class="btn icon-btn" (click)="layout.toggleSidebar()" [attr.aria-label]="lt.expand" [title]="lt.expand">
+        <button type="button" class="btn icon-btn wide-only" (click)="layout.toggleSidebar()" [attr.aria-label]="lt.expand" [title]="lt.expand">
           <app-icon name="sidebar" />
+        </button>
+        <!-- iPhone: the library is a tab, so this is a plain "back" arrow. -->
+        <button type="button" class="btn icon-btn back phone-only" (click)="layout.sidebarOpen.set(true)" [attr.aria-label]="t.backToLibrary" [title]="t.backToLibrary">
+          <app-icon name="chevronLeft" />
         </button>
       }
       @if (label()) {

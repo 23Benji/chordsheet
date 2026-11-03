@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, inject, signal, viewChild } from '@angular/core';
+import { ChangeDetectionStrategy, Component, ElementRef, effect, inject, signal, viewChild } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { shareOrDownload } from '../../core/export';
 import { Setlist } from '../../core/models';
@@ -31,6 +31,14 @@ export class SetlistsPage {
   protected readonly creating = signal(false);
   protected readonly importError = signal<string | null>(null);
   protected readonly today = new Date().toISOString().slice(0, 10);
+  private readonly nameInput = viewChild<ElementRef<HTMLInputElement>>('name');
+
+  constructor() {
+    // The `autofocus` attribute only works on page load, not on elements that
+    // @if adds later. viewChild() is a signal: it changes when the form
+    // appears, so this effect runs then and puts the cursor in "Nome".
+    effect(() => this.nameInput()?.nativeElement.focus());
+  }
 
   protected async create(name: string, date: string): Promise<void> {
     const setlist = await this.service.create(name.trim() || this.t.defaultName, date || undefined);
