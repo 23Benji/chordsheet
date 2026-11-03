@@ -119,7 +119,7 @@
       <span class="icon-tile sage"><app-icon name="library" /></span>
       <span class="row-text"><span class="row-label">{{ t.importSongs }}</span><span class="row-hint">{{ t.importSongsHint }}</span></span>
       <app-icon name="chevronRight" class="row-chevron" />
-      <input #songsFile type="file" multiple [accept]="it.accept" class="visually-hidden" (change)="chooseSongs(songsFile)" />
+      <input #songsFile type="file" multiple [accept]="songsAccept" class="visually-hidden" (change)="chooseSongs(songsFile)" />
     </label>
     <button type="button" class="list-row clickable" (click)="shareSongs()">
       <span class="icon-tile sage"><app-icon name="share" /></span>

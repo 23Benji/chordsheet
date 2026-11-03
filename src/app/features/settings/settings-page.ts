@@ -3,6 +3,7 @@ import { daysAgo } from '../../core/backup-reminder';
 import { shareOrDownload } from '../../core/export';
 import { Settings } from '../../core/models';
 import { ImportedFiles, createSongbookFile, songbookFileName } from '../../core/songbook-file';
+import { currentPlatform, songImportAccept } from '../../core/platform';
 import { IT } from '../../i18n/it';
 import { BackupService, RestoreMode } from '../../services/backup.service';
 import { ConflictPolicy, ImportService } from '../../services/import.service';
@@ -35,6 +36,7 @@ export class SettingsPage implements OnInit {
   private readonly importer = inject(ImportService);
   private readonly importDialog = viewChild.required<ElementRef<HTMLDialogElement>>('importDialog');
   protected readonly it = IT.importFiles;
+  protected readonly songsAccept = songImportAccept(currentPlatform(), IT.importFiles.accept);
   private readonly dialog = viewChild.required(ConfirmDialog);
   private readonly keymap = viewChild.required(KeymapDialog);
   private readonly restoreDialog = viewChild.required<ElementRef<HTMLDialogElement>>('restoreDialog');

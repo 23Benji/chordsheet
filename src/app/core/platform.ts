@@ -34,3 +34,13 @@ export function currentPlatform(): PlatformInfo {
       window.matchMedia?.('(display-mode: standalone)').matches === true,
   };
 }
+
+/**
+ * `accept` for the "import songs" file pickers. iOS only lets you pick files
+ * whose extension it knows: `.cho`/`.chopro` are unknown there, so with a
+ * filter they show up greyed out. On iOS we drop the filter (null removes the
+ * attribute); the importer rejects files it doesn't recognise anyway.
+ */
+export function songImportAccept(p: PlatformInfo, accept: string): string | null {
+  return isIos(p) ? null : accept;
+}
