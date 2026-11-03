@@ -6,11 +6,11 @@
         <button type="button" class="btn icon-btn wide-only" (click)="layout.toggleSidebar()" [attr.aria-label]="lt.expand" [title]="lt.expand">
           <app-icon name="sidebar" />
         </button>
-        <!-- iPhone: the library is a tab, so this is a plain "back" arrow. -->
-        <button type="button" class="btn icon-btn back phone-only" (click)="layout.sidebarOpen.set(true)" [attr.aria-label]="t.backToLibrary" [title]="t.backToLibrary">
-          <app-icon name="chevronLeft" />
-        </button>
       }
+      <!-- iPhone: the library is the "/" page, so this is a plain "back" arrow. -->
+      <a class="btn icon-btn back phone-only" routerLink="/" [attr.aria-label]="t.backToLibrary" [title]="t.backToLibrary">
+        <app-icon name="chevronLeft" />
+      </a>
       @if (label()) {
         <span class="pill number">{{ label() }}</span>
       }

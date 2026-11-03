@@ -1,4 +1,5 @@
 import { TestBed } from '@angular/core/testing';
+import { provideRouter } from '@angular/router';
 import { DB } from '../../data/db';
 import { LibraryService } from '../../services/library.service';
 import { SettingsPage } from './settings-page';
@@ -9,6 +10,7 @@ describe('SettingsPage', () => {
     TestBed.configureTestingModule({
       imports: [SettingsPage],
       providers: [
+        provideRouter([]),
         { provide: DB, useValue: { settings: { get: async () => undefined, put: async (s: unknown) => void saved.push(s) } } },
         { provide: LibraryService, useValue: { bundledAvailable: async () => false } },
       ],

@@ -8,13 +8,13 @@
   display: flex;
   align-items: center;
   min-height: 100%;
-  padding: max(48px, env(safe-area-inset-top)) 8vw 48px;
+  padding: calc(max(48px, env(safe-area-inset-top)) + var(--top-gap)) 8vw 48px;
   background: var(--bg) center / cover no-repeat;
 }
 
 .brand {
   position: absolute;
-  top: max(28px, env(safe-area-inset-top));
+  top: calc(max(28px, env(safe-area-inset-top)) + var(--top-gap));
   left: 32px;
   display: flex;
   align-items: center;

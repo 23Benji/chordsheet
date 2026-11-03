@@ -6,7 +6,7 @@
 
 .page {
   max-width: 980px;
-  padding: max(16px, env(safe-area-inset-top)) 32px 48px;
+  padding: calc(max(16px, env(safe-area-inset-top)) + var(--top-gap)) 32px 48px;
 }
 
 .top {

@@ -645,3 +645,18 @@ a {
     pointer-events: none;
   }
 }
+
+// Show only on iPhone (≤600px, where the bottom bar is) or only on bigger screens.
+.phone-only {
+  display: none !important;
+}
+
+@media (max-width: 600px) {
+  .phone-only {
+    display: inline-flex !important;
+  }
+
+  .wide-only {
+    display: none !important;
+  }
+}

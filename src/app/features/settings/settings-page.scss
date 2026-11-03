@@ -7,7 +7,7 @@
 .page {
   max-width: 720px;
   margin: 0 auto;
-  padding: max(24px, env(safe-area-inset-top)) 24px 56px;
+  padding: calc(max(24px, env(safe-area-inset-top)) + var(--top-gap)) 24px 56px;
 
   h1 {
     font-size: 32px;
@@ -18,6 +18,10 @@
   display: flex;
   align-items: center;
   gap: 8px;
+}
+
+.back {
+  display: none;
 }
 
 .muted {
@@ -151,8 +155,19 @@ label.list-row {
 }
 
 @media (max-width: 600px) {
+  // Same title size and height as Libreria / Scalette.
   .page {
+    padding-top: calc(max(20px, env(safe-area-inset-top)) + var(--top-gap));
     padding-inline: 16px;
+
+    h1 {
+      font-size: 30px;
+    }
+  }
+
+  .back {
+    display: inline-flex;
+    margin-left: -10px;
   }
 
   // On phones the text gets the full width; segmented controls and steppers

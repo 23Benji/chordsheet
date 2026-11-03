@@ -33,6 +33,14 @@ export class App {
     ),
     { initialValue: this.router.url },
   );
+  /**
+   * Is the library visible? On phones it follows the URL: "/" is the library
+   * page. So iOS's swipe-back from a song (history back to "/") lands on the
+   * list instead of the empty "Scegli un canto" page. Elsewhere: the drawer.
+   */
+  protected readonly libraryShown = computed(() =>
+    this.layout.phone() ? this.url().split(/[?#]/)[0] === '/' : this.layout.sidebarOpen(),
+  );
   /** Editor open: a full-screen task with its own Annulla/Salva, so no bottom bar. */
   protected readonly editing = computed(() => /^\/nuovo|\/modifica(\?|$)/.test(this.url()));
   /** Which bottom-bar tab is active. */
@@ -58,6 +66,10 @@ export class App {
 
   /** "Libreria" on the iPhone bar: show the song list. */
   protected openLibrary(): void {
+    if (this.layout.phone()) {
+      void this.router.navigate(['/']);
+      return;
+    }
     if (this.section() !== 'library') void this.router.navigate(['/']);
     this.layout.sidebarOpen.set(true);
   }

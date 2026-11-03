@@ -21,7 +21,7 @@ import { SidebarToggle } from '../../ui/sidebar-toggle';
     }
     .corner {
       position: absolute;
-      top: max(14px, env(safe-area-inset-top));
+      top: calc(max(14px, env(safe-area-inset-top)) + var(--top-gap));
       left: 14px;
     }
     .home {

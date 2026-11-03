@@ -9,7 +9,7 @@
   flex-wrap: wrap;
   align-items: center;
   gap: 8px 14px;
-  padding: max(12px, env(safe-area-inset-top)) 20px 12px;
+  padding: calc(max(12px, env(safe-area-inset-top)) + var(--top-gap)) 20px 12px;
   background: var(--bg-elev-1);
 
   h1 {

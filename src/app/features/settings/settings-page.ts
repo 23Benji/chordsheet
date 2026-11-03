@@ -4,6 +4,7 @@ import { shareOrDownload } from '../../core/export';
 import { Settings } from '../../core/models';
 import { ImportedFiles, createSongbookFile, songbookFileName } from '../../core/songbook-file';
 import { currentPlatform, songImportAccept } from '../../core/platform';
+import { RouterLink } from '@angular/router';
 import { IT } from '../../i18n/it';
 import { BackupService, RestoreMode } from '../../services/backup.service';
 import { ConflictPolicy, ImportService } from '../../services/import.service';
@@ -23,7 +24,7 @@ const FONT_MAX = 1.6;
 /** Settings as grouped rows: icon · what it does · control on the right. */
 @Component({
   selector: 'app-settings-page',
-  imports: [Icon, ConfirmDialog, KeymapDialog, Switch, SidebarToggle],
+  imports: [RouterLink, Icon, ConfirmDialog, KeymapDialog, Switch, SidebarToggle],
   templateUrl: './settings-page.html',
   styleUrl: './settings-page.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -41,6 +42,7 @@ export class SettingsPage implements OnInit {
   private readonly keymap = viewChild.required(KeymapDialog);
   private readonly restoreDialog = viewChild.required<ElementRef<HTMLDialogElement>>('restoreDialog');
   protected readonly t = IT.settings;
+  protected readonly backLabel = IT.song.backToLibrary;
   protected readonly version = APP_VERSION;
   protected readonly accidentalOptions = ['auto', 'sharps', 'flats'] as const;
   protected readonly fontMin = FONT_MIN;

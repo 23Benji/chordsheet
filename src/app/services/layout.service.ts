@@ -11,10 +11,23 @@ export class LayoutService {
     window.matchMedia?.('(min-width: 900px)').matches !== false ||
       location.pathname === new URL(document.baseURI).pathname,
   );
+  /**
+   * iPhone layout (≤600px, same breakpoint as the bottom bar). There the
+   * library is a page, not a drawer: it shows exactly when the URL is "/".
+   */
+  readonly phone = signal(false);
   /** Show the app (editor …) even with an empty library: "scrivi il primo canto". */
   readonly forceShell = signal(false);
   /** Bumped to ask the library search box to take focus (e.g. after pressing "/"). */
   readonly focusSearch = signal(0);
+
+  constructor() {
+    const query = window.matchMedia?.('(max-width: 600px)');
+    if (query) {
+      this.phone.set(query.matches);
+      query.addEventListener?.('change', (e) => this.phone.set(e.matches));
+    }
+  }
 
   toggleSidebar(): void {
     this.sidebarOpen.update((open) => !open);

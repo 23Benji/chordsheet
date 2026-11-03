@@ -21,6 +21,7 @@ import { LayoutService } from '../../services/layout.service';
 import { LibraryService } from '../../services/library.service';
 import { SongPrefsService } from '../../services/song-prefs.service';
 import { HintBanner } from '../../ui/hint-banner';
+import { FabMenu } from '../../ui/fab-menu';
 import { Icon } from '../../ui/icon';
 
 type LibraryFilter = 'all' | 'notes';
@@ -28,7 +29,7 @@ type LibrarySort = 'number' | 'title';
 
 @Component({
   selector: 'app-library-sidebar',
-  imports: [RouterLink, Icon, HintBanner],
+  imports: [RouterLink, Icon, HintBanner, FabMenu],
   templateUrl: './library-sidebar.html',
   styleUrl: './library-sidebar.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

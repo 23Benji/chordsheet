@@ -1,0 +1,121 @@
+// Only on phones (≤600px); the laptop layout has "+" in the library header.
+:host {
+  display: none;
+}
+
+@media (max-width: 600px) {
+  :host {
+    display: contents;
+  }
+}
+
+.fab {
+  position: absolute;
+  right: max(18px, env(safe-area-inset-right));
+  bottom: 18px;
+  z-index: 3;
+  width: 58px;
+  height: 58px;
+  border: 1px solid color-mix(in srgb, var(--accent) 55%, transparent);
+  color: var(--accent-ink);
+  box-shadow: var(--shadow);
+  transition: background 0.15s;
+
+  &:hover,
+  &:active {
+    color: var(--accent-ink);
+  }
+
+  app-icon {
+    --icon-size: 26px;
+    transition: transform 0.2s ease;
+  }
+
+  // Open: the "+" turns into an "×".
+  .open & app-icon {
+    transform: rotate(45deg);
+  }
+}
+
+// Semi-transparent colour + blur of what's behind = "glass".
+.glass {
+  background: color-mix(in srgb, var(--accent) 72%, transparent);
+  -webkit-backdrop-filter: blur(14px) saturate(1.6);
+  backdrop-filter: blur(14px) saturate(1.6);
+}
+
+// Dims the list while the menu is open; tapping it closes the menu.
+.fab-scrim {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  background: var(--scrim);
+  animation: fab-fade 0.15s ease-out;
+}
+
+.fab-menu {
+  position: absolute;
+  right: max(18px, env(safe-area-inset-right));
+  bottom: 90px;
+  z-index: 3;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 12px;
+}
+
+.fab-option {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: var(--text);
+  text-decoration: none;
+  animation: fab-pop 0.18s ease-out both;
+
+  &:nth-child(2) {
+    animation-delay: 0.04s;
+  }
+}
+
+.fab-label {
+  padding: 8px 14px;
+  border-radius: var(--radius-m);
+  background: color-mix(in srgb, var(--bg-elev-1) 80%, transparent);
+  box-shadow: var(--shadow);
+  font-weight: 700;
+  -webkit-backdrop-filter: blur(14px);
+  backdrop-filter: blur(14px);
+}
+
+// Small round icons, centred above the big button (58px wide vs 46px).
+.fab-mini {
+  display: grid;
+  place-items: center;
+  width: 46px;
+  height: 46px;
+  margin-right: 6px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--surface) 85%, transparent);
+  color: var(--accent);
+  box-shadow: var(--shadow);
+  -webkit-backdrop-filter: blur(14px);
+  backdrop-filter: blur(14px);
+
+  app-icon {
+    --icon-size: 20px;
+  }
+}
+
+@keyframes fab-pop {
+  from {
+    opacity: 0;
+    transform: translateY(10px) scale(0.96);
+  }
+}
+
+@keyframes fab-fade {
+  from {
+    opacity: 0;
+  }
+}
