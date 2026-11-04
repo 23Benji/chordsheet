@@ -386,6 +386,9 @@ export const IT = {
     choNotes: 'Esporta .cho con le mie note',
     printChords: 'Stampa / PDF con accordi',
     printLyrics: 'Stampa / PDF solo testo (coro)',
+    pdfLyricsSuffix: 'testo',
+    pdfPreparing: 'Preparo il PDF…',
+    pdfError: 'Non è stato possibile creare il PDF.',
   },
 
   exportNotes: {

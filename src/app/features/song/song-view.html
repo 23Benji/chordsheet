@@ -47,7 +47,7 @@
         </a>
         <app-add-to-setlist #addToSetlist [song]="song" />
         <app-song-folders #songFolders [song]="song" />
-        <app-export-menu [song]="song" (folders)="songFolders.openSheet()" (setlist)="addToSetlist.openSheet()" />
+        <app-export-menu [song]="song" (folders)="songFolders.openSheet()" (setlist)="addToSetlist.openSheet()" (print)="print($event)" />
       </div>
     </div>
 

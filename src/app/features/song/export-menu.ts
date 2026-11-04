@@ -24,8 +24,8 @@ import { Popover } from '../../ui/popover';
       <button type="button" class="menu-item" role="menuitem" (click)="exportCho(false)"><app-icon name="download" /> {{ t.cho }}</button>
       <button type="button" class="menu-item" role="menuitem" (click)="exportCho(true)"><app-icon name="note" /> {{ t.choNotes }}</button>
       <div class="menu-separator"></div>
-      <button type="button" class="menu-item" role="menuitem" (click)="print('chords')"><app-icon name="print" /> {{ t.printChords }}</button>
-      <button type="button" class="menu-item" role="menuitem" (click)="print('lyrics')"><app-icon name="type" /> {{ t.printLyrics }}</button>
+      <button type="button" class="menu-item" role="menuitem" (click)="print.emit('chords')"><app-icon name="print" /> {{ t.printChords }}</button>
+      <button type="button" class="menu-item" role="menuitem" (click)="print.emit('lyrics')"><app-icon name="type" /> {{ t.printLyrics }}</button>
     </app-popover>
   `,
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -41,6 +41,8 @@ export class ExportMenu {
   readonly folders = output<void>();
   /** "Aggiungi a una scaletta…" chosen (iPhone only). */
   readonly setlist = output<void>();
+  /** "Stampa / PDF" with chords or words only: the song page prints (it has the sheet). */
+  readonly print = output<'chords' | 'lyrics'>();
 
   protected exportCho(withNotes: boolean): void {
     const song = this.song();
@@ -51,17 +53,5 @@ export class ExportMenu {
     downloadText(choFileName(song), text);
   }
 
-  /**
-   * Print / PDF of the clean sheet (.print-sheet in the song page).
-   * 'lyrics' = words only, for the choir: <html data-print="lyrics"> switches
-   * the print CSS (styles.scss), and is removed again after printing.
-   */
-  protected print(mode: 'chords' | 'lyrics'): void {
-    const root = document.documentElement;
-    if (mode === 'lyrics') root.dataset['print'] = 'lyrics';
-    else delete root.dataset['print'];
-    window.addEventListener('afterprint', () => delete root.dataset['print'], { once: true });
-    // Let the menu close before the print dialog takes a snapshot of the page.
-    setTimeout(() => window.print(), 50);
-  }
+
 }

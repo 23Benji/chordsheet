@@ -16,6 +16,8 @@ import { mapSheetChords, parseChordPro } from '../../core/chordpro';
 import { introView } from '../../core/intro';
 import { Annotation, SongIntro, preferSharpsFor } from '../../core/models';
 import { actionFor, effectiveKeymap } from '../../core/keymap';
+import { choFileName } from '../../core/export';
+import { currentPlatform, isIos } from '../../core/platform';
 import { numberLabel } from '../../core/song-meta';
 import { clampTranspose, keyUsesFlats, keyView, transposeChord } from '../../core/transpose';
 import { IT } from '../../i18n/it';
@@ -348,6 +350,10 @@ export class SongView {
     this.wideQuery.addEventListener('change', onWideChange);
     inject(DestroyRef).onDestroy(() => this.wideQuery.removeEventListener('change', onWideChange));
 
+    // iPhone/iPad app: fetch the PDF code in the background, so "Stampa / PDF"
+    // opens the share sheet right away (iOS only allows it shortly after the tap).
+    if (this.pdfInsteadOfPrint) setTimeout(() => void import('./song-pdf-render'), 1500);
+
     // Opening another song starts again from page 1. `untracked` stops the
     // effect from re-running for the signals used inside it.
     effect(() => {
@@ -360,6 +366,60 @@ export class SongView {
         this.lastTop = 0;
       });
     });
+  }
+
+  // ── Print / PDF ───────────────────────────────────────────────────────────
+
+  /**
+   * The iPhone/iPad home-screen app can't print (iOS ignores window.print()
+   * there; it works in Safari). So there we build a PDF and open the share
+   * sheet: Stampa, Salva su File, AirDrop, WhatsApp…
+   */
+  private readonly pdfInsteadOfPrint = (() => {
+    const p = currentPlatform();
+    return isIos(p) && p.standalone;
+  })();
+
+  protected print(mode: 'chords' | 'lyrics'): void {
+    if (this.pdfInsteadOfPrint) {
+      void this.sharePdf(mode);
+      return;
+    }
+    // Print the clean sheet (.print-sheet). 'lyrics' = words only, for the
+    // choir: <html data-print="lyrics"> switches the print CSS (styles.scss).
+    const root = document.documentElement;
+    if (mode === 'lyrics') root.dataset['print'] = 'lyrics';
+    else delete root.dataset['print'];
+    window.addEventListener('afterprint', () => delete root.dataset['print'], { once: true });
+    // Let the menu close before the print dialog takes a snapshot of the page.
+    setTimeout(() => window.print(), 50);
+  }
+
+  private async sharePdf(mode: 'chords' | 'lyrics'): Promise<void> {
+    const song = this.song();
+    const sheet = this.sheet();
+    if (!song || !sheet) return;
+    const et = IT.exportMenu;
+    const meta = [this.label() ? `N. ${this.label()}` : '', sheet.subtitle ?? ''];
+    if (mode === 'chords') {
+      const key = this.keys().shapeKey;
+      meta.push(key ? `${this.t.key} ${key}` : '', this.capo() > 0 ? this.t.capo(this.capo()) : '', song.tempo ? this.t.tempo(song.tempo) : '');
+    }
+    const base = choFileName(song).replace(/\.cho$/, '');
+    const fileName = `${base}${mode === 'lyrics' ? ` (${et.pdfLyricsSuffix})` : ''}.pdf`;
+    try {
+      // Loaded on demand (jsPDF): preloaded in the background when the song opens.
+      const { songPdfFile } = await import('./song-pdf-render');
+      const file = await songPdfFile(
+        sheet,
+        { mode, title: song.title, meta: meta.filter(Boolean), label: sectionLabel, repeat: `(${this.t.sections.repeat})` },
+        fileName,
+      );
+      const { shareOrDownloadFile } = await import('../../core/export');
+      await shareOrDownloadFile(file);
+    } catch {
+      this.toast.show(et.pdfError);
+    }
   }
 
   // ── iPhone: toolbar slides away while reading (like Safari) ───────────────
