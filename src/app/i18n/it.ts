@@ -26,8 +26,14 @@ export const IT = {
       all: 'Tutti',
       notes: 'Con le mie note',
     },
-    /** iPhone: the filter is a small toggle chip next to the sort. */
-    notesShort: 'Con note',
+    /** iPhone: one pull-down next to the search for "which songs" (all, with notes, a folder). */
+    searchPlaceholderShort: 'Cerca',
+    showTitle: 'Mostra',
+    showLabel: (what: string) => `Mostra: ${what}`,
+    allSongs: 'Tutti i canti',
+    withNotes: 'Con le mie note',
+    folderOptions: (name: string) => `Opzioni di “${name}”…`,
+    sortTitle: 'Ordina per',
     notesFilterHint: 'Solo i canti in cui hai aggiunto note, evidenziazioni, assoli, accordi personali o un promemoria',
     sortLabel: 'Ordina',
     sort: { number: 'Numero', title: 'Titolo' },

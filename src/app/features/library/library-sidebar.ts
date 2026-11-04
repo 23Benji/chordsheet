@@ -133,6 +133,87 @@ export class LibrarySidebar {
     return rows.map((s) => (s.number === null ? s : mainVersion(groups.get(s.number)!)));
   });
 
+  // ── iPhone: "which songs" pull-down and sort button ───────────────────────
+
+  /** Label of the pull-down next to the search: the folder, "Con le mie note" or "Tutti i canti". */
+  protected readonly scopeLabel = computed(
+    () => this.folder()?.name ?? (this.filter() === 'notes' ? this.t.withNotes : this.t.allSongs),
+  );
+  /** Highlighted when it narrows the list (anything but "Tutti i canti"). */
+  protected readonly scopeActive = computed(() => !!this.folder() || this.filter() === 'notes');
+
+  /** Library entries (one per song, versions together) — what the counts show. */
+  private entries(songs: readonly Song[]): number {
+    return new Set(songs.map(entryKey)).size;
+  }
+
+  /**
+   * One sheet for "which songs": all, with my notes, each folder (with counts),
+   * then the open folder's options and "Nuova cartella…". On iPhone it
+   * replaces the chips and the switch, so it stays one line with many folders.
+   */
+  protected async chooseScope(): Promise<void> {
+    const songs = this.library.songs();
+    const byId = this.library.byId();
+    const folder = this.folder();
+    const notes = this.filter() === 'notes';
+    const folders = this.folderService.folders();
+    const actions: SheetAction[] = [
+      { id: 'all', label: this.t.allSongs, icon: 'library', hint: `${this.entries(songs)}`, checked: !folder && !notes },
+      {
+        id: 'notes',
+        label: this.t.withNotes,
+        icon: 'note',
+        hint: `${this.entries(songs.filter(this.matchesFilter('notes')))}`,
+        checked: !folder && notes,
+      },
+      ...folders.map(
+        (f, i): SheetAction => ({
+          id: `folder:${f.id}`,
+          label: f.name,
+          icon: 'folder',
+          hint: `${folderEntries(f, byId).size}`,
+          checked: folder?.id === f.id,
+          divider: i === 0,
+        }),
+      ),
+      ...(folder ? [{ id: 'options', label: this.t.folderOptions(folder.name), icon: 'more', divider: true } as SheetAction] : []),
+      { id: 'new', label: this.ft.newEllipsis, icon: 'folderPlus', divider: !folder },
+    ];
+    const choice = await this.sheet().choose(this.t.showTitle, actions, this.ft.cancel);
+    if (!choice) return;
+    if (choice === 'options') return this.folderMenu();
+    if (choice === 'new') {
+      const created = await this.nameDialog().create();
+      if (created) this.showScope(created.id, 'all');
+      return;
+    }
+    if (choice === 'all' || choice === 'notes') this.showScope(null, choice);
+    else this.showScope(choice.slice('folder:'.length), 'all');
+  }
+
+  private showScope(folderId: string | null, filter: LibraryFilter): void {
+    this.folderService.current.set(folderId);
+    this.filter.set(filter);
+    this.activeIndex.set(0);
+    this.list()?.nativeElement.scrollTo({ top: 0 });
+  }
+
+  protected async chooseSort(): Promise<void> {
+    const choice = await this.sheet().choose(
+      this.t.sortTitle,
+      [
+        { id: 'number', label: this.t.sort.number, icon: 'hash', checked: this.sort() === 'number' },
+        { id: 'title', label: this.t.sort.title, icon: 'type', checked: this.sort() === 'title' },
+      ],
+      this.ft.cancel,
+    );
+    if (choice === 'number' || choice === 'title') {
+      this.sort.set(choice);
+      this.list()?.nativeElement.scrollTo({ top: 0 });
+    }
+  }
+
   // ── Selecting songs (folders, setlists, share, delete several at once) ────
 
   protected readonly selecting = signal(false);
@@ -400,6 +481,14 @@ export class LibrarySidebar {
     if (performance.now() < this.lockedUntil) return;
     // At the top (also iOS rubber band, top < 0): always the full header.
     if (top <= 8) return this.setTucked(false);
+    // At the bottom: iOS bounces past the end and springs back — that spring
+    // back is not "scrolling up". Count a scroll up only from the end itself.
+    const end = list.scrollHeight - list.clientHeight;
+    if (top >= end - 1) {
+      this.turnTop = end;
+      this.direction = 0;
+      return;
+    }
     // Hiding only pays off when the list is clearly longer than the screen.
     if (!this.tucked() && list.scrollHeight - list.clientHeight < 240) return;
     // Not while typing: the search field would vanish under the finger.

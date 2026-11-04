@@ -89,13 +89,14 @@
 
 // Installed app on iPhone: iOS blurs a band at the top of the screen (over and
 // a bit below the status bar). Every page header adds this much extra room so
-// buttons and titles start below the blur. 0 in Safari and on bigger screens.
+// buttons and titles start below the blur (10px since 1.11: titles sat too low
+// at 20px). 0 in Safari and on bigger screens.
 :root {
   --top-gap: 0px;
 }
 
 @media (max-width: 600px) and (display-mode: standalone) {
   :root {
-    --top-gap: 20px;
+    --top-gap: 10px;
   }
 }

@@ -188,8 +188,8 @@
   min-height: 0;
 }
 
-// The iPhone toggle chip; wider screens keep the full-width switch.
-.notes-toggle {
+// iPhone only: the count under the list.
+.list-count {
   display: none;
 }
 
@@ -358,12 +358,29 @@
     display: none;
   }
 
-  // ── Compact header ────────────────────────────────────────────────────────
+  // ── Compact header: [ search ][ which songs ▾ ][ ⇅ ] ─────────────────────
+  // Chips, the Tutti/Con-le-mie-note switch and the count/sort row live in
+  // the pull-down and the sort button instead.
+  .folder-bar,
+  .controls,
+  .kbd {
+    display: none;
+  }
+
+  .search-row {
+    display: flex;
+    gap: 8px;
+    margin: 4px 16px 8px;
+  }
+
   .search {
-    margin-top: 4px;
+    flex: 1;
+    min-width: 0;
+    margin: 0;
 
     input {
       height: 38px;
+      padding-right: 10px;
     }
   }
 
@@ -371,36 +388,62 @@
     top: 9px;
   }
 
-  // No keyboard shortcuts on a phone.
-  .kbd,
-  .filter,
-  .sort-label {
-    display: none;
+  .scope,
+  .sort-btn {
+    flex: none;
+    align-items: center;
+    height: 38px;
+    border: none;
+    border-radius: var(--radius-m);
+    background: var(--surface);
+    color: var(--text);
+    font: inherit;
+    font-size: 14px;
+    cursor: pointer;
   }
 
-  .folder-bar {
-    margin-top: 10px;
-  }
-
-  // One row: count · ⋯ · Con note · Numero ▾
-  .controls {
-    padding: 8px 16px 6px;
-  }
-
-  .sort-row {
+  // Long folder names shrink with "…"; the search keeps at least ~half the row.
+  .scope {
     gap: 6px;
-    margin-top: 0;
-  }
-
-  .notes-toggle {
-    display: inline-flex;
+    max-width: 44%;
     padding: 0 10px;
-    gap: 4px;
-    color: var(--text-muted);
 
     &.on {
       color: var(--accent);
+      font-weight: 700;
     }
+
+    .caret {
+      --icon-size: 14px;
+      color: var(--text-muted);
+    }
+  }
+
+  .scope-name {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .sort-btn {
+    justify-content: center;
+    width: 38px;
+    padding: 0;
+    color: var(--text-muted);
+  }
+
+  .select-row {
+    margin-top: 0;
+  }
+
+  .list-count {
+    display: block;
+    margin: 0;
+    padding: 14px 0 0;
+    color: var(--text-muted);
+    font-size: 13px;
+    text-align: center;
   }
 
   // ── Tucked while scrolling down (like Mail) ───────────────────────────────

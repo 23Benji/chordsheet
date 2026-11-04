@@ -7,6 +7,12 @@ export interface SheetAction {
   label: string;
   icon: IconName;
   danger?: boolean;
+  /** Small muted text on the right (e.g. how many songs a folder holds). */
+  hint?: string;
+  /** The current choice: a tick on the right. */
+  checked?: boolean;
+  /** A thin line above this item, to group the choices. */
+  divider?: boolean;
 }
 
 /**
@@ -23,9 +29,26 @@ export interface SheetAction {
       <div class="sheet" role="menu">
         <p class="sheet-title">{{ title() }}</p>
         @for (action of actions(); track action.id) {
-          <button type="button" class="menu-item" role="menuitem" [class.danger]="action.danger" (click)="settle(action.id)">
+          @if (action.divider) {
+            <div class="menu-separator" role="separator"></div>
+          }
+          <button
+            type="button"
+            class="menu-item"
+            [attr.role]="action.checked === undefined ? 'menuitem' : 'menuitemradio'"
+            [attr.aria-checked]="action.checked ?? null"
+            [class.danger]="action.danger"
+            [class.checked]="action.checked"
+            (click)="settle(action.id)"
+          >
             <app-icon [name]="action.icon" />
             <span class="label">{{ action.label }}</span>
+            @if (action.hint) {
+              <span class="menu-hint">{{ action.hint }}</span>
+            }
+            @if (action.checked) {
+              <app-icon class="tick" name="check" />
+            }
           </button>
         }
       </div>
@@ -60,6 +83,20 @@ export interface SheetAction {
       font-size: 13px;
       font-weight: 700;
       text-align: center;
+    }
+    .checked {
+      color: var(--accent);
+      font-weight: 700;
+    }
+    .menu-hint {
+      font-variant-numeric: tabular-nums;
+    }
+    .tick {
+      flex: none;
+      margin-left: auto;
+    }
+    .menu-hint + .tick {
+      margin-left: 0;
     }
     .label {
       overflow: hidden;
