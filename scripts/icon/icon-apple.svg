@@ -1,23 +1,96 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512">
-  <!-- Apple touch icon: iOS only rounds the corners, so the diagram can be larger -->
-  <rect width="512" height="512" fill="#F2B45C"/>
-  <g transform="translate(256 256) scale(0.95) translate(-256 -256)">
-    <g stroke="#14100D" stroke-linecap="round" fill="none">
-      <line x1="160" y1="150" x2="352" y2="150" stroke-width="22"/>
-      <g stroke-width="12">
+  <!-- Apple touch icon: full bleed, iOS rounds the corners (generated from icon-art.svg by make-variants.mjs) -->
+  <defs>
+    <!-- Background: warm near-black, a little lighter at the top. -->
+    <radialGradient id="bg" cx="50%" cy="32%" r="78%">
+      <stop offset="0" stop-color="#2B2016"/>
+      <stop offset="0.55" stop-color="#16110C"/>
+      <stop offset="1" stop-color="#0A0806"/>
+    </radialGradient>
+    <!-- Amber light behind the glass. -->
+    <radialGradient id="glow" cx="50%" cy="50%" r="50%">
+      <stop offset="0" stop-color="#F2B45C" stop-opacity="0.55"/>
+      <stop offset="0.6" stop-color="#E08A2E" stop-opacity="0.18"/>
+      <stop offset="1" stop-color="#E08A2E" stop-opacity="0"/>
+    </radialGradient>
+    <!-- Glass: translucent fill, brighter edge on top, faint at the bottom. -->
+    <linearGradient id="glassFill" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#FFF6E8" stop-opacity="0.18"/>
+      <stop offset="0.5" stop-color="#FFF6E8" stop-opacity="0.07"/>
+      <stop offset="1" stop-color="#FFF6E8" stop-opacity="0.04"/>
+    </linearGradient>
+    <linearGradient id="glassEdge" x1="0" y1="0" x2="0.35" y2="1">
+      <stop offset="0" stop-color="#FFFFFF" stop-opacity="0.55"/>
+      <stop offset="0.45" stop-color="#FFFFFF" stop-opacity="0.10"/>
+      <stop offset="1" stop-color="#F2B45C" stop-opacity="0.30"/>
+    </linearGradient>
+    <linearGradient id="sheen" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#FFFFFF" stop-opacity="0.16"/>
+      <stop offset="1" stop-color="#FFFFFF" stop-opacity="0"/>
+    </linearGradient>
+    <!-- Diagram lines: warm cream. Finger dots: amber gems. -->
+    <!-- userSpaceOnUse: a bounding-box gradient can't paint a straight line (its box has no width). -->
+    <linearGradient id="line" gradientUnits="userSpaceOnUse" x1="0" y1="140" x2="0" y2="380">
+      <stop offset="0" stop-color="#FFF3DF"/>
+      <stop offset="1" stop-color="#E9D3B0"/>
+    </linearGradient>
+    <radialGradient id="dot" cx="38%" cy="32%" r="70%">
+      <stop offset="0" stop-color="#FFE2B0"/>
+      <stop offset="0.45" stop-color="#F5B455"/>
+      <stop offset="1" stop-color="#D9822A"/>
+    </radialGradient>
+    <filter id="blur40" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="40"/></filter>
+    <filter id="dotGlow" x="-100%" y="-100%" width="300%" height="300%"><feGaussianBlur stdDeviation="9"/></filter>
+    <filter id="tileShadow" x="-30%" y="-30%" width="160%" height="160%">
+      <feDropShadow dx="0" dy="14" stdDeviation="18" flood-color="#000000" flood-opacity="0.55"/>
+    </filter>
+    <clipPath id="tileClip"><rect x="80" y="80" width="352" height="352" rx="94"/></clipPath>
+  
+  </defs>
+  <rect width="512" height="512" fill="url(#bg)"/>
+  <circle cx="256" cy="270" r="190" fill="url(#glow)" filter="url(#blur40)"/>
+
+  <!-- Glass tile -->
+  <g filter="url(#tileShadow)">
+    <rect x="80" y="80" width="352" height="352" rx="94" fill="url(#glassFill)"/>
+  </g>
+  <g clip-path="url(#tileClip)">
+    <ellipse cx="256" cy="80" rx="250" ry="130" fill="url(#sheen)"/>
+  </g>
+  <rect x="81.5" y="81.5" width="349" height="349" rx="92.5" fill="none" stroke="url(#glassEdge)" stroke-width="3"/>
+
+  <!-- Chord diagram: nut, 4 strings, 3 frets, 3 finger dots -->
+  <g transform="translate(256 262) scale(1.02) translate(-256 -260)">
+    <g stroke="url(#line)" stroke-linecap="round" fill="none">
+      <line x1="160" y1="150" x2="352" y2="150" stroke-width="16"/>
+      <g stroke-width="6" stroke-opacity="0.9">
         <line x1="172" y1="150" x2="172" y2="370"/>
         <line x1="228" y1="150" x2="228" y2="370"/>
         <line x1="284" y1="150" x2="284" y2="370"/>
         <line x1="340" y1="150" x2="340" y2="370"/>
+      </g>
+      <g stroke-width="5" stroke-opacity="0.55">
         <line x1="172" y1="223" x2="340" y2="223"/>
         <line x1="172" y1="296" x2="340" y2="296"/>
         <line x1="172" y1="370" x2="340" y2="370"/>
       </g>
     </g>
-    <g fill="#14100D">
-      <circle cx="228" cy="187" r="25"/>
-      <circle cx="340" cy="187" r="25"/>
-      <circle cx="284" cy="260" r="25"/>
+    <!-- glow under the dots -->
+    <g fill="#F2B45C" opacity="0.75" filter="url(#dotGlow)">
+      <circle cx="228" cy="187" r="24"/>
+      <circle cx="340" cy="187" r="24"/>
+      <circle cx="284" cy="260" r="24"/>
+    </g>
+    <g fill="url(#dot)">
+      <circle cx="228" cy="187" r="23"/>
+      <circle cx="340" cy="187" r="23"/>
+      <circle cx="284" cy="260" r="23"/>
+    </g>
+    <!-- tiny specular highlights -->
+    <g fill="#FFFFFF" opacity="0.55">
+      <ellipse cx="220" cy="178" rx="7" ry="4.5"/>
+      <ellipse cx="332" cy="178" rx="7" ry="4.5"/>
+      <ellipse cx="276" cy="251" rx="7" ry="4.5"/>
     </g>
   </g>
 </svg>
