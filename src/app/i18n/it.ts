@@ -139,7 +139,6 @@ export const IT = {
     backToLibrary: 'Torna alla libreria',
     key: 'Tonalità',
     original: (key: string) => `originale ${key}`,
-    originalShort: 'originale',
     capo: (n: number) => `Capo ${n}`,
     playsIn: (key: string) => `suona in ${key}`,
     tempo: (bpm: number) => `${bpm} BPM`,
@@ -385,7 +384,8 @@ export const IT = {
     title: 'Esporta o stampa',
     cho: 'Esporta .cho',
     choNotes: 'Esporta .cho con le mie note',
-    print: 'Stampa / PDF',
+    printChords: 'Stampa / PDF con accordi',
+    printLyrics: 'Stampa / PDF solo testo (coro)',
   },
 
   exportNotes: {

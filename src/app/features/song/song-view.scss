@@ -228,17 +228,28 @@
   }
 }
 
-// Tonalità panel: fixed width, so a longer key name ("F#m", "originale C#m")
-// never makes the panel grow or shift while transposing.
+// Tonalità panel: fixed width and a 3-column grid (label · stepper ·
+// "Originale" icon), so transposing never makes anything grow or shift.
 .key-panel {
-  width: min(300px, calc(100vw - 44px));
+  // 312 + the panel padding = 340, the widest a popover panel gets.
+  width: min(312px, calc(100vw - 44px));
+
+  .panel-row {
+    display: grid;
+    grid-template-columns: 1fr auto 40px;
+    gap: 8px;
+  }
+
+  // Auto · ♯ · ♭ spans stepper + icon columns, right-aligned.
+  .segmented {
+    grid-column: 2 / 4;
+    justify-self: end;
+  }
 }
 
-.key-now {
-  min-width: 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+.reset-key {
+  justify-self: end;
+  color: var(--accent);
 }
 
 .small-btn {

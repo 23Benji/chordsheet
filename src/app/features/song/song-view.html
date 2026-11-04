@@ -68,6 +68,12 @@
           <span class="chip-caret" aria-hidden="true">▼</span>
         </span>
         <p class="panel-title">{{ t.keyPanel }}</p>
+        <!--
+          The key itself is already under the title, so no extra line here:
+          "Originale" is an icon right of the stepper. It always keeps its
+          place (invisible at 0), so transposing never moves anything.
+          Rows are a 3-column grid so both steppers line up.
+        -->
         <div class="key-panel">
         <div class="panel-row">
           <span class="panel-label">{{ t.transposeLabel }}</span>
@@ -80,26 +86,16 @@
               <app-icon name="plus" />
             </button>
           </span>
-        </div>
-        <!--
-          Always there (fixed height), so transposing never makes the panel
-          grow or jump: at 0 it names the original key and "Originale" only
-          keeps its place (invisible, not focusable).
-        -->
-        <div class="panel-row">
-          <span class="panel-label key-now">
-            {{ t.key }} {{ keys().soundingKey ?? '–' }}
-            ({{ transpose() !== 0 ? t.original(keys().originalKey ?? '–') : t.originalShort }})
-          </span>
           <button
             type="button"
-            class="btn small-btn"
+            class="btn icon-btn reset-key"
             [style.visibility]="transpose() !== 0 ? 'visible' : 'hidden'"
             [disabled]="transpose() === 0"
             (click)="resetTranspose()"
             [attr.aria-label]="t.transposeReset"
+            [title]="t.transposeReset"
           >
-            <app-icon name="reset" /> {{ t.reset }}
+            <app-icon name="reset" />
           </button>
         </div>
         <div class="panel-row">
@@ -113,6 +109,7 @@
               <app-icon name="plus" />
             </button>
           </span>
+          <span></span>
         </div>
         <div class="panel-row">
           <span class="panel-label">{{ t.accidentals }}</span>
@@ -331,6 +328,37 @@
       (closed)="closePanel()"
       (relink)="startRelink($event)"
     />
+  }
+
+  <!--
+    Print / PDF only (hidden on screen): a clean sheet for musicians or the
+    choir. Same transposition as on screen. <html data-print="lyrics"> (set by
+    the ⋯ menu) prints the words only: no chords, chord lines or instrumentals.
+  -->
+  @if (sheet(); as sheet) {
+    <div class="print-sheet" aria-hidden="true">
+      <header class="print-head">
+        <h1>{{ song.title }}</h1>
+        <p class="print-meta">
+          @if (label()) {
+            <span>N. {{ label() }}</span>
+          }
+          @if (sheet.subtitle; as subtitle) {
+            <span>{{ subtitle }}</span>
+          }
+          @if (keys().shapeKey; as key) {
+            <span class="print-chords-only">{{ t.key }} {{ key }}</span>
+          }
+          @if (capo() > 0) {
+            <span class="print-chords-only">{{ t.capo(capo()) }}</span>
+          }
+          @if (song.tempo) {
+            <span class="print-chords-only">{{ t.tempo(song.tempo) }}</span>
+          }
+        </p>
+      </header>
+      <app-song-sheet [sheet]="sheet" [chordStyle]="chordStyle()" />
+    </div>
   }
 } @else {
   <div class="not-found">

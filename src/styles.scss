@@ -203,17 +203,27 @@ a {
   }
 }
 
-// ── Print / PDF (song view): A4, black on white, chords above lyrics ────────
-// The design tokens switch to a print palette; app chrome is hidden. Component
-// styles are more specific than these global selectors, hence the !important.
+// ── Print / PDF (song view) ─────────────────────────────────────────────────
+// Only the song page's .print-sheet is printed: title, a short info line and
+// the song, black on white with generous A4 margins. Verses/choruses are kept
+// whole; the chorus is indented with a rule beside it. With
+// <html data-print="lyrics"> it's a words-only sheet for the choir.
+// Component styles are more specific than these global selectors, hence the
+// !important.
+.print-sheet {
+  display: none;
+}
+
 @media print {
   @page {
     size: A4;
-    margin: 14mm 14mm 16mm;
+    margin: 18mm 18mm 20mm;
   }
 
+  // Light scheme: otherwise the page margins print in the app's dark colour.
   :root,
   [data-theme] {
+    color-scheme: light !important;
     --bg: #fff;
     --bg-elev-1: #fff;
     --surface: #fff;
@@ -221,7 +231,7 @@ a {
     --surface-bridge: transparent;
     --border: #999;
     --text: #000;
-    --text-muted: #444;
+    --text-muted: #555;
     --accent: #000;
     --coral: #000;
     --sage: #000;
@@ -238,50 +248,123 @@ a {
   app-root,
   .shell,
   .main,
-  app-song-view,
-  app-song-view .paged,
-  app-song-view .scroll {
+  app-song-view {
     display: block !important;
     position: static !important;
+    width: auto !important;
     height: auto !important;
+    padding: 0 !important;
     overflow: visible !important;
     background: #fff !important;
   }
 
+  // Everything but the clean sheet.
   app-library-sidebar,
   .scrim,
   .toast,
-  app-song-view .toolbar,
-  app-song-view .title-row .btn,
-  app-song-view .memo,
-  app-song-view .banner,
-  app-song-view .pager-bar,
-  app-song-view .panel,
-  app-song-view .diagram-pop {
+  .bottom-bar,
+  app-song-view > :not(.print-sheet) {
     display: none !important;
   }
 
-  app-song-view .header {
-    padding: 0 0 10pt !important;
+  .print-sheet {
+    display: block !important;
+    color: #000;
+    font-family: var(--font-body);
+
+    app-song-sheet {
+      font-size: 12.5pt !important;
+      line-height: 1.3 !important;
+    }
+
+    .section {
+      margin: 0 0 6mm !important;
+      break-inside: avoid;
+    }
+
+    .row {
+      padding: 0 !important;
+      background: none !important;
+      box-shadow: none !important;
+    }
+
+    .tag {
+      margin: 0 0 1.5mm !important;
+      padding: 0 !important;
+      background: none !important;
+      color: #555 !important;
+      font-size: 8.5pt !important;
+      letter-spacing: 0.14em !important;
+    }
+
+    // Chorus / bridge: indented, a thin rule on the left (no tinted boxes).
+    .chorus,
+    .bridge {
+      margin-left: 0 !important;
+      padding: 0 0 0 5mm !important;
+      border-left: 1pt solid #000;
+      border-radius: 0 !important;
+      background: none !important;
+    }
+
+    .chord {
+      color: #000 !important;
+      font-size: 0.8em !important;
+    }
+
+    .repeat,
+    .comment,
+    .chord-text {
+      color: #444 !important;
+    }
   }
 
-  app-song-view .pager,
-  app-song-view .sheet {
-    position: static !important;
-    height: auto !important;
-    max-width: none !important;
-    padding: 0 !important;
-    overflow: visible !important;
-    column-count: 1 !important;
-    --lyrics-size: 13pt !important;
+  .print-head {
+    margin: 0 0 7mm;
+    padding: 0 0 3mm;
+    border-bottom: 0.75pt solid #000;
+
+    h1 {
+      margin: 0;
+      font-family: var(--font-heading);
+      font-size: 22pt;
+      line-height: 1.15;
+    }
   }
 
-  app-song-sheet .tag {
-    padding: 0 !important;
+  .print-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0 4mm;
+    margin: 1.5mm 0 0;
+    color: #444;
+    font-size: 10pt;
+
+    &:empty {
+      display: none;
+    }
   }
 
-  app-song-sheet .row.selected {
-    box-shadow: none !important;
+  // Words only (choir): no chords, chord-only lines, instrumentals or key.
+  html[data-print='lyrics'] .print-sheet {
+    .chord,
+    .chord-line,
+    .second-key,
+    .print-chords-only,
+    .section.instrumental,
+    .row:has(.chord-line):not(:has(.lyric)) {
+      display: none !important;
+    }
+
+    app-song-sheet {
+      font-size: 13.5pt !important;
+      line-height: 1.45 !important;
+    }
+
+    // Without the chord above, an empty syllable needs no height of its own.
+    .lyric {
+      min-height: 0 !important;
+    }
   }
 }
 
