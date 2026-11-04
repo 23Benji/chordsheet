@@ -105,6 +105,11 @@ interface Setlist {
   createdAt: number; updatedAt: number;
 }
 
+interface Folder {         // since 1.8: "cartelle" (own table)
+  id: string; name: string; songIds: string[];
+  createdAt: number; updatedAt: number;
+}
+
 interface Settings { theme: 'dark' | 'light'; fontScale: number; chordStyle: 'above' | 'inline'; showChordDiagrams: boolean; keyboardMap: Record<string,string>; }
 ```
 
@@ -120,6 +125,7 @@ When a song's text changes (user edit or re-import), re-anchor every annotation:
 - **Search** (instant, accent-insensitive, case-insensitive) across number ("12", "123b"), title and lyrics. Typing a number and pressing Enter opens that song directly.
 - **Versions grouped**: songs sharing a number (123, 123b, 123c …) are one row, showing the main version (no suffix) and a small "N versioni" pill. While searching, the best-matching version represents the row (so "123c" + Enter opens 123c).
 - Filter: all / with my notes (two-way switch, since 1.6.1). Sort by number (default) or title.
+- **Folders** (since 1.8): chips under the search ("Tutti i canti" + one per folder with its count + new folder). A song can be in several folders; its versions are filed together. "Seleziona" → add to / move to / remove from a folder. Folders are chosen on the song page (Cartelle), when creating a song and when importing. Folder ⋯: rename, share its songs, delete (songs stay).
 - Keyboard: `/` focuses search, arrows move, Enter opens.
 
 ### 5.2 Import / export

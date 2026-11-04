@@ -42,7 +42,8 @@
           <app-icon name="edit" />
         </a>
         <app-add-to-setlist [song]="song" />
-        <app-export-menu [song]="song" />
+        <app-song-folders #songFolders [song]="song" />
+        <app-export-menu [song]="song" (folders)="songFolders.openSheet()" />
       </div>
     </div>
 

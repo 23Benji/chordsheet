@@ -3,6 +3,7 @@ import { BackupData, backupFileName, createBackup, mergeBackup, parseBackup } fr
 import { shareOrDownload } from '../core/export';
 import { DB } from '../data/db';
 import { AnnotationService } from './annotation.service';
+import { FolderService } from './folder.service';
 import { LibraryService } from './library.service';
 import { SetlistService } from './setlist.service';
 import { SettingsService } from './settings.service';
@@ -17,7 +18,7 @@ const AUTO_HANDLE = 'autoBackupHandle';
 const AUTO_DELAY_MS = 4000;
 
 /**
- * Backup of everything (songs, prefs, notes, setlists, settings), restore,
+ * Backup of everything (songs, prefs, notes, setlists, folders, settings), restore,
  * and the automatic backup file: on Chrome/Edge on a computer the user picks
  * a file once (ideally in an iCloud / Google Drive / OneDrive folder) and the
  * app rewrites it a few seconds after every change. The data then also lives
@@ -30,6 +31,7 @@ export class BackupService {
   private readonly prefs = inject(SongPrefsService);
   private readonly annotations = inject(AnnotationService);
   private readonly setlists = inject(SetlistService);
+  private readonly folders = inject(FolderService);
   private readonly settings = inject(SettingsService);
 
   /** When the last backup (manual or automatic) was made. */
@@ -45,7 +47,7 @@ export class BackupService {
   constructor() {
     // Dexie hooks: any change to the user's data schedules an auto-backup.
     const db = this.db;
-    for (const table of [db.songs, db.songPrefs, db.annotations, db.setlists, db.settings]) {
+    for (const table of [db.songs, db.songPrefs, db.annotations, db.setlists, db.folders, db.settings]) {
       if (typeof table?.hook !== 'function') continue; // test doubles
       const schedule = () => this.scheduleAutoBackup();
       table.hook('creating', schedule);
@@ -80,6 +82,7 @@ export class BackupService {
       songPrefs: await this.db.songPrefs.toArray(),
       annotations: await this.db.annotations.toArray(),
       setlists: await this.db.setlists.toArray(),
+      folders: (await this.db.folders?.toArray()) ?? [],
       settings,
     };
   }
@@ -158,12 +161,13 @@ export class BackupService {
       mode === 'merge' ? mergeBackup(await this.readAll(), incoming) : { ...incoming, settings: incoming.settings };
     const db = this.db;
     // One transaction: if anything fails, the old data stays as it was.
-    await db.transaction('rw', [db.songs, db.songPrefs, db.annotations, db.setlists, db.settings], async () => {
-      await Promise.all([db.songs.clear(), db.songPrefs.clear(), db.annotations.clear(), db.setlists.clear()]);
+    await db.transaction('rw', [db.songs, db.songPrefs, db.annotations, db.setlists, db.folders, db.settings], async () => {
+      await Promise.all([db.songs.clear(), db.songPrefs.clear(), db.annotations.clear(), db.setlists.clear(), db.folders.clear()]);
       await db.songs.bulkPut(result.songs);
       await db.songPrefs.bulkPut(result.songPrefs);
       await db.annotations.bulkPut(result.annotations);
       await db.setlists.bulkPut(result.setlists);
+      await db.folders.bulkPut(result.folders);
       if (result.settings) await db.settings.put({ ...result.settings, id: 'settings' });
     });
     await Promise.all([
@@ -171,6 +175,7 @@ export class BackupService {
       this.prefs.load(),
       this.annotations.load(),
       this.setlists.load(),
+      this.folders.load(),
       this.settings.load(),
     ]);
     return result;

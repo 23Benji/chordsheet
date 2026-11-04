@@ -39,6 +39,9 @@ interface Popover {
   leftPx: number;
 }
 
+/** Width of the chord box (.popover in line-editor.scss) on wide screens. */
+const POPOVER_PX = 320;
+
 /**
  * One lyric line: an <input> with the text and, above it, a row with the
  * chords. Both use a monospace font, so character n is always at n × 1ch:
@@ -181,8 +184,13 @@ export class LineEditor {
   // ── Popover ───────────────────────────────────────────────────────────────
 
   private openPopover(chordId: string | null, pos: number, value: string): void {
-    const leftPx = pos * this.chPx() - this.scroller().nativeElement.scrollLeft;
-    this.popover.set({ chordId, pos, value, leftPx: Math.max(0, leftPx) });
+    const scroller = this.scroller().nativeElement;
+    const leftPx = pos * this.chPx() - scroller.scrollLeft;
+    // Keep the whole box inside the line (it is min(320px, 100%) wide, see
+    // .popover): near the right edge it would stick out and make the editor
+    // page scroll sideways on phones.
+    const maxLeft = Math.max(0, scroller.clientWidth - Math.min(POPOVER_PX, scroller.clientWidth));
+    this.popover.set({ chordId, pos, value, leftPx: Math.min(Math.max(0, leftPx), maxLeft) });
   }
 
   protected confirmPopover(value: string): void {

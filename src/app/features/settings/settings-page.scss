@@ -151,7 +151,25 @@ label.list-row {
 .dialog-actions {
   display: flex;
   justify-content: flex-end;
+  gap: 8px;
   margin-top: 6px;
+}
+
+.folders-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 6px;
+}
+
+.field-label {
+  color: var(--text-muted);
+  font-size: 13px;
+}
+
+.conflict-title {
+  margin-top: 8px;
+  font-size: 17px;
 }
 
 @media (max-width: 600px) {

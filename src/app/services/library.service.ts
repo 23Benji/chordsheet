@@ -7,6 +7,7 @@ import { compareByNumber, parseFileName } from '../core/song-meta';
 import { groupVersions } from '../core/versions';
 import { DB } from '../data/db';
 import { AnnotationService } from './annotation.service';
+import { FolderService } from './folder.service';
 
 /**
  * Holds the song library in memory as a signal. Components read `songs()`
@@ -17,6 +18,7 @@ import { AnnotationService } from './annotation.service';
 export class LibraryService {
   private readonly db = inject(DB);
   private readonly annotationService = inject(AnnotationService);
+  private readonly folders = inject(FolderService);
 
   private readonly _songs = signal<Song[]>([]);
   private readonly _loaded = signal(false);
@@ -68,15 +70,17 @@ export class LibraryService {
    * Imports songs from files. When the number + suffix already exists:
    * - 'replace': new text, same song (personal notes kept and re-anchored)
    * - 'keepBoth': added as another version (next free letter: 12 → 12b)
-   * - 'skip': left out
+   * - 'skip': left out (the song already in the library is still listed in
+   *   `songIds`, so "import into folder X" files it too)
    */
   async importEntries(
     entries: readonly SongbookEntry[],
     policy: 'replace' | 'keepBoth' | 'skip',
-  ): Promise<{ added: number; replaced: number; skipped: number }> {
+  ): Promise<{ added: number; replaced: number; skipped: number; songIds: string[] }> {
     const result = { added: 0, replaced: 0, skipped: 0 };
     const added: Song[] = [];
     const replaced: Song[] = [];
+    const songIds: string[] = [];
     const taken = (number: number) =>
       new Set([...this._songs(), ...added].filter((s) => s.number === number).map((s) => s.suffix));
 
@@ -88,15 +92,19 @@ export class LibraryService {
           : null;
       if (!existing) {
         added.push(song);
+        songIds.push(song.id);
         result.added++;
       } else if (policy === 'skip' || added.includes(existing)) {
+        songIds.push(existing.id);
         result.skipped++;
       } else if (policy === 'replace') {
         replaced.push(withChordPro(existing, entry.chordpro));
+        songIds.push(existing.id);
         result.replaced++;
       } else {
         const suffix = nextFreeSuffix(taken(song.number!));
         added.push({ ...song, suffix });
+        songIds.push(song.id);
         result.added++;
       }
     }
@@ -109,7 +117,7 @@ export class LibraryService {
     }
     await requestPersistentStorage();
     await this.load();
-    return result;
+    return { ...result, songIds: [...new Set(songIds)] };
   }
 
   /** Another song (not `exceptId`) that already uses this number + suffix. */
@@ -133,6 +141,7 @@ export class LibraryService {
     });
     this._songs.update((songs) => songs.filter((s) => s.id !== id));
     this.annotationService.forgetSong(id);
+    await this.folders.forgetSong(id);
   }
 
   /** The original text of a bundled song (same number + suffix), for "Ripristina originale". */

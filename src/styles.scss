@@ -336,6 +336,18 @@ a {
     color: var(--text-muted);
     font-size: 8px;
   }
+
+  // Chosen toggle chip (folder filter, folder picker).
+  &.on {
+    border-color: transparent;
+    background: var(--highlight-amber);
+    color: var(--accent);
+    font-weight: 700;
+
+    app-icon {
+      color: var(--accent);
+    }
+  }
 }
 
 // Pop-up panels (app-popover): menus and small control panels.

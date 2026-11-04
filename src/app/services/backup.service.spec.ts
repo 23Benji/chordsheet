@@ -19,6 +19,7 @@ function fakeDb() {
       songPrefs: table(),
       annotations: table(),
       setlists: table(),
+      folders: table(),
       settings: table(),
       kv: {
         get: async (key: string) => (kv.has(key) ? { key, value: kv.get(key) } : undefined),

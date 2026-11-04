@@ -87,8 +87,10 @@
           <input #capo type="text" inputmode="numeric" [value]="meta.capo" (input)="setMeta('capo', capo.value)" />
         </label>
       </div>
+      <ng-container *ngTemplateOutlet="foldersField" />
       <app-visual-editor [song]="doc()" (changed)="onVisualChange($event)" />
     } @else {
+      <ng-container *ngTemplateOutlet="foldersField" />
       <app-source-editor [text]="source()" (changed)="onSourceChange($event)" />
     }
   </div>
@@ -104,6 +106,16 @@
     }
   </aside>
 </div>
+
+<!-- New song: which folders it goes in (after the title fields, before the lyrics). -->
+<ng-template #foldersField>
+  @if (isNew()) {
+    <div class="folders-field">
+      <span class="field-label">{{ ft.pickerLabel }}</span>
+      <app-folder-picker [(selected)]="folderIds" [hint]="ft.pickerHint" />
+    </div>
+  }
+</ng-template>
 
 <dialog #pasteDialog class="paste" aria-labelledby="paste-title">
   <h2 id="paste-title">{{ t.pasteDialog.title }}</h2>

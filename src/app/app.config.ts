@@ -12,6 +12,7 @@ import { routes } from './app.routes';
 import { AnnotationService } from './services/annotation.service';
 import { LibraryService } from './services/library.service';
 import { BackupService } from './services/backup.service';
+import { FolderService } from './services/folder.service';
 import { SetlistService } from './services/setlist.service';
 import { SettingsService } from './services/settings.service';
 import { SongPrefsService } from './services/song-prefs.service';
@@ -32,6 +33,7 @@ export const appConfig: ApplicationConfig = {
         inject(AnnotationService).load(),
         inject(SettingsService).load(),
         inject(SetlistService).load(),
+        inject(FolderService).load(),
         inject(BackupService).load(),
       ]),
     ),

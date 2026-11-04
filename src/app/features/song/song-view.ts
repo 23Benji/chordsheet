@@ -34,6 +34,7 @@ import { Switch } from '../../ui/switch';
 import { ChordDiagram } from '../../ui/chord-diagram';
 import { Metronome } from '../../ui/metronome';
 import { AddToSetlist } from './add-to-setlist';
+import { SongFolders } from './song-folders';
 import { ExportMenu } from './export-menu';
 import { AnnotationPanel } from './annotation-panel';
 import { IntroPanel } from './intro-panel';
@@ -48,7 +49,7 @@ const WIDE_QUERY = '(min-width: 900px)';
 
 @Component({
   selector: 'app-song-view',
-  imports: [RouterLink, Icon, SongSheet, AnnotationPanel, Pager, AddToSetlist, IntroPanel, ExportMenu, Metronome, ChordDiagram, Swipe, Popover, Switch],
+  imports: [RouterLink, Icon, SongSheet, AnnotationPanel, Pager, AddToSetlist, SongFolders, IntroPanel, ExportMenu, Metronome, ChordDiagram, Swipe, Popover, Switch],
   templateUrl: './song-view.html',
   styleUrl: './song-view.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

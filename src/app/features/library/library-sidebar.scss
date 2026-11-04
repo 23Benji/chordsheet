@@ -136,7 +136,7 @@
 .sort-row {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  gap: 4px;
   margin-top: 10px;
   color: var(--text-muted);
   font-size: 14px;
@@ -146,6 +146,51 @@
   display: flex;
   align-items: center;
   gap: 6px;
+}
+
+.folder-bar {
+  display: block;
+  margin-top: 12px;
+}
+
+.select-toggle {
+  min-height: var(--tap-small);
+  padding: 0 10px;
+  color: var(--accent);
+  font-weight: 400;
+
+  &.done {
+    font-weight: 700;
+  }
+
+  // Wider screens: just the icon until selecting ("Fine" then, and no "+").
+  &:not(.done) {
+    min-width: var(--tap-small);
+    padding: 0;
+  }
+}
+
+.count {
+  white-space: nowrap;
+}
+
+.select-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  min-height: var(--tap-small);
+  margin-top: 6px;
+  color: var(--text-muted);
+  font-size: 14px;
+
+  .link {
+    min-height: var(--tap-small);
+    padding: 0 6px;
+    color: var(--accent);
+    font-size: 14px;
+    font-weight: 400;
+  }
 }
 
 .list {
@@ -185,6 +230,30 @@
     flex: none;
     min-width: 3.1em;
     font-size: 14px;
+  }
+}
+
+// Selecting: rows are buttons with a tick circle in front.
+.row.selectable {
+  width: 100%;
+  border: none;
+  background: none;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+
+  &.picked {
+    background: var(--surface);
+  }
+}
+
+.tick {
+  flex: none;
+  color: var(--text-muted);
+  --icon-size: 22px;
+
+  .picked & {
+    color: var(--accent);
   }
 }
 
@@ -257,6 +326,11 @@
   // Room under the last song so the floating button never covers it.
   .list {
     padding-bottom: 96px;
+  }
+
+  // iPhone: always the word, as in the system apps.
+  .select-toggle:not(.done) {
+    padding: 0 10px;
   }
 
   // The head's "+" moves into the floating button's menu.

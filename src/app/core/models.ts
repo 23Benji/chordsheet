@@ -86,6 +86,19 @@ export interface Setlist {
   updatedAt: number;
 }
 
+/**
+ * A folder ("cartella") groups songs, e.g. "Natale" or "Lode". A song can be in
+ * several folders. Membership is stored on the folder (like a setlist's items),
+ * so the song itself — its text — never changes when it is filed.
+ */
+export interface Folder {
+  id: string;
+  name: string;
+  songIds: string[];
+  createdAt: number;
+  updatedAt: number;
+}
+
 export interface Settings {
   theme: 'dark' | 'light';
   fontScale: number;

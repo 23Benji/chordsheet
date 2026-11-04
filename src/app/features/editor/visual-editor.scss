@@ -189,3 +189,35 @@
   color: var(--text-muted);
   font-size: 14px;
 }
+
+// Phones: lyric lines get the full width of the card. The line buttons (+,
+// delete) take room only on the line being edited, underneath it, instead of
+// an invisible column next to every line that squeezed the text.
+@media (max-width: 600px) {
+  .card {
+    padding-inline: 12px;
+  }
+
+  .row {
+    flex-wrap: wrap;
+  }
+
+  .row-main {
+    flex-basis: 100%;
+  }
+
+  .row-actions {
+    display: none;
+    width: 100%;
+    justify-content: flex-end;
+  }
+
+  .row:focus-within .row-actions,
+  .row-actions:has(.convert) {
+    display: flex;
+  }
+
+  .label {
+    min-width: 0;
+  }
+}

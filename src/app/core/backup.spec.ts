@@ -1,6 +1,7 @@
 import { anchorFor } from './anchoring';
 import { createBackup, mergeBackup, parseBackup } from './backup';
 import { parseChordPro } from './chordpro';
+import { newFolder } from './folders';
 import { Annotation, Setlist } from './models';
 import { songFromChordPro } from './song-import';
 
@@ -16,11 +17,15 @@ describe('backup', () => {
       songPrefs: [],
       annotations: [],
       setlists: [],
+      folders: [newFolder('Natale', ['x'])],
       settings: null,
     };
     expect(parseBackup(JSON.stringify(createBackup(data)))).toEqual(data);
     expect(() => parseBackup('{"format":"x"}')).toThrow('not-a-backup');
     expect(() => parseBackup('nope')).toThrow('not-json');
+    // Backups made before folders existed still open.
+    const old = JSON.stringify({ format: 'innario-backup', version: 1, data: { songs: [] } });
+    expect(parseBackup(old).folders).toEqual([]);
   });
 
   it('merges another device’s data: same songs by number, ids re-pointed, newer wins', () => {
@@ -32,12 +37,13 @@ describe('backup', () => {
       items: [{ id: 'i1', songId: ipadSong.id }, { id: 'i2', songId: ipadOnly.id }],
     };
     const merged = mergeBackup(
-      { songs: [laptopSong], songPrefs: [{ songId: laptopSong.id, transpose: 0, capo: 0, memo: 'mio' }], annotations: [note('n1', laptopSong.id, 1)], setlists: [], settings: null },
+      { songs: [laptopSong], songPrefs: [{ songId: laptopSong.id, transpose: 0, capo: 0, memo: 'mio' }], annotations: [note('n1', laptopSong.id, 1)], setlists: [], folders: [], settings: null },
       {
         songs: [ipadSong, ipadOnly],
         songPrefs: [{ songId: ipadSong.id, transpose: 2, capo: 0 }],
         annotations: [note('n2', ipadSong.id, 1), note('n1', laptopSong.id, 3)],
         setlists: [setlist],
+        folders: [{ ...newFolder('Lode', [ipadSong.id, ipadOnly.id]), id: 'f1' }],
         settings: null,
       },
     );
@@ -55,5 +61,7 @@ describe('backup', () => {
       ['n2', laptopSong.id, 1],
     ]);
     expect(merged.setlists[0].items.map((i) => i.songId)).toEqual([laptopSong.id, ipadOnly.id]);
+    // Folder contents point to this device's songs too.
+    expect(merged.folders.map((f) => [f.id, f.songIds])).toEqual([['f1', [laptopSong.id, ipadOnly.id]]]);
   });
 });

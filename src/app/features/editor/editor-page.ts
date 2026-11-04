@@ -10,6 +10,7 @@ import {
   signal,
   viewChild,
 } from '@angular/core';
+import { NgTemplateOutlet } from '@angular/common';
 import { Router } from '@angular/router';
 import { Sheet, parseChordPro } from '../../core/chordpro';
 import { chordsOverWordsToChordPro } from '../../core/chords-over-words';
@@ -27,10 +28,12 @@ import { fieldsFromChordPro, songFromChordPro, withChordPro } from '../../core/s
 import { numberLabel, parseSongNumber } from '../../core/song-meta';
 import { IT } from '../../i18n/it';
 import { AnnotationService } from '../../services/annotation.service';
+import { FolderService } from '../../services/folder.service';
 import { LayoutService } from '../../services/layout.service';
 import { LibraryService } from '../../services/library.service';
 import { ToastService } from '../../services/toast.service';
 import { ConfirmDialog } from '../../ui/confirm-dialog';
+import { FolderPicker } from '../../ui/folder-picker';
 import { Icon } from '../../ui/icon';
 import { Popover } from '../../ui/popover';
 import { SongSheet } from '../song/song-sheet';
@@ -44,7 +47,7 @@ const COALESCE_MS = 1500;
 
 @Component({
   selector: 'app-editor-page',
-  imports: [Icon, VisualEditor, SourceEditor, SongSheet, ConfirmDialog, Popover],
+  imports: [Icon, VisualEditor, SourceEditor, SongSheet, ConfirmDialog, Popover, FolderPicker, NgTemplateOutlet],
   templateUrl: './editor-page.html',
   styleUrl: './editor-page.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -59,7 +62,9 @@ export class EditorPage implements OnInit, OnDestroy {
   private readonly layout = inject(LayoutService);
   private readonly annotations = inject(AnnotationService);
   private readonly toast = inject(ToastService);
+  private readonly folders = inject(FolderService);
   protected readonly t = IT.editor;
+  protected readonly ft = IT.folders;
 
   /** Route parameter; missing on /nuovo. */
   readonly id = input<string>();
@@ -98,6 +103,12 @@ export class EditorPage implements OnInit, OnDestroy {
   protected readonly canUndo = computed(() => this.cursor() > 0);
   protected readonly canRedo = computed(() => this.cursor() < this.history().length - 1);
 
+  /**
+   * New song: folders to put it in. Starts with the folder open in the
+   * library, so "Nuovo canto" while looking at "Natale" files it there.
+   */
+  protected readonly folderIds = signal<string[]>([]);
+
   protected readonly error = signal<string | null>(null);
   protected readonly detectedKey = computed(() => detectedKey(this.doc()));
 
@@ -123,6 +134,8 @@ export class EditorPage implements OnInit, OnDestroy {
     this.savedText.set(text);
     this.history.set([text]);
     this.cursor.set(0);
+    const current = this.folders.current();
+    if (!song && current) this.folderIds.set([current]);
     // More room for editing; the sidebar comes back as it was when leaving.
     this.sidebarWasOpen = this.layout.sidebarOpen();
     this.layout.sidebarOpen.set(false);
@@ -268,6 +281,7 @@ export class EditorPage implements OnInit, OnDestroy {
     const existing = this.song();
     const song = existing ? withChordPro(existing, text) : songFromChordPro(text, '', 'created');
     await this.library.saveSong(song);
+    if (!existing) await this.folders.addSongs(this.folderIds(), [song.id]);
     // Personal notes follow their lines to the new text (SPEC §4.1).
     const orphans = existing ? await this.annotations.reanchorSong(song.id, parseChordPro(text)) : 0;
     this.toast.show(orphans ? IT.notes.orphanedAfterSave(orphans) : this.t.saved);

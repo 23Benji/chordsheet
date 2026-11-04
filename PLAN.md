@@ -247,3 +247,17 @@ Elsewhere:
 
 - [x] App icon: chord diagram on the amber tile (any, maskable, Apple touch)
 - [x] Welcome line "Accordi e testi, sempre con te." + "Trasponi · Annota · Suona dal vivo"
+
+## 1.8 — Folders ("Cartelle") + editor fix on iPhone
+
+- [x] Data: `Folder {id, name, songIds}` in a new Dexie table (version 3); pure helpers + tests (`core/folders.ts`); `FolderService` (signals)
+- [x] Backup: folders included; merge re-points song ids like setlists; old backups still open
+- [x] Library: folder chips ("Tutti i canti" + folders with counts + new), ⋯ per folder (Rinomina, Condividi i canti, Elimina)
+- [x] Library: "Seleziona" mode → Aggiungi a… / Sposta in… / Togli (versions of a song move together)
+- [x] Song page: Cartelle button (tick folders); on iPhone inside ⋯ as a bottom sheet
+- [x] New song: choose folders (default: the folder open in the library)
+- [x] Import (Impostazioni): choose folders for the imported songs
+- [x] Editor on iPhone: chord box no longer goes off-screen (the page slid sideways); lyric lines get the full width
+- [x] Start-up bundle kept under budget (library menus use a native-dialog action sheet, not the CDK popover)
+- [x] Screenshots iPhone (390, 375) and laptop (1280); build + tests; commit
+

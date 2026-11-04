@@ -8,28 +8,37 @@ import {
   signal,
   viewChild,
 } from '@angular/core';
+import { NgTemplateOutlet } from '@angular/common';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { NavigationEnd, Router, RouterLink } from '@angular/router';
 import { filter, map } from 'rxjs';
+import { entryKey, folderEntries } from '../../core/folders';
+import { FolderBar } from './folder-bar';
+import { SelectionBar } from './selection-bar';
 import { Song } from '../../core/models';
 import { searchSongs } from '../../core/search';
 import { compareByNumber, compareByTitle, numberLabel } from '../../core/song-meta';
 import { collapseVersions, mainVersion } from '../../core/versions';
 import { IT } from '../../i18n/it';
 import { AnnotationService } from '../../services/annotation.service';
+import { FolderService } from '../../services/folder.service';
+import { ToastService } from '../../services/toast.service';
 import { LayoutService } from '../../services/layout.service';
 import { LibraryService } from '../../services/library.service';
 import { SongPrefsService } from '../../services/song-prefs.service';
+import { ConfirmDialog } from '../../ui/confirm-dialog';
 import { HintBanner } from '../../ui/hint-banner';
 import { FabMenu } from '../../ui/fab-menu';
+import { FolderNameDialog } from '../../ui/folder-name-dialog';
 import { Icon } from '../../ui/icon';
+import { ActionSheet, SheetAction } from '../../ui/action-sheet';
 
 type LibraryFilter = 'all' | 'notes';
 type LibrarySort = 'number' | 'title';
 
 @Component({
   selector: 'app-library-sidebar',
-  imports: [RouterLink, Icon, HintBanner, FabMenu],
+  imports: [RouterLink, NgTemplateOutlet, FolderBar, SelectionBar, Icon, HintBanner, FabMenu, FolderNameDialog, ConfirmDialog, ActionSheet],
   templateUrl: './library-sidebar.html',
   styleUrl: './library-sidebar.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -42,14 +51,20 @@ export class LibrarySidebar {
   private readonly annotations = inject(AnnotationService);
   private readonly prefs = inject(SongPrefsService);
   private readonly router = inject(Router);
+  private readonly toast = inject(ToastService);
+  protected readonly folderService = inject(FolderService);
   protected readonly layout = inject(LayoutService);
   protected readonly t = IT.library;
+  protected readonly ft = IT.folders;
   protected readonly st = IT.setlists;
   protected readonly ss = IT.settings;
   protected readonly numberLabel = numberLabel;
 
   private readonly searchInput = viewChild.required<ElementRef<HTMLInputElement>>('search');
   private readonly list = viewChild<ElementRef<HTMLElement>>('list');
+  private readonly nameDialog = viewChild.required(FolderNameDialog);
+  private readonly confirm = viewChild.required(ConfirmDialog);
+  private readonly sheet = viewChild.required(ActionSheet);
 
   protected readonly query = signal('');
   protected readonly filter = signal<LibraryFilter>('all');
@@ -85,12 +100,20 @@ export class LibrarySidebar {
     return id ? (this.library.byId().get(id)?.number ?? null) : null;
   });
 
+  /** The folder shown (null = all songs); lives in FolderService so other screens can use it as default. */
+  protected readonly folder = this.folderService.currentFolder;
+
   /**
-   * Filter → sort → search → one row per number. Recomputed only when one of
-   * its inputs changes.
+   * Filter → folder → sort → search → one row per number. Recomputed only
+   * when one of its inputs changes.
    */
   protected readonly results = computed<Song[]>(() => {
-    const songs = this.library.songs().filter(this.matchesFilter(this.filter()));
+    const folder = this.folder();
+    const inFolder = folder ? folderEntries(folder, this.library.byId()) : null;
+    const songs = this.library
+      .songs()
+      .filter(this.matchesFilter(this.filter()))
+      .filter((s) => !inFolder || inFolder.has(entryKey(s)));
     songs.sort(this.sort() === 'title' ? compareByTitle : compareByNumber);
     const entries = new Map(this.library.searchEntries().map((e) => [e.id, e]));
     const byId = this.library.byId();
@@ -105,6 +128,151 @@ export class LibrarySidebar {
     const groups = this.library.versionsByNumber();
     return rows.map((s) => (s.number === null ? s : mainVersion(groups.get(s.number)!)));
   });
+
+  // ── Selecting songs (to add to / move between folders) ────────────────────
+
+  protected readonly selecting = signal(false);
+  /** Selected library entries: entry key → the row's song (all its versions are filed). */
+  protected readonly selected = signal<ReadonlyMap<string, Song>>(new Map());
+  protected readonly allSelected = computed(
+    () => this.results().length > 0 && this.results().every((s) => this.selected().has(entryKey(s))),
+  );
+
+  protected isSelected(song: Song): boolean {
+    return this.selected().has(entryKey(song));
+  }
+
+  protected startSelecting(): void {
+    this.selected.set(new Map());
+    this.selecting.set(true);
+  }
+
+  protected stopSelecting(): void {
+    this.selecting.set(false);
+    this.selected.set(new Map());
+  }
+
+  protected toggleSelected(song: Song): void {
+    const next = new Map(this.selected());
+    const key = entryKey(song);
+    if (next.has(key)) next.delete(key);
+    else next.set(key, song);
+    this.selected.set(next);
+  }
+
+  protected toggleAll(): void {
+    this.selected.set(this.allSelected() ? new Map() : new Map(this.results().map((s) => [entryKey(s), s])));
+  }
+
+  /** Ids of the selected songs and all their versions. */
+  private selectedIds(): string[] {
+    return [...this.selected().values()].flatMap((s) => this.library.versionsOf(s).map((v) => v.id));
+  }
+
+  /**
+   * Asks which folder (all except `exceptId`, plus "Nuova cartella…").
+   * Resolves to a folder id, 'new', or null when cancelled.
+   */
+  private pickFolder(title: string, exceptId?: string): Promise<string | null> {
+    const actions: SheetAction[] = [
+      ...this.folderService
+        .folders()
+        .filter((f) => f.id !== exceptId)
+        .map((f): SheetAction => ({ id: f.id, label: f.name, icon: 'folder' })),
+      { id: 'new', label: this.ft.newEllipsis, icon: 'folderPlus' },
+    ];
+    return this.sheet().choose(title, actions, this.ft.cancel);
+  }
+
+  protected async addSelected(): Promise<void> {
+    const choice = await this.pickFolder(this.ft.addToTitle, this.folder()?.id);
+    if (choice) await this.addSelectedTo(choice === 'new' ? null : choice);
+  }
+
+  protected async moveSelected(): Promise<void> {
+    const choice = await this.pickFolder(this.ft.moveToTitle, this.folder()?.id);
+    if (choice) await this.moveSelectedTo(choice === 'new' ? null : choice);
+  }
+
+  private async addSelectedTo(folderId: string | null): Promise<void> {
+    const ids = this.selectedIds();
+    const count = this.selected().size;
+    // null = "Nuova cartella…": create it with the songs already inside.
+    const folder = folderId ? this.folderService.byId().get(folderId) : await this.nameDialog().create(ids);
+    if (!folder) return;
+    if (folderId) await this.folderService.addSongs([folder.id], ids);
+    this.stopSelecting();
+    this.toast.show(this.ft.songsAdded(count, folder.name));
+  }
+
+  private async moveSelectedTo(folderId: string | null): Promise<void> {
+    const from = this.folder();
+    if (!from) return;
+    const ids = this.selectedIds();
+    const count = this.selected().size;
+    const target = folderId ? this.folderService.byId().get(folderId) : await this.nameDialog().create();
+    if (!target) return;
+    // moveSongs looks the folders up by id: a just-created one is already in the service.
+    await this.folderService.moveSongs(from.id, target.id, ids);
+    this.stopSelecting();
+    this.toast.show(this.ft.songsMoved(count, target.name));
+  }
+
+  protected async removeSelectedHere(): Promise<void> {
+    const from = this.folder();
+    if (!from) return;
+    const count = this.selected().size;
+    await this.folderService.removeSongs([from.id], this.selectedIds());
+    this.stopSelecting();
+    this.toast.show(this.ft.songsRemoved(count, from.name));
+  }
+
+  // ── Folders ───────────────────────────────────────────────────────────────
+
+  /** ⋯ next to the count when a folder is open: rename, share, delete. */
+  protected async folderMenu(): Promise<void> {
+    const folder = this.folder();
+    if (!folder) return;
+    const choice = await this.sheet().choose(
+      folder.name,
+      [
+        { id: 'rename', label: this.ft.rename, icon: 'edit' },
+        { id: 'share', label: this.ft.share, icon: 'share' },
+        { id: 'delete', label: this.ft.delete, icon: 'trash', danger: true },
+      ],
+      this.ft.cancel,
+    );
+    if (choice === 'rename') await this.renameFolder();
+    else if (choice === 'share') await this.shareFolder();
+    else if (choice === 'delete') await this.deleteFolder();
+  }
+
+  private async renameFolder(): Promise<void> {
+    const folder = this.folder();
+    if (folder) await this.nameDialog().rename(folder);
+  }
+
+  private async deleteFolder(): Promise<void> {
+    const folder = this.folder();
+    if (!folder) return;
+    if (await this.confirm().ask({ ...this.ft.confirmDelete(folder.name), danger: true })) {
+      await this.folderService.remove(folder.id);
+    }
+  }
+
+  /** "Condividi i canti" for just this folder (songbook file, no personal data). */
+  private async shareFolder(): Promise<void> {
+    const folder = this.folder();
+    if (!folder) return;
+    const ids = new Set(folder.songIds);
+    const songs = this.library.songs().filter((s) => ids.has(s.id));
+    // Loaded on demand: the library is part of the start-up bundle.
+    const [{ shareOrDownload }, { createSongbookFile, songbookFileName }] = await Promise.all([
+      import('../../core/export'),
+      import('../../core/songbook-file'),
+    ]);
+    await shareOrDownload(songbookFileName(new Date(), folder.name), JSON.stringify(createSongbookFile(songs)));
+  }
 
   protected versionCount(song: Song): number {
     return this.library.versionsOf(song).length;
@@ -154,6 +322,7 @@ export class LibrarySidebar {
   }
 
   protected open(song: Song): void {
+    if (this.selecting()) return this.toggleSelected(song);
     void this.router.navigate(['/canto', song.id]);
     this.closeOnNarrowScreen();
   }
@@ -164,6 +333,7 @@ export class LibrarySidebar {
   }
 
   protected onDocumentKeydown(event: KeyboardEvent): void {
+    if (event.key === 'Escape' && this.selecting() && !isTyping(event.target)) return this.stopSelecting();
     if (event.key !== '/' || isTyping(event.target)) return;
     event.preventDefault();
     this.layout.sidebarOpen.set(true);

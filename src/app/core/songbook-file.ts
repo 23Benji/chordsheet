@@ -29,8 +29,14 @@ export function createSongbookFile(songs: readonly Song[]): SongbookFile {
   };
 }
 
-export function songbookFileName(now = new Date()): string {
-  return `chordsheet-canti-${now.toISOString().slice(0, 10)}.json`;
+export function songbookFileName(now = new Date(), folderName?: string): string {
+  const slug = folderName
+    ?.normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-|-$/g, '');
+  return `chordsheet-canti-${slug ? `${slug}-` : ''}${now.toISOString().slice(0, 10)}.json`;
 }
 
 const CHORDPRO_FILE = /\.(cho|chopro|chordpro|crd|pro|txt)$/i;

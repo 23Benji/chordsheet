@@ -2,6 +2,7 @@ import { Injectable, inject } from '@angular/core';
 import { ImportedFiles, classifyFiles } from '../core/songbook-file';
 import { IT } from '../i18n/it';
 import { BackupService } from './backup.service';
+import { FolderService } from './folder.service';
 import { LibraryService } from './library.service';
 
 export type ConflictPolicy = 'replace' | 'keepBoth' | 'skip';
@@ -11,6 +12,7 @@ export type ConflictPolicy = 'replace' | 'keepBoth' | 'skip';
 export class ImportService {
   private readonly library = inject(LibraryService);
   private readonly backup = inject(BackupService);
+  private readonly folders = inject(FolderService);
 
   async read(files: FileList | readonly File[]): Promise<ImportedFiles> {
     const list = await Promise.all(Array.from(files).map(async (f) => ({ name: f.name, text: await f.text() })));
@@ -21,10 +23,15 @@ export class ImportService {
     return this.library.countConflicts(files.songs);
   }
 
-  /** Imports everything; returns the message to show. */
-  async apply(files: ImportedFiles, policy: ConflictPolicy): Promise<string> {
+  /**
+   * Imports everything and files the songs (new, updated or already there)
+   * in `folderIds`; returns the message to show.
+   */
+  async apply(files: ImportedFiles, policy: ConflictPolicy, folderIds: readonly string[] = []): Promise<string> {
     for (const backup of files.backups) await this.backup.restore(backup, 'merge');
     const result = await this.library.importEntries(files.songs, policy);
+    await this.folders.addSongs(folderIds, result.songIds);
+    const folderNames = folderIds.map((id) => this.folders.byId().get(id)?.name).filter((n): n is string => !!n);
     const t = IT.importFiles;
     const parts = [
       result.added && t.added(result.added),
@@ -32,6 +39,7 @@ export class ImportService {
       result.skipped && t.skipped(result.skipped),
       files.backups.length && t.backups(files.backups.length),
       files.rejected.length && t.rejected(files.rejected.length),
+      result.songIds.length && folderNames.length && IT.folders.importedInto(folderNames),
     ].filter(Boolean);
     return parts.length ? parts.join(' · ') : t.nothing;
   }

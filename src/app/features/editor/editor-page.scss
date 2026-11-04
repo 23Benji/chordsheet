@@ -184,6 +184,18 @@
   }
 }
 
+.folders-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 16px;
+}
+
+.field-label {
+  color: var(--text-muted);
+  font-size: 13px;
+}
+
 .narrow-only {
   display: none;
 }
@@ -256,5 +268,12 @@
   .edit-pane,
   .preview-pane {
     padding-inline: 16px;
+  }
+
+  // The page scrolls up and down only; long lyric lines scroll inside their
+  // own row, so nothing can drag the whole editor sideways.
+  .edit-pane,
+  .preview-pane {
+    overflow-x: hidden;
   }
 }

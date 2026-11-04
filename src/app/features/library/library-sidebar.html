@@ -6,9 +6,25 @@
     <a class="tab" routerLink="/scalette" [class.selected]="onSetlists()" [attr.aria-current]="onSetlists() ? 'page' : null" (click)="closeOnNarrowScreen()">{{ st.tabSetlists }}</a>
   </nav>
   <span class="spacer"></span>
-  <a class="btn icon-btn new" routerLink="/nuovo" (click)="closeOnNarrowScreen()" [attr.aria-label]="t.newSong" [title]="t.newSong">
-    <app-icon name="plus" />
-  </a>
+  <!-- "Seleziona" / "Fine" top right, as in the system apps (an icon on wider screens, where the head is narrow). -->
+  <button
+    type="button"
+    class="btn select-toggle"
+    [class.done]="selecting()"
+    [attr.aria-label]="selecting() ? ft.done : ft.select"
+    [title]="selecting() ? ft.done : ft.select"
+    (click)="selecting() ? stopSelecting() : startSelecting()"
+  >
+    <span [class.phone-only]="!selecting()">{{ selecting() ? ft.done : ft.select }}</span>
+    @if (!selecting()) {
+      <app-icon class="wide-only" name="circleCheck" />
+    }
+  </button>
+  @if (!selecting()) {
+    <a class="btn icon-btn new" routerLink="/nuovo" (click)="closeOnNarrowScreen()" [attr.aria-label]="t.newSong" [title]="t.newSong">
+      <app-icon name="plus" />
+    </a>
+  }
   <button
     type="button"
     class="btn icon-btn collapse"
@@ -39,6 +55,8 @@
   <kbd class="kbd" aria-hidden="true" [title]="t.searchHint">/</kbd>
 </div>
 
+<app-folder-bar class="folder-bar" (changed)="activeIndex.set(0)" />
+
 <div class="controls">
   <!-- Two-way switch: all songs, or only the ones with your notes. -->
   <div class="filter" role="radiogroup" [attr.aria-label]="t.filterLabel">
@@ -57,6 +75,12 @@
   </div>
   <div class="sort-row">
     <span class="count">{{ t.count(results().length) }}</span>
+    @if (folder()) {
+      <button type="button" class="btn icon-btn folder-menu" (click)="folderMenu()" [attr.aria-label]="ft.menu" [title]="ft.menu">
+        <app-icon name="more" />
+      </button>
+    }
+    <span class="spacer"></span>
     <label class="sort">
       <span>{{ t.sortLabel }}</span>
       <span class="select">
@@ -68,45 +92,90 @@
       </span>
     </label>
   </div>
+  @if (selecting()) {
+    <div class="select-row" role="status">
+      <span>{{ selected().size ? ft.selected(selected().size) : ft.selectHint }}</span>
+      @if (results().length) {
+        <button type="button" class="btn link" (click)="toggleAll()">{{ allSelected() ? ft.selectNone : ft.selectAll }}</button>
+      }
+    </div>
+  }
 </div>
 
 <nav class="list" #list [attr.aria-label]="t.title">
   @for (song of results(); track song.id; let i = $index) {
-    <a
-      class="row"
-      [routerLink]="['/canto', song.id]"
-      [class.current]="isCurrent(song)"
-      [class.active]="query() !== '' && i === activeIndex()"
-      [attr.aria-current]="isCurrent(song) ? 'page' : null"
-      (click)="closeOnNarrowScreen()"
-    >
-      @if (song.number !== null) {
-        <span class="pill">{{ numberLabel(song) }}</span>
-      } @else {
-        <span class="pill pill-secondary">–</span>
-      }
-      <span class="name">{{ song.title }}</span>
-      @let versions = versionCount(song);
-      @if (versions > 1) {
-        <span class="pill pill-secondary versions" [title]="t.versionsHint">{{ t.versions(versions) }}</span>
-      }
-      @if (songsWithNotes().has(song.id)) {
-        <app-icon name="note" class="flag" [attr.title]="t.hasNotes" />
-      }
-      @if (songsWithTabs().has(song.id)) {
-        <app-icon name="tab" class="flag" />
-      }
-      @if (song.key) {
-        <span class="key">{{ song.key }}</span>
-      }
-    </a>
+    @if (selecting()) {
+      <!-- Selecting: a tap ticks the song instead of opening it. -->
+      <button
+        type="button"
+        class="row selectable"
+        role="checkbox"
+        [attr.aria-checked]="isSelected(song)"
+        [class.picked]="isSelected(song)"
+        [class.active]="query() !== '' && i === activeIndex()"
+        (click)="toggleSelected(song)"
+      >
+        <app-icon class="tick" [name]="isSelected(song) ? 'circleCheck' : 'circle'" />
+        <ng-container *ngTemplateOutlet="rowContent; context: { $implicit: song }" />
+      </button>
+    } @else {
+      <a
+        class="row"
+        [routerLink]="['/canto', song.id]"
+        [class.current]="isCurrent(song)"
+        [class.active]="query() !== '' && i === activeIndex()"
+        [attr.aria-current]="isCurrent(song) ? 'page' : null"
+        (click)="closeOnNarrowScreen()"
+      >
+        <ng-container *ngTemplateOutlet="rowContent; context: { $implicit: song }" />
+      </a>
+    }
   } @empty {
-    <p class="empty">{{ t.empty }}</p>
+    <p class="empty">{{ folder() && !query() && filter() === 'all' ? ft.emptyFolder : t.empty }}</p>
   }
 </nav>
 
-<!-- iPhone: floating glass button with "Nuovo canto" and "Impostazioni". -->
-<app-fab-menu />
+<ng-template #rowContent let-song>
+  @if (song.number !== null) {
+    <span class="pill">{{ numberLabel(song) }}</span>
+  } @else {
+    <span class="pill pill-secondary">–</span>
+  }
+  <span class="name">{{ song.title }}</span>
+  @let versions = versionCount(song);
+  @if (versions > 1) {
+    <span class="pill pill-secondary versions" [title]="t.versionsHint">{{ t.versions(versions) }}</span>
+  }
+  @if (songsWithNotes().has(song.id)) {
+    <app-icon name="note" class="flag" [attr.title]="t.hasNotes" />
+  }
+  @if (songsWithTabs().has(song.id)) {
+    <app-icon name="tab" class="flag" />
+  }
+  @if (song.key) {
+    <span class="key">{{ song.key }}</span>
+  }
+</ng-template>
+
+<!-- Selecting: what to do with the ticked songs. -->
+@if (selecting() && selected().size) {
+  <app-selection-bar
+    [count]="selected().size"
+    [folderName]="folder()?.name ?? null"
+    (add)="addSelected()"
+    (move)="moveSelected()"
+    (remove)="removeSelectedHere()"
+  />
+}
+
+<!-- iPhone: floating glass button with "Nuovo canto" and "Impostazioni" (hidden while selecting). -->
+@if (!selecting()) {
+  <app-fab-menu />
+}
+
+<app-folder-name-dialog />
+<app-confirm-dialog />
+<app-action-sheet />
 
 <footer class="foot">
   <a class="btn settings" routerLink="/impostazioni" (click)="closeOnNarrowScreen()">

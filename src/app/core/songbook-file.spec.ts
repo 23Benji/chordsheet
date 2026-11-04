@@ -1,6 +1,6 @@
 import { createBackup } from './backup';
 import { songFromChordPro } from './song-import';
-import { classifyFiles, createSongbookFile, nextFreeSuffix, SONGBOOK_FORMAT } from './songbook-file';
+import { classifyFiles, createSongbookFile, nextFreeSuffix, SONGBOOK_FORMAT, songbookFileName } from './songbook-file';
 
 describe('songbook file', () => {
   it('contains only the songs’ text, with file names', () => {
@@ -12,9 +12,15 @@ describe('songbook file', () => {
     });
   });
 
+  it('names the file after the day, and the folder when sharing one', () => {
+    const day = new Date('2026-11-04T10:00:00Z');
+    expect(songbookFileName(day)).toBe('chordsheet-canti-2026-11-04.json');
+    expect(songbookFileName(day, 'Natale & Avvento è')).toBe('chordsheet-canti-natale-avvento-e-2026-11-04.json');
+  });
+
   it('sorts chosen files into songs, backups and rejects', () => {
     const songbook = JSON.stringify(createSongbookFile([songFromChordPro('{title: A}\n[C]x', 'a.cho', 'created')]));
-    const backup = JSON.stringify(createBackup({ songs: [], songPrefs: [], annotations: [], setlists: [], settings: null }));
+    const backup = JSON.stringify(createBackup({ songs: [], songPrefs: [], annotations: [], setlists: [], folders: [], settings: null }));
     const result = classifyFiles([
       { name: '001 - Io lodo Te.cho', text: '{title: Io lodo Te}' },
       { name: 'canto.chopro', text: '[G]la' },

@@ -7,11 +7,13 @@ import { currentPlatform, songImportAccept } from '../../core/platform';
 import { RouterLink } from '@angular/router';
 import { IT } from '../../i18n/it';
 import { BackupService, RestoreMode } from '../../services/backup.service';
+import { FolderService } from '../../services/folder.service';
 import { ConflictPolicy, ImportService } from '../../services/import.service';
 import { LibraryService } from '../../services/library.service';
 import { SettingsService } from '../../services/settings.service';
 import { ToastService } from '../../services/toast.service';
 import { ConfirmDialog } from '../../ui/confirm-dialog';
+import { FolderPicker } from '../../ui/folder-picker';
 import { Icon } from '../../ui/icon';
 import { KeymapDialog } from '../../ui/keymap-dialog';
 import { SidebarToggle } from '../../ui/sidebar-toggle';
@@ -24,7 +26,7 @@ const FONT_MAX = 1.6;
 /** Settings as grouped rows: icon · what it does · control on the right. */
 @Component({
   selector: 'app-settings-page',
-  imports: [RouterLink, Icon, ConfirmDialog, KeymapDialog, Switch, SidebarToggle],
+  imports: [RouterLink, Icon, ConfirmDialog, KeymapDialog, Switch, SidebarToggle, FolderPicker],
   templateUrl: './settings-page.html',
   styleUrl: './settings-page.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -35,6 +37,8 @@ export class SettingsPage implements OnInit {
   private readonly library = inject(LibraryService);
   private readonly toast = inject(ToastService);
   private readonly importer = inject(ImportService);
+  private readonly folders = inject(FolderService);
+  protected readonly ft = IT.folders;
   private readonly importDialog = viewChild.required<ElementRef<HTMLDialogElement>>('importDialog');
   protected readonly it = IT.importFiles;
   protected readonly songsAccept = songImportAccept(currentPlatform(), IT.importFiles.accept);
@@ -59,8 +63,10 @@ export class SettingsPage implements OnInit {
   });
   /** "Canti inclusi" only makes sense when this build ships songs. */
   protected readonly bundled = signal(false);
-  /** Files chosen in "Importa canti", waiting for a decision about songs that already exist. */
+  /** Files chosen in "Importa canti", waiting for the folder choice (and what to do with songs that already exist). */
   protected readonly pendingImport = signal<{ files: ImportedFiles; conflicts: number } | null>(null);
+  /** Folders for the songs being imported; starts with the folder open in the library. */
+  protected readonly importFolders = signal<string[]>([]);
 
   /** Backup file chosen, waiting for "Unisci" or "Sostituisci". */
   protected readonly pendingRestore = signal<{ name: string; json: string } | null>(null);
@@ -78,26 +84,28 @@ export class SettingsPage implements OnInit {
     if (!list?.length) return;
     const files = await this.importer.read(list);
     input.value = '';
-    const conflicts = this.importer.conflicts(files);
-    if (conflicts) {
-      this.pendingImport.set({ files, conflicts });
-      this.importDialog().nativeElement.showModal();
-    } else {
+    if (!files.songs.length) {
+      // Only backups (or unknown files): nothing to file in a folder.
       await this.runImport(files, 'skip');
+      return;
     }
+    const current = this.folders.current();
+    this.importFolders.set(current ? [current] : []);
+    this.pendingImport.set({ files, conflicts: this.importer.conflicts(files) });
+    this.importDialog().nativeElement.showModal();
   }
 
   protected async resolveImport(policy: ConflictPolicy | null): Promise<void> {
     const pending = this.pendingImport();
     this.importDialog().nativeElement.close();
     this.pendingImport.set(null);
-    if (pending && policy) await this.runImport(pending.files, policy);
+    if (pending && policy) await this.runImport(pending.files, policy, this.importFolders());
   }
 
-  private async runImport(files: ImportedFiles, policy: ConflictPolicy): Promise<void> {
+  private async runImport(files: ImportedFiles, policy: ConflictPolicy, folderIds: string[] = []): Promise<void> {
     this.busy.set(true);
     try {
-      this.toast.show(await this.importer.apply(files, policy), 6000);
+      this.toast.show(await this.importer.apply(files, policy, folderIds), 6000);
     } finally {
       this.busy.set(false);
       void this.refreshStorage();

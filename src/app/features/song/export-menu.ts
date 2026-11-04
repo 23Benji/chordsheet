@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, inject, input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, input, output } from '@angular/core';
 import { choFileName, downloadText } from '../../core/export';
 import { chordproWithNotes } from '../../core/export-notes';
 import { Song } from '../../core/models';
@@ -17,6 +17,8 @@ import { Popover } from '../../ui/popover';
     <app-popover [label]="IT.song.more" [menu]="true">
       <app-icon trigger name="more" />
       <a class="menu-item" role="menuitem" [routerLink]="['/canto', song().id, 'modifica']"><app-icon name="edit" /> {{ IT.song.edit }}</a>
+      <!-- iPhone: no room for the Cartelle button in the bar, so it is here. -->
+      <button type="button" class="menu-item phone-only" role="menuitem" (click)="folders.emit()"><app-icon name="folder" /> {{ IT.folders.songMenu }}…</button>
       <div class="menu-separator"></div>
       <button type="button" class="menu-item" role="menuitem" (click)="exportCho(false)"><app-icon name="download" /> {{ t.cho }}</button>
       <button type="button" class="menu-item" role="menuitem" (click)="exportCho(true)"><app-icon name="note" /> {{ t.choNotes }}</button>
@@ -33,6 +35,8 @@ export class ExportMenu {
   protected readonly t = IT.exportMenu;
 
   readonly song = input.required<Song>();
+  /** "Cartelle…" chosen (iPhone only). */
+  readonly folders = output<void>();
 
   protected exportCho(withNotes: boolean): void {
     const song = this.song();

@@ -25,14 +25,16 @@ describe('LibraryService.importEntries', () => {
   it('adds new songs and handles existing numbers by policy', async () => {
     const { library } = setup();
     await library.load();
-    expect(await library.importEntries([entry('1', 'Io lodo Te'), entry('2', 'Celebriam')], 'skip')).toEqual({
-      added: 2,
-      replaced: 0,
-      skipped: 0,
-    });
+    const first = await library.importEntries([entry('1', 'Io lodo Te'), entry('2', 'Celebriam')], 'skip');
+    expect(first).toMatchObject({ added: 2, replaced: 0, skipped: 0 });
+    // Ids of the imported songs, so the caller can file them in a folder.
+    expect(first.songIds.sort()).toEqual(library.songs().map((s) => s.id).sort());
     expect(library.countConflicts([entry('1', 'Io lodo Te'), entry('3', 'Nuovo')])).toBe(1);
 
-    expect(await library.importEntries([entry('1', 'Io lodo Te', '[D]y')], 'skip')).toMatchObject({ skipped: 1 });
+    const skipped = await library.importEntries([entry('1', 'Io lodo Te', '[D]y')], 'skip');
+    expect(skipped).toMatchObject({ skipped: 1 });
+    // A skipped song is still reported: it can be filed in the chosen folder.
+    expect(skipped.songIds).toEqual([library.songs().find((s) => s.number === 1)!.id]);
 
     const id = library.songs().find((s) => s.number === 1)!.id;
     expect(await library.importEntries([entry('1', 'Io lodo Te', '[D]y')], 'replace')).toMatchObject({ replaced: 1 });

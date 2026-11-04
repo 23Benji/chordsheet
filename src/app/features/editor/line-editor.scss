@@ -83,7 +83,8 @@
   position: absolute;
   top: 1.7em;
   z-index: 5;
-  width: min(320px, 90vw);
+  // Never wider than the line (the left position is clamped to fit, too).
+  width: min(320px, 100%);
   padding: 12px;
   border-radius: var(--radius-m);
   background: var(--bg-elev-1);
@@ -133,6 +134,7 @@
 
 .pop-actions {
   display: flex;
+  flex-wrap: wrap;
   justify-content: flex-end;
   gap: 6px;
   margin-top: 12px;
@@ -140,4 +142,12 @@
 
 .danger {
   color: var(--coral);
+}
+
+// Phones: a slightly smaller monospace font so a typical lyric line (35–40
+// letters) fits without scrolling inside the line.
+@media (max-width: 600px) {
+  :host {
+    --mono-size: 15px;
+  }
 }
