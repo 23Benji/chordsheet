@@ -178,12 +178,21 @@ export class LibrarySidebar {
           divider: i === 0,
         }),
       ),
-      ...(folder ? [{ id: 'options', label: this.t.folderOptions(folder.name), icon: 'more', divider: true } as SheetAction] : []),
-      { id: 'new', label: this.ft.newEllipsis, icon: 'folderPlus', divider: !folder },
+      { id: 'new', label: this.ft.newEllipsis, icon: 'folderPlus', divider: true },
+      // The open folder's own actions, spelled out (one step, no sub-menu).
+      ...(folder
+        ? ([
+            { id: 'rename', label: this.t.folderRename(folder.name), icon: 'edit', divider: true },
+            { id: 'share', label: this.t.folderShare(folder.name), icon: 'share' },
+            { id: 'delete', label: this.t.folderDelete(folder.name), icon: 'trash', danger: true },
+          ] satisfies SheetAction[])
+        : []),
     ];
     const choice = await this.sheet().choose(this.t.showTitle, actions, this.ft.cancel);
     if (!choice) return;
-    if (choice === 'options') return this.folderMenu();
+    if (choice === 'rename') return this.renameFolder();
+    if (choice === 'share') return this.shareFolder();
+    if (choice === 'delete') return this.deleteFolder();
     if (choice === 'new') {
       const created = await this.nameDialog().create();
       if (created) this.showScope(created.id, 'all');
@@ -388,24 +397,6 @@ export class LibrarySidebar {
   }
 
   // ── Folders ───────────────────────────────────────────────────────────────
-
-  /** ⋯ next to the count when a folder is open: rename, share, delete. */
-  protected async folderMenu(): Promise<void> {
-    const folder = this.folder();
-    if (!folder) return;
-    const choice = await this.sheet().choose(
-      folder.name,
-      [
-        { id: 'rename', label: this.ft.rename, icon: 'edit' },
-        { id: 'share', label: this.ft.share, icon: 'share' },
-        { id: 'delete', label: this.ft.delete, icon: 'trash', danger: true },
-      ],
-      this.ft.cancel,
-    );
-    if (choice === 'rename') await this.renameFolder();
-    else if (choice === 'share') await this.shareFolder();
-    else if (choice === 'delete') await this.deleteFolder();
-  }
 
   private async renameFolder(): Promise<void> {
     const folder = this.folder();

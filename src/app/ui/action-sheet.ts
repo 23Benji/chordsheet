@@ -25,7 +25,7 @@ export interface SheetAction {
   selector: 'app-action-sheet',
   imports: [Icon],
   template: `
-    <dialog #dialog (close)="settle(null)" (click)="onBackdrop($event)" [attr.aria-label]="title()">
+    <dialog #dialog (close)="onClose()" (click)="onBackdrop($event)" [attr.aria-label]="title()">
       <div class="sheet" role="menu">
         <p class="sheet-title">{{ title() }}</p>
         @for (action of actions(); track action.id) {
@@ -142,6 +142,17 @@ export class ActionSheet {
     this.resolve = null;
     if (this.dialog().nativeElement.open) this.dialog().nativeElement.close();
     resolve?.(id);
+  }
+
+  /**
+   * The dialog's "close" event arrives a moment after close(). When a choice
+   * opens the sheet again right away (e.g. "Opzioni di …" → Rinomina /
+   * Condividi / Elimina), that late event finds the sheet open again and must
+   * not cancel the new question.
+   */
+  protected onClose(): void {
+    if (this.dialog().nativeElement.open) return;
+    this.settle(null);
   }
 
   protected onBackdrop(event: MouseEvent): void {
