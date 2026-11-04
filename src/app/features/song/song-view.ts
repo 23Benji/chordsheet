@@ -55,6 +55,8 @@ const WIDE_QUERY = '(min-width: 900px)';
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
     '(document:keydown)': 'onKeydown($event)',
+    // A panel slides over the bottom of the song: the iPhone toolbar steps aside.
+    '[class.panel-up]': 'panelOpen() || introOpen()',
   },
 })
 export class SongView {
@@ -354,8 +356,44 @@ export class SongView {
         this.pager()?.reset();
         this.closePanel();
         this.introOpen.set(false);
+        this.toolbarHidden.set(false);
+        this.lastTop = 0;
       });
     });
+  }
+
+  // ── iPhone: toolbar slides away while reading (like Safari) ───────────────
+
+  /**
+   * The bottom toolbar is hidden while scrolling down the song and back on a
+   * scroll up, at the top and at the end. It moves with a CSS transform over
+   * the song (position: fixed), so the text never moves when it shows/hides.
+   */
+  protected readonly toolbarHidden = signal(false);
+  private lastTop = 0;
+  /** scrollTop where the current scroll direction started. */
+  private turnTop = 0;
+  private direction = 0;
+
+  protected onSheetScroll(el: HTMLElement): void {
+    if (!this.layout.phone()) return;
+    const top = el.scrollTop;
+    const end = el.scrollHeight - el.clientHeight;
+    const delta = top - this.lastTop;
+    if (delta && Math.sign(delta) !== this.direction) {
+      this.direction = Math.sign(delta);
+      this.turnTop = this.lastTop;
+    }
+    this.lastTop = top;
+    // At the top, and at the end of the song (incl. the iOS bounce): visible.
+    if (top <= 10 || top >= end - 4) {
+      this.turnTop = Math.min(Math.max(top, 0), end);
+      this.toolbarHidden.set(false);
+      return;
+    }
+    // A small travel in one direction, not a single jittery event.
+    if (top - this.turnTop > 30) this.toolbarHidden.set(true);
+    else if (this.turnTop - top > 30) this.toolbarHidden.set(false);
   }
 
   /** Next/previous page with the configured keys (Space, PageDown, →… by default; pedals too). */

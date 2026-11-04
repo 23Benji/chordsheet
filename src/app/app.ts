@@ -43,6 +43,14 @@ export class App {
   );
   /** Editor open: a full-screen task with its own Annulla/Salva, so no bottom bar. */
   protected readonly editing = computed(() => /^\/nuovo|\/modifica(\?|$)/.test(this.url()));
+  /**
+   * No tab bar: the editor (a full-screen task with Annulla/Salva) and, on
+   * iPhone, a song — reading is full screen and the song's own toolbar sits
+   * at the bottom (a detail page hides the tab bar, as in many iOS apps).
+   */
+  protected readonly bottomBarHidden = computed(
+    () => this.editing() || (this.layout.phone() && /^\/canto\/[^/?#]+\/?([?#]|$)/.test(this.url())),
+  );
   /** Which bottom-bar tab is active. */
   protected readonly section = computed(() => {
     const url = this.url();

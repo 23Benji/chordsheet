@@ -17,6 +17,10 @@
       <div class="titles">
         <h1>{{ song.title }}</h1>
         <p class="key-line">
+          <!-- iPhone: the number moves here so the title gets the whole width. -->
+          @if (label()) {
+            <span class="number-inline">{{ label() }} ·</span>
+          }
           @if (keys().shapeKey; as key) {
             <span>{{ t.key }} <strong>{{ key }}</strong></span>
             @if (keys().soundingKey !== keys().originalKey && keys().originalKey) {
@@ -41,20 +45,25 @@
         <a class="btn icon-btn edit-action" [routerLink]="['/canto', song.id, 'modifica']" [attr.aria-label]="t.edit" [title]="t.edit">
           <app-icon name="edit" />
         </a>
-        <app-add-to-setlist [song]="song" />
+        <app-add-to-setlist #addToSetlist [song]="song" />
         <app-song-folders #songFolders [song]="song" />
-        <app-export-menu [song]="song" (folders)="songFolders.openSheet()" />
+        <app-export-menu [song]="song" (folders)="songFolders.openSheet()" (setlist)="addToSetlist.openSheet()" />
       </div>
     </div>
 
-    <!-- Song controls: one row of chips, each opens a small panel. -->
-    <div class="controls" role="toolbar" [attr.aria-label]="t.controls">
+    <!--
+      Song controls: one row of chips, each opens a small panel.
+      iPhone: the same controls become the bottom toolbar (icon over a short
+      label, all visible, no sideways scrolling). It slides away while
+      scrolling down the song and comes back on scroll up / at the end.
+    -->
+    <div class="controls" [class.song-toolbar]="layout.phone()" [class.tucked]="toolbarHidden()" role="toolbar" [attr.aria-label]="t.controls">
       <app-popover [label]="t.keyPanel" triggerClass="chip">
         <span trigger>
           <app-icon name="music" />
-          {{ t.key }} <span class="chip-value">{{ keys().shapeKey ?? '–' }}</span>
+          <span class="tool-text">{{ t.key }} <span class="chip-value">{{ keys().shapeKey ?? '–' }}</span></span>
           @if (capo() > 0) {
-            <span class="chip-value">· {{ t.capo(capo()) }}</span>
+            <span class="chip-value tool-extra">· {{ t.capo(capo()) }}</span>
           }
           <span class="chip-caret" aria-hidden="true">▼</span>
         </span>
@@ -104,7 +113,7 @@
       </app-popover>
 
       <app-popover [label]="t.textPanel" triggerClass="chip">
-        <span trigger><app-icon name="type" /> <span class="chip-value">{{ fontPercent() }}%</span><span class="chip-caret" aria-hidden="true">▼</span></span>
+        <span trigger><app-icon name="type" /> <span class="tool-text"><span class="chip-value">{{ fontPercent() }}%</span></span><span class="chip-caret" aria-hidden="true">▼</span></span>
         <p class="panel-title">{{ t.textPanel }}</p>
         <div class="panel-row">
           <span class="panel-label">{{ t.fontLabel }}</span>
@@ -135,7 +144,7 @@
 
       @if (versions().length > 1) {
         <app-popover [label]="t.versionLabel" triggerClass="chip" [menu]="true">
-          <span trigger><app-icon name="layers" /> {{ t.versionLabel }} <span class="chip-value">{{ label() }}</span><span class="chip-caret" aria-hidden="true">▼</span></span>
+          <span trigger><app-icon name="layers" /> <span class="tool-text">{{ t.versionLabel }} <span class="chip-value">{{ label() }}</span></span><span class="chip-caret" aria-hidden="true">▼</span></span>
           @for (v of versions(); track v.id) {
             <a
               class="menu-item"
@@ -156,14 +165,14 @@
       }
 
       <button type="button" class="chip intro-chip" [class.active]="!!intro()" (click)="openIntro()" [title]="t.intro.button">
-        <app-icon name="intro" />{{ t.intro.title }}
+        <app-icon name="intro" /><span class="tool-text">{{ t.intro.title }}</span>
       </button>
 
       <app-metronome [tempo]="song.tempo" />
 
       <app-popover [label]="t.notesPanel" triggerClass="chip">
         <span trigger>
-          <app-icon name="note" /> {{ t.notesChip }}
+          <app-icon name="note" /> <span class="tool-text">{{ t.notesChip }}</span>
           @if (showNotes() && resolved().orphans.length) {
             <span class="badge">{{ resolved().orphans.length }}</span>
           }
@@ -249,7 +258,7 @@
         </footer>
       </div>
     } @else {
-      <div class="scroll">
+      <div class="scroll" #sheetScroll (scroll)="onSheetScroll(sheetScroll)">
         <article class="sheet" [style.--lyrics-size.px]="lyricsPx()">
           <app-song-sheet
             [sheet]="sheet"

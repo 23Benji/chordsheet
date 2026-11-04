@@ -164,6 +164,12 @@
   color: var(--text-muted);
 }
 
+.number-inline {
+  display: none;
+  color: var(--accent);
+  font-weight: 700;
+}
+
 .actions {
   display: flex;
   flex: none;
@@ -243,19 +249,79 @@
   }
 
   .titles h1 {
-    font-size: 21px;
+    font-size: 20px;
   }
 
-  // Icon only for the primary action on phones; "Modifica" is in the ⋯ menu.
+  // Calm bar: back · title · ▶ · ⋯. The number is in the line under the
+  // title; Modifica, Scaletta and Cartelle are in ⋯.
+  .number {
+    display: none;
+  }
+
+  .number-inline {
+    display: inline;
+  }
+
+  .app-bar {
+    gap: 4px;
+  }
+
   .perform-label,
   .edit-action {
     display: none;
   }
 
+  // A plain tinted icon, like iOS bar buttons (no filled block next to the title).
   .perform {
     min-width: var(--tap);
     padding: 0;
-    margin-right: 2px;
+    border-color: transparent;
+    background: none;
+    box-shadow: none;
+    color: var(--accent);
+
+    app-icon {
+      --icon-size: 24px;
+    }
+  }
+
+  // Bottom toolbar (the chips' look inside it: .song-toolbar in styles.scss).
+  // Fixed over the song and moved with a transform only, so showing/hiding
+  // it never moves the text.
+  .controls.song-toolbar {
+    position: fixed;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 4;
+    gap: 0;
+    margin: 0;
+    padding: 4px 6px env(safe-area-inset-bottom);
+    overflow: visible;
+    background: var(--bg-elev-1);
+    box-shadow: 0 -1px 0 var(--border);
+    transition: transform 0.25s ease;
+
+    > * {
+      flex: 1 1 0;
+      min-width: 0;
+    }
+  }
+
+  .controls.song-toolbar.tucked,
+  :host(.panel-up) .controls.song-toolbar {
+    transform: translateY(100%);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .controls.song-toolbar {
+      transition: none;
+    }
+  }
+
+  // The end of the song stays readable above the toolbar.
+  .sheet {
+    padding-bottom: calc(84px + env(safe-area-inset-bottom));
   }
 }
 

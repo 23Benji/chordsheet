@@ -18,6 +18,7 @@ import { Popover } from '../../ui/popover';
       <app-icon trigger name="more" />
       <a class="menu-item" role="menuitem" [routerLink]="['/canto', song().id, 'modifica']"><app-icon name="edit" /> {{ IT.song.edit }}</a>
       <!-- iPhone: no room for the Cartelle button in the bar, so it is here. -->
+      <button type="button" class="menu-item phone-only" role="menuitem" (click)="setlist.emit()"><app-icon name="listAdd" /> {{ IT.setlists.addToSetlist }}…</button>
       <button type="button" class="menu-item phone-only" role="menuitem" (click)="folders.emit()"><app-icon name="folder" /> {{ IT.folders.songMenu }}…</button>
       <div class="menu-separator"></div>
       <button type="button" class="menu-item" role="menuitem" (click)="exportCho(false)"><app-icon name="download" /> {{ t.cho }}</button>
@@ -37,6 +38,8 @@ export class ExportMenu {
   readonly song = input.required<Song>();
   /** "Cartelle…" chosen (iPhone only). */
   readonly folders = output<void>();
+  /** "Aggiungi a una scaletta…" chosen (iPhone only). */
+  readonly setlist = output<void>();
 
   protected exportCho(withNotes: boolean): void {
     const song = this.song();

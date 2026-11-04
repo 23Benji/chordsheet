@@ -672,3 +672,77 @@ a {
     display: none !important;
   }
 }
+
+// iPhone song toolbar: the song's chips (Tonalità, testo, versione, intro,
+// metronomo, note) as toolbar items — icon over a short label, equal widths.
+// Global because the buttons live inside <app-popover> / <app-metronome>.
+@media (max-width: 600px) {
+  .song-toolbar {
+    app-popover,
+    app-metronome {
+      display: flex;
+    }
+
+    // The metronome wraps its own popover: that one must fill its slot too.
+    app-metronome app-popover {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .chip {
+      position: relative;
+      flex: 1;
+      flex-direction: column;
+      justify-content: center;
+      gap: 3px;
+      width: 100%;
+      min-width: 0;
+      height: 52px;
+      min-height: 0;
+      padding: 0 2px;
+      border: none;
+      border-radius: var(--radius-m);
+      background: none;
+      color: var(--text-muted);
+      font-size: 11px;
+      font-weight: 600;
+
+      &.open,
+      &:hover {
+        background: var(--surface);
+      }
+
+      app-icon {
+        --icon-size: 22px;
+        color: var(--text);
+      }
+
+      // The trigger's wrapper span steps aside: its parts become the column.
+      > span {
+        display: contents;
+      }
+    }
+
+    .chip-caret,
+    .tool-extra {
+      display: none;
+    }
+
+    .tool-text {
+      max-width: 100%;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .chip-value {
+      color: var(--accent);
+    }
+
+    .badge {
+      position: absolute;
+      top: 3px;
+      left: calc(50% + 6px);
+    }
+  }
+}
