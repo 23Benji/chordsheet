@@ -228,6 +228,19 @@
   }
 }
 
+// Tonalità panel: fixed width, so a longer key name ("F#m", "originale C#m")
+// never makes the panel grow or shift while transposing.
+.key-panel {
+  width: min(300px, calc(100vw - 44px));
+}
+
+.key-now {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 .small-btn {
   min-height: var(--tap-small);
   padding: 0 10px;

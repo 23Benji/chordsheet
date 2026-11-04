@@ -92,6 +92,49 @@
   font-size: 14px;
 }
 
+.phone-text {
+  display: none;
+}
+
+// iPhone: title on top, then ONE row of controls — speed on the left, text
+// size and keyboard on the right. Shorter speed label, slightly smaller buttons.
+@media (max-width: 600px) {
+  .controls {
+    flex-wrap: nowrap;
+    justify-content: space-between;
+    width: 100%;
+    gap: 6px;
+  }
+
+  .group {
+    flex: none;
+    padding: 0 2px;
+
+    .icon-btn {
+      min-width: 38px;
+      width: 38px;
+    }
+  }
+
+  .speed {
+    min-width: 2.8em;
+  }
+
+  .wide-text {
+    display: none;
+  }
+
+  .phone-text {
+    display: inline;
+  }
+
+  .from-tempo {
+    min-width: 38px;
+    padding: 0;
+    background: none;
+  }
+}
+
 .stage {
   position: absolute;
   inset: 0;

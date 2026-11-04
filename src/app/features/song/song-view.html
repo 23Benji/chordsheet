@@ -68,6 +68,7 @@
           <span class="chip-caret" aria-hidden="true">▼</span>
         </span>
         <p class="panel-title">{{ t.keyPanel }}</p>
+        <div class="key-panel">
         <div class="panel-row">
           <span class="panel-label">{{ t.transposeLabel }}</span>
           <span class="stepper">
@@ -80,14 +81,27 @@
             </button>
           </span>
         </div>
-        @if (transpose() !== 0) {
-          <div class="panel-row">
-            <span class="panel-label">{{ t.key }} {{ keys().soundingKey }} ({{ t.original(keys().originalKey ?? '–') }})</span>
-            <button type="button" class="btn small-btn" (click)="resetTranspose()" [attr.aria-label]="t.transposeReset">
-              <app-icon name="reset" /> {{ t.reset }}
-            </button>
-          </div>
-        }
+        <!--
+          Always there (fixed height), so transposing never makes the panel
+          grow or jump: at 0 it names the original key and "Originale" only
+          keeps its place (invisible, not focusable).
+        -->
+        <div class="panel-row">
+          <span class="panel-label key-now">
+            {{ t.key }} {{ keys().soundingKey ?? '–' }}
+            ({{ transpose() !== 0 ? t.original(keys().originalKey ?? '–') : t.originalShort }})
+          </span>
+          <button
+            type="button"
+            class="btn small-btn"
+            [style.visibility]="transpose() !== 0 ? 'visible' : 'hidden'"
+            [disabled]="transpose() === 0"
+            (click)="resetTranspose()"
+            [attr.aria-label]="t.transposeReset"
+          >
+            <app-icon name="reset" /> {{ t.reset }}
+          </button>
+        </div>
         <div class="panel-row">
           <span class="panel-label">{{ t.capoLabel }}</span>
           <span class="stepper">
@@ -109,6 +123,7 @@
               </button>
             }
           </span>
+        </div>
         </div>
       </app-popover>
 

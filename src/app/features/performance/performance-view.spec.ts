@@ -91,11 +91,11 @@ describe('PerformanceView', () => {
     press(']');
     await fixture.whenStable();
     fixture.detectChanges();
-    expect(el.querySelector('.speed')?.textContent).toBe('27 s/pagina');
+    expect(el.querySelector('.speed .wide-text')?.textContent).toBe('27 s/pagina');
     Array.from(el.querySelectorAll<HTMLButtonElement>('button')).find((x) => x.textContent?.includes('Da tempo'))!.click();
     await fixture.whenStable();
     fixture.detectChanges();
-    expect(el.querySelector('.speed')?.textContent).toBe('32 s/pagina');
+    expect(el.querySelector('.speed .wide-text')?.textContent).toBe('32 s/pagina');
   });
 
   it('uses the configured pedal keys', async () => {

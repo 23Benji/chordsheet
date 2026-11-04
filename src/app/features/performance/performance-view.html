@@ -36,12 +36,17 @@
         <button type="button" class="btn icon-btn" (click)="setSpeed(secondsPerScreen() + 3)" [attr.aria-label]="t.slower" [title]="t.slower">
           <app-icon name="slower" />
         </button>
-        <span class="speed">{{ t.seconds(secondsPerScreen()) }}</span>
+        <!-- iPhone: just "30 s", so all the controls fit on one line. -->
+        <span class="speed" [attr.aria-label]="t.seconds(secondsPerScreen())">
+          <span class="wide-text">{{ t.seconds(secondsPerScreen()) }}</span><span class="phone-text">{{ t.secondsShort(secondsPerScreen()) }}</span>
+        </span>
         <button type="button" class="btn icon-btn" (click)="setSpeed(secondsPerScreen() - 3)" [attr.aria-label]="t.faster" [title]="t.faster">
           <app-icon name="faster" />
         </button>
         @if (song.tempo) {
-          <button type="button" class="btn small" (click)="speedFromTempo()" [title]="t.fromTempoHint(song.tempo)">{{ t.fromTempo }}</button>
+          <button type="button" class="btn small from-tempo" (click)="speedFromTempo()" [title]="t.fromTempoHint(song.tempo)" [attr.aria-label]="t.fromTempoHint(song.tempo)">
+            <app-icon class="phone-text" name="metronome" /><span class="wide-text">{{ t.fromTempo }}</span>
+          </button>
         }
       </div>
 
