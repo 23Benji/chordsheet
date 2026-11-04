@@ -1,3 +1,4 @@
+// Trigger in the song controls (chip / iPhone toolbar).
 .trigger {
   position: relative;
   display: inline-flex;
@@ -20,73 +21,228 @@
   }
 }
 
+// ── Panel: same width and rhythm as the Tonalità panel ────────────────────
 .panel {
   display: flex;
   flex-direction: column;
-  align-items: center;
-  gap: 12px;
-  width: 220px;
-
-  .panel-title {
-    align-self: flex-start;
-  }
+  gap: 16px;
+  width: min(312px, calc(100vw - 44px));
 }
 
-.pulse {
-  width: 34px;
-  height: 34px;
-  border-radius: 50%;
-  background: var(--surface);
-  transition: transform 0.08s;
-
-  &.on {
-    background: var(--accent);
-    transform: scale(1.1);
-  }
-
-  &.accent {
-    box-shadow: 0 0 0 4px var(--highlight-amber);
-  }
-}
-
-.bpm-row,
-.row {
+.head {
   display: flex;
   align-items: center;
-  gap: 8px;
+  justify-content: space-between;
+  margin: -6px -6px -8px 0;
+
+  .panel-title {
+    margin: 0;
+  }
+}
+
+.sound {
+  color: var(--accent);
+
+  &.off {
+    color: var(--text-muted);
+  }
+}
+
+// Beat dots: the first beat larger; the current beat lit, a short glow on the click.
+.beats {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  height: 22px;
+}
+
+.beat {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--surface);
+  box-shadow: inset 0 0 0 1px var(--border);
+  transition:
+    background 0.12s,
+    transform 0.12s,
+    box-shadow 0.2s;
+
+  &.strong {
+    width: 14px;
+    height: 14px;
+  }
+
+  &.medium {
+    width: 12px;
+    height: 12px;
+  }
+
+  &.current {
+    background: var(--accent);
+    box-shadow: none;
+  }
+
+  &.flash {
+    transform: scale(1.25);
+    box-shadow: 0 0 0 5px var(--highlight-amber);
+  }
+}
+
+// −  108  +   with "BPM · Andante" under the number.
+.bpm-row {
+  display: grid;
+  grid-template-columns: 44px 1fr 44px;
+  align-items: center;
+}
+
+.step {
+  border-radius: 50%;
+  background: var(--surface);
 }
 
 .bpm {
   display: flex;
-  align-items: baseline;
-  gap: 4px;
-  color: var(--text-muted);
-  font-size: 13px;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
 
   input {
-    width: 64px;
-    padding: 4px;
+    width: 3.2ch;
+    padding: 0;
     border: none;
-    border-radius: var(--radius-s);
-    background: var(--surface);
-    font-size: 24px;
+    background: none;
+    color: var(--text);
+    font-family: var(--font-heading);
+    font-size: 44px;
     font-weight: 700;
     font-variant-numeric: tabular-nums;
+    line-height: 1;
     text-align: center;
+    -moz-appearance: textfield;
+
+    &::-webkit-outer-spin-button,
+    &::-webkit-inner-spin-button {
+      margin: 0;
+      -webkit-appearance: none;
+    }
+
+    &:focus {
+      outline: none;
+      color: var(--accent);
+    }
+  }
+}
+
+.unit {
+  color: var(--text-muted);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+// Slider: thin track, accent fill up to the thumb (--fill set from the BPM).
+.slider {
+  width: 100%;
+  height: 24px;
+  margin: 0;
+  background: none;
+  cursor: pointer;
+  -webkit-appearance: none;
+  appearance: none;
+
+  &::-webkit-slider-runnable-track {
+    height: 4px;
+    border-radius: 2px;
+    background: linear-gradient(to right, var(--accent) var(--fill), var(--surface) var(--fill));
+  }
+
+  &::-moz-range-track {
+    height: 4px;
+    border-radius: 2px;
+    background: linear-gradient(to right, var(--accent) var(--fill), var(--surface) var(--fill));
+  }
+
+  &::-webkit-slider-thumb {
+    width: 22px;
+    height: 22px;
+    margin-top: -9px;
+    border: none;
+    border-radius: 50%;
+    background: var(--text);
+    box-shadow: var(--shadow);
+    -webkit-appearance: none;
+  }
+
+  &::-moz-range-thumb {
+    width: 22px;
+    height: 22px;
+    border: none;
+    border-radius: 50%;
+    background: var(--text);
+    box-shadow: var(--shadow);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 4px;
+    border-radius: 4px;
+  }
+}
+
+// Time signature: a segmented control, full width.
+.meters {
+  display: flex;
+  gap: 2px;
+  padding: 3px;
+  border-radius: var(--radius-m);
+  background: var(--surface);
+
+  button {
+    flex: 1 1 0;
+    min-width: 0;
+    min-height: 36px;
+    border: none;
+    border-radius: var(--radius-s);
+    background: transparent;
+    color: var(--text-muted);
+    font: inherit;
+    font-size: 14px;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+    cursor: pointer;
+
+    &.selected {
+      background: var(--bg-elev-1);
+      color: var(--accent);
+      box-shadow: 0 1px 2px rgb(0 0 0 / 25%);
+    }
+  }
+}
+
+// Tap · ▶ Avvia: same height, one row.
+.actions {
+  display: grid;
+  grid-template-columns: 1fr 2fr;
+  gap: 8px;
+
+  .btn {
+    min-height: 48px;
   }
 }
 
 .tap {
   background: var(--surface);
+  font-weight: 700;
 }
 
-.sound {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 14px;
-}
+@media (prefers-reduced-motion: reduce) {
+  .beat {
+    transition: none;
 
-.start {
-  width: 100%;
+    &.flash {
+      transform: none;
+    }
+  }
 }

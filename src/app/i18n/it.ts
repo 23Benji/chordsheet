@@ -405,9 +405,26 @@ export const IT = {
     slower: 'Più lento',
     faster: 'Più veloce',
     tap: 'Tap',
+    tapHint: 'Tocca a tempo per misurare i BPM',
     sound: 'Suono',
+    soundOn: 'Attiva il suono',
+    soundOff: 'Disattiva il suono',
+    meter: 'Tempo (battiti per battuta)',
+    meterLabel: (beats: number) => (beats === 6 ? '6/8' : `${beats}/4`),
     start: 'Avvia',
     stop: 'Ferma',
+    /** Italian tempo markings, by BPM (below `upTo`). */
+    markings: [
+      { upTo: 60, name: 'Largo' },
+      { upTo: 66, name: 'Larghetto' },
+      { upTo: 76, name: 'Adagio' },
+      { upTo: 108, name: 'Andante' },
+      { upTo: 120, name: 'Moderato' },
+      { upTo: 156, name: 'Allegro' },
+      { upTo: 176, name: 'Vivace' },
+      { upTo: 200, name: 'Presto' },
+      { upTo: 999, name: 'Prestissimo' },
+    ],
   },
 
   diagrams: {

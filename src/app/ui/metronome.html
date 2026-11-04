@@ -7,25 +7,62 @@
     }
   </span>
   <div class="panel">
-    <p class="panel-title">{{ t.title }}</p>
-    <div class="pulse" [class.on]="flash() !== null" [class.accent]="flash() === 0" aria-hidden="true"></div>
+    <div class="head">
+      <p class="panel-title">{{ t.title }}</p>
+      <button
+        type="button"
+        class="btn icon-btn sound"
+        [class.off]="!sound()"
+        [attr.aria-pressed]="sound()"
+        [attr.aria-label]="sound() ? t.soundOff : t.soundOn"
+        [title]="sound() ? t.soundOff : t.soundOn"
+        (click)="sound.set(!sound())"
+      >
+        <app-icon [name]="sound() ? 'volume' : 'volumeOff'" />
+      </button>
+    </div>
+
+    <!-- The bar: one dot per beat, the first one larger; the current beat lights up. -->
+    <div class="beats" aria-hidden="true">
+      @for (slot of slots(); track slot.i) {
+        <span class="beat" [class]="slot.accent" [class.current]="current() === slot.i" [class.flash]="flash() === slot.i"></span>
+      }
+    </div>
+
     <div class="bpm-row">
-      <button type="button" class="btn icon-btn" (click)="setBpm(bpm() - 1)" [attr.aria-label]="t.slower"><app-icon name="minus" /></button>
+      <button type="button" class="btn icon-btn step" (click)="setBpm(bpm() - 1)" [attr.aria-label]="t.slower" [title]="t.slower"><app-icon name="minus" /></button>
       <label class="bpm">
-        <input #bpmInput type="number" inputmode="numeric" [value]="bpm()" (change)="setBpm(+bpmInput.value)" [attr.aria-label]="t.bpm" />
-        <span>BPM</span>
+        <input #bpmInput type="number" inputmode="numeric" [min]="bpmMin" [max]="bpmMax" [value]="bpm()" (change)="setBpm(+bpmInput.value)" [attr.aria-label]="t.bpm" />
+        <span class="unit">BPM · {{ marking() }}</span>
       </label>
-      <button type="button" class="btn icon-btn" (click)="setBpm(bpm() + 1)" [attr.aria-label]="t.faster"><app-icon name="plus" /></button>
+      <button type="button" class="btn icon-btn step" (click)="setBpm(bpm() + 1)" [attr.aria-label]="t.faster" [title]="t.faster"><app-icon name="plus" /></button>
     </div>
-    <div class="row">
-      <button type="button" class="btn tap" (click)="tap()">{{ t.tap }}</button>
-      <label class="sound">
-        <input type="checkbox" [checked]="sound()" (change)="sound.set(!sound())" />
-        {{ t.sound }}
-      </label>
+
+    <input
+      #slider
+      class="slider"
+      type="range"
+      [min]="bpmMin"
+      [max]="bpmMax"
+      [value]="bpm()"
+      [style.--fill.%]="fill()"
+      [attr.aria-label]="t.bpm"
+      (input)="setBpm(+slider.value)"
+    />
+
+    <div class="meters" role="radiogroup" [attr.aria-label]="t.meter">
+      @for (m of meters; track m) {
+        <button type="button" role="radio" [class.selected]="meter() === m" [attr.aria-checked]="meter() === m" (click)="setMeter(m)">
+          {{ t.meterLabel(m) }}
+        </button>
+      }
     </div>
-    <button type="button" class="btn btn-primary start" (click)="toggle()">
-      <app-icon [name]="running() ? 'pause' : 'play'" /> {{ running() ? t.stop : t.start }}
-    </button>
+
+    <div class="actions">
+      <button type="button" class="btn tap" (click)="tap()" [title]="t.tapHint">{{ t.tap }}</button>
+      <button type="button" class="btn btn-primary start" (click)="toggle()">
+        <app-icon [name]="running() ? 'pause' : 'play'" /> {{ running() ? t.stop : t.start }}
+      </button>
+    </div>
   </div>
 </app-popover>

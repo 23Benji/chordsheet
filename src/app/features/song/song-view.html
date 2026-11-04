@@ -115,7 +115,7 @@
           <span class="panel-label">{{ t.accidentals }}</span>
           <span class="segmented" role="radiogroup" [attr.aria-label]="t.accidentals">
             @for (option of accidentalOptions; track option.label) {
-              <button type="button" role="radio" [class.selected]="songAccidental() === option.value" [attr.aria-checked]="songAccidental() === option.value" (click)="setAccidental(option.value)">
+              <button type="button" role="radio" [class.glyph]="option.label.length === 1" [class.selected]="songAccidental() === option.value" [attr.aria-checked]="songAccidental() === option.value" (click)="setAccidental(option.value)">
                 {{ option.label }}
               </button>
             }

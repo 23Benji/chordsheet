@@ -39,3 +39,25 @@ export function beatsUntil(next: number, until: number, bpm: number): number[] {
   for (let t = next; t < until; t += step) beats.push(t);
   return beats;
 }
+
+/** Time signatures offered: beats per bar (6 = 6/8, felt in two). */
+export const METERS = [2, 3, 4, 6] as const;
+export type Meter = (typeof METERS)[number];
+
+/**
+ * How strong beat `beat` (0-based) of a bar is: 'strong' on the first beat,
+ * 'medium' on the second half of 6/8 (beat 4 of 6), 'weak' otherwise.
+ */
+export function beatAccent(beat: number, meter: Meter): 'strong' | 'medium' | 'weak' {
+  if (beat === 0) return 'strong';
+  if (meter === 6 && beat === 3) return 'medium';
+  return 'weak';
+}
+
+/**
+ * The Italian tempo marking for a BPM (Largo … Prestissimo), from a table of
+ * `{ upTo, name }` sorted by `upTo` (the names live in i18n/it.ts).
+ */
+export function tempoMarking(bpm: number, table: readonly { upTo: number; name: string }[]): string {
+  return (table.find((m) => bpm < m.upTo) ?? table[table.length - 1]).name;
+}
