@@ -34,6 +34,7 @@
 
 .tabs {
   display: flex;
+  margin-inline: auto;
   gap: 2px;
   padding: 3px;
   border-radius: var(--radius-m);
@@ -41,6 +42,9 @@
 }
 
 .tab {
+  // Equal segments on every screen (the same segmented control as on iPhone).
+  flex: 1 1 0;
+  min-width: 7.5em;
   min-height: var(--tap-small);
   padding: 0 12px;
   border: none;
@@ -203,6 +207,15 @@
 .tools-undo,
 .tools-break {
   display: none;
+}
+
+// "ChordPro" (short) in the segmented control on every screen, as on iPhone.
+.tab .long {
+  display: none;
+}
+
+.tab .short {
+  display: inline;
 }
 
 .tools-undo {

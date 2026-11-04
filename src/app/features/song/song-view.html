@@ -11,13 +11,10 @@
       <a class="btn icon-btn back phone-only" routerLink="/" [attr.aria-label]="t.backToLibrary" [title]="t.backToLibrary">
         <app-icon name="chevronLeft" />
       </a>
-      @if (label()) {
-        <span class="pill number">{{ label() }}</span>
-      }
       <div class="titles">
         <h1>{{ song.title }}</h1>
         <p class="key-line">
-          <!-- iPhone: the number moves here so the title gets the whole width. -->
+          <!-- The number sits in the info line, so the title gets the whole width. -->
           @if (label()) {
             <span class="number-inline">{{ label() }} ·</span>
           }
@@ -39,7 +36,7 @@
         </p>
       </div>
       <div class="actions">
-        <button type="button" class="btn btn-primary perform" (click)="perform()" [title]="pt.enter">
+        <button type="button" class="btn perform" (click)="perform()" [title]="pt.enter">
           <app-icon name="stage" /><span class="perform-label">{{ t.perform }}</span>
         </button>
         <a class="btn icon-btn edit-action" [routerLink]="['/canto', song.id, 'modifica']" [attr.aria-label]="t.edit" [title]="t.edit">
@@ -57,7 +54,7 @@
       label, all visible, no sideways scrolling). It slides away while
       scrolling down the song and comes back on scroll up / at the end.
     -->
-    <div class="controls" [class.song-toolbar]="layout.phone()" [class.tucked]="toolbarHidden()" role="toolbar" [attr.aria-label]="t.controls">
+    <div class="controls song-controls" [class.song-toolbar]="layout.phone()" [class.tucked]="toolbarHidden()" role="toolbar" [attr.aria-label]="t.controls">
       <app-popover [label]="t.keyPanel" triggerClass="chip">
         <span trigger>
           <app-icon name="music" />

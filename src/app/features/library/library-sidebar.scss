@@ -60,14 +60,22 @@
   color: var(--accent);
 }
 
+// One row on every screen: [ search ][ which songs ▾ ][ ⇅ ].
+.search-row {
+  display: flex;
+  gap: 8px;
+  margin: 8px 16px 8px;
+}
+
 .search {
   position: relative;
-  margin: 8px 16px 0;
+  flex: 1;
+  min-width: 0;
 
   input {
     width: 100%;
-    height: 44px;
-    padding: 0 40px 0 40px;
+    height: 40px;
+    padding: 0 36px 0 38px;
     border: 1px solid transparent;
     border-radius: var(--radius-m);
     background: var(--surface);
@@ -90,7 +98,7 @@
 
 .search-icon {
   position: absolute;
-  top: 12px;
+  top: 10px;
   left: 12px;
   color: var(--text-muted);
   pointer-events: none;
@@ -98,7 +106,7 @@
 
 .kbd {
   position: absolute;
-  top: 11px;
+  top: 9px;
   right: 10px;
   min-width: 22px;
   padding: 1px 6px;
@@ -108,57 +116,6 @@
   font-family: var(--font-body);
   font-size: 13px;
   text-align: center;
-}
-
-.controls {
-  padding: 12px 16px 8px;
-}
-
-// Two-way switch "Tutti | Con le mie note", full width.
-.filter {
-  display: flex;
-  gap: 2px;
-  padding: 3px;
-  border-radius: var(--radius-m);
-  background: var(--surface);
-
-  button {
-    flex: 1;
-    min-height: calc(var(--tap-small) - 2px);
-    border: none;
-    border-radius: var(--radius-s);
-    background: transparent;
-    color: var(--text-muted);
-    font-size: 14px;
-    font-weight: 700;
-    cursor: pointer;
-
-    &.selected {
-      background: var(--bg-elev-1);
-      color: var(--accent);
-      box-shadow: 0 1px 2px rgb(0 0 0 / 25%);
-    }
-  }
-}
-
-.sort-row {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  margin-top: 10px;
-  color: var(--text-muted);
-  font-size: 14px;
-}
-
-.sort {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-
-.folder-bar {
-  display: block;
-  margin-top: 12px;
 }
 
 .select-toggle {
@@ -178,13 +135,65 @@
   }
 }
 
-.count {
+// "Tutti i canti ▾" (or the folder / "Con le mie note") and the sort button.
+.scope,
+.sort-btn {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  height: 40px;
+  border: none;
+  border-radius: var(--radius-m);
+  background: var(--surface);
+  color: var(--text);
+  font: inherit;
+  font-size: 14px;
+  cursor: pointer;
+
+  &:hover {
+    background: var(--bg-elev-1);
+    box-shadow: inset 0 0 0 1px var(--border);
+  }
+}
+
+// Long folder names shrink with "…"; the search keeps at least ~half the row.
+.scope {
+  gap: 6px;
+  max-width: 44%;
+  padding: 0 10px;
+
+  &.on {
+    color: var(--accent);
+    font-weight: 700;
+  }
+
+  .caret {
+    --icon-size: 14px;
+    color: var(--text-muted);
+  }
+}
+
+.scope-name {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
   white-space: nowrap;
 }
 
-// iPhone only: the count under the list.
+.sort-btn {
+  justify-content: center;
+  width: 40px;
+  padding: 0;
+  color: var(--text-muted);
+}
+
+// How many songs: under the list.
 .list-count {
-  display: none;
+  margin: 0;
+  padding: 14px 0 0;
+  color: var(--text-muted);
+  font-size: 13px;
+  text-align: center;
 }
 
 // Selecting: "N selezionati / Seleziona tutti" (in the bar on iPhone).
@@ -194,7 +203,7 @@
   justify-content: space-between;
   gap: 8px;
   min-height: var(--tap-small);
-  margin: -2px 16px 0;
+  margin: 0 16px 2px;
   color: var(--text-muted);
   font-size: 14px;
 
@@ -447,87 +456,12 @@
     display: none;
   }
 
-  // ── Compact header: [ search ][ which songs ▾ ][ ⇅ ] ─────────────────────
-  // Chips, the Tutti/Con-le-mie-note switch and the count/sort row live in
-  // the pull-down and the sort button instead.
-  .folder-bar,
-  .controls,
+  // No keyboard shortcuts on a phone.
   .kbd {
     display: none;
   }
 
   .search-row {
-    display: flex;
-    gap: 8px;
-    margin: 6px 16px 8px;
-  }
-
-  .search {
-    flex: 1;
-    min-width: 0;
-    margin: 0;
-
-    input {
-      height: 38px;
-      padding-right: 10px;
-    }
-  }
-
-  .search-icon {
-    top: 9px;
-  }
-
-  .scope,
-  .sort-btn {
-    flex: none;
-    align-items: center;
-    height: 38px;
-    border: none;
-    border-radius: var(--radius-m);
-    background: var(--surface);
-    color: var(--text);
-    font: inherit;
-    font-size: 14px;
-    cursor: pointer;
-  }
-
-  // Long folder names shrink with "…"; the search keeps at least ~half the row.
-  .scope {
-    gap: 6px;
-    max-width: 44%;
-    padding: 0 10px;
-
-    &.on {
-      color: var(--accent);
-      font-weight: 700;
-    }
-
-    .caret {
-      --icon-size: 14px;
-      color: var(--text-muted);
-    }
-  }
-
-  .scope-name {
-    min-width: 0;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
-
-  .sort-btn {
-    justify-content: center;
-    width: 38px;
-    padding: 0;
-    color: var(--text-muted);
-  }
-
-  .list-count {
-    display: block;
-    margin: 0;
-    padding: 14px 0 0;
-    color: var(--text-muted);
-    font-size: 13px;
-    text-align: center;
+    margin-top: 6px;
   }
 }

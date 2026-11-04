@@ -14,7 +14,6 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { NavigationEnd, Router, RouterLink } from '@angular/router';
 import { filter, map } from 'rxjs';
 import { entryKey, folderEntries } from '../../core/folders';
-import { FolderBar } from './folder-bar';
 import { SelectionBar } from './selection-bar';
 import { Song } from '../../core/models';
 import { searchSongs } from '../../core/search';
@@ -40,7 +39,7 @@ type LibrarySort = 'number' | 'title';
 
 @Component({
   selector: 'app-library-sidebar',
-  imports: [RouterLink, NgTemplateOutlet, FolderBar, SelectionBar, Icon, HintBanner, FabMenu, FolderNameDialog, ConfirmDialog, ActionSheet],
+  imports: [RouterLink, NgTemplateOutlet, SelectionBar, Icon, HintBanner, FabMenu, FolderNameDialog, ConfirmDialog, ActionSheet],
   templateUrl: './library-sidebar.html',
   styleUrl: './library-sidebar.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -79,7 +78,6 @@ export class LibrarySidebar {
   /** Row highlighted with the arrow keys while typing in the search box. */
   protected readonly activeIndex = signal(0);
 
-  protected readonly filters: LibraryFilter[] = ['all', 'notes'];
   /** Notes, highlights, personal chords or a Promemoria. */
   protected readonly songsWithNotes = computed(
     () => new Set([...this.annotations.songsWithNotes(), ...this.prefs.songsWithMemo()]),

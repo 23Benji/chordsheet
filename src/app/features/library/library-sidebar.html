@@ -56,6 +56,11 @@
 
 <app-hint-banner class="hint" />
 
+<!--
+  One compact row on every screen: search · "which songs" pull-down (all /
+  with my notes / a folder, with counts and the folder's options) · sort.
+  Stays one line however many folders there are.
+-->
 <div class="search-row">
 <div class="search">
   <app-icon name="search" class="search-icon" />
@@ -66,65 +71,22 @@
     type="search"
     autocomplete="off"
     spellcheck="false"
-    [placeholder]="layout.phone() ? t.searchPlaceholderShort : t.searchPlaceholder"
+    [placeholder]="t.searchPlaceholderShort"
+    [title]="t.searchPlaceholder"
     [value]="query()"
     (input)="onQuery(search.value)"
     (keydown)="onSearchKeydown($event)"
   />
   <kbd class="kbd" aria-hidden="true" [title]="t.searchHint">/</kbd>
 </div>
-<!--
-  iPhone: instead of the chips, the switch and the sort row, one pull-down
-  ("which songs": all / with notes / a folder, with counts) and a sort button.
-  Stays one compact line however many folders there are.
--->
-<button type="button" class="scope phone-only" [class.on]="scopeActive()" [attr.aria-label]="t.showLabel(scopeLabel())" (click)="chooseScope()">
+<button type="button" class="scope" [class.on]="scopeActive()" [attr.aria-label]="t.showLabel(scopeLabel())" [title]="t.showLabel(scopeLabel())" (click)="chooseScope()">
   <app-icon [name]="folder() ? 'folder' : filter() === 'notes' ? 'note' : 'library'" />
   <span class="scope-name">{{ scopeLabel() }}</span>
   <app-icon class="caret" name="chevronDown" />
 </button>
-<button type="button" class="sort-btn phone-only" [attr.aria-label]="t.sortTitle + ': ' + t.sort[sort()]" [title]="t.sortTitle" (click)="chooseSort()">
+<button type="button" class="sort-btn" [attr.aria-label]="t.sortTitle + ': ' + t.sort[sort()]" [title]="t.sortTitle + ': ' + t.sort[sort()]" (click)="chooseSort()">
   <app-icon name="arrowUpDown" />
 </button>
-</div>
-
-<app-folder-bar class="folder-bar" (changed)="activeIndex.set(0)" />
-
-<div class="controls">
-  <!-- Two-way switch: all songs, or only the ones with your notes. -->
-  <div class="filter" role="radiogroup" [attr.aria-label]="t.filterLabel">
-    @for (f of filters; track f) {
-      <button
-        type="button"
-        role="radio"
-        [attr.aria-checked]="filter() === f"
-        [class.selected]="filter() === f"
-        [title]="f === 'notes' ? t.notesFilterHint : t.filters[f]"
-        (click)="filter.set(f); activeIndex.set(0)"
-      >
-        {{ t.filters[f] }}
-      </button>
-    }
-  </div>
-  <div class="sort-row">
-    <span class="count">{{ t.count(results().length) }}</span>
-    @if (folder()) {
-      <button type="button" class="btn icon-btn folder-menu" (click)="folderMenu()" [attr.aria-label]="ft.menu" [title]="ft.menu">
-        <app-icon name="more" />
-      </button>
-    }
-    <span class="spacer"></span>
-    <label class="sort">
-      <span class="sort-label">{{ t.sortLabel }}</span>
-      <span class="select">
-        <select [value]="sort()" (change)="sort.set($any($event.target).value)">
-          <option value="number">{{ t.sort.number }}</option>
-          <option value="title">{{ t.sort.title }}</option>
-        </select>
-        <app-icon name="chevronDown" />
-      </span>
-    </label>
-  </div>
 </div>
 
 @if (selecting()) {

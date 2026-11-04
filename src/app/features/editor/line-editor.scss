@@ -38,15 +38,19 @@
   }
 }
 
+// Chords as small tags on every screen: it's obvious they can be clicked /
+// dragged. The padding is taken back with a negative margin, so the letters
+// still start exactly at their character.
 .chord-chip {
   position: absolute;
   bottom: 0.1em;
   min-width: 0;
   min-height: 0;
-  padding: 0;
+  margin-left: -0.2em;
+  padding: 0 0.2em;
   border: none;
-  border-radius: 4px;
-  background: transparent;
+  border-radius: 5px;
+  background: var(--highlight-amber);
   color: var(--accent);
   font: inherit;
   font-weight: 700;
@@ -56,9 +60,11 @@
   touch-action: none; // dragging a chord must not scroll the page on touch screens
   user-select: none;
 
+  // Hovered / focused: an accent outline (the tag itself is always tinted).
   &:hover,
   &:focus-visible {
-    background: var(--highlight-amber);
+    outline: none;
+    box-shadow: 0 0 0 1px var(--accent);
   }
 
   &:active {
@@ -180,13 +186,6 @@
 
   .chord-row:hover {
     background: none;
-  }
-
-  .chord-chip {
-    margin-left: -0.2em;
-    padding: 0 0.2em;
-    border-radius: 5px;
-    background: var(--highlight-amber);
   }
 
   .pal {

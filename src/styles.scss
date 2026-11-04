@@ -756,6 +756,38 @@ a {
   }
 }
 
+// Song controls on wider screens: the same minimal look as the iPhone
+// toolbar — no borders or ▼, icon + label, a soft background on hover / open.
+.song-controls:not(.song-toolbar) {
+  gap: 2px;
+
+  .chip {
+    gap: 6px;
+    padding: 0 12px;
+    border-color: transparent;
+    background: none;
+    color: var(--text-muted);
+    font-weight: 600;
+
+    app-icon {
+      color: var(--text);
+    }
+
+    &:hover,
+    &.open {
+      background: var(--surface);
+    }
+  }
+
+  .chip-caret {
+    display: none;
+  }
+
+  .chip-value {
+    color: var(--accent);
+  }
+}
+
 // iPhone song toolbar: the song's chips (Tonalità, testo, versione, intro,
 // metronomo, note) as toolbar items — icon over a short label, equal widths.
 // Global because the buttons live inside <app-popover> / <app-metronome>.

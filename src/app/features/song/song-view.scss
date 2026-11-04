@@ -129,11 +129,6 @@
   gap: 12px;
 }
 
-.number {
-  flex: none;
-  font-size: 18px;
-}
-
 .titles {
   flex: 1;
   min-width: 0;
@@ -165,7 +160,6 @@
 }
 
 .number-inline {
-  display: none;
   color: var(--accent);
   font-weight: 700;
 }
@@ -177,8 +171,22 @@
   gap: 2px;
 }
 
+// Esibizione: tinted, not a filled block — calm next to the title (the
+// iPhone shows the same accent, as a plain icon).
 .perform {
   margin-right: 6px;
+  border-color: transparent;
+  background: var(--highlight-amber);
+  color: var(--accent);
+  font-weight: 700;
+
+  // Only with a mouse (on touch a hover colour sticks after the tap).
+  @media (hover: hover) {
+    &:hover {
+      background: var(--accent);
+      color: var(--accent-ink);
+    }
+  }
 }
 
 // Controls: one row of chips, scrolls sideways on narrow screens.
@@ -313,14 +321,6 @@
 
   // Calm bar: back · title · ▶ · ⋯. The number is in the line under the
   // title; Modifica, Scaletta and Cartelle are in ⋯.
-  .number {
-    display: none;
-  }
-
-  .number-inline {
-    display: inline;
-  }
-
   .app-bar {
     gap: 4px;
   }
