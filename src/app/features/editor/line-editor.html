@@ -3,9 +3,11 @@
     <span class="measure" #measure aria-hidden="true">0000000000</span>
     <div class="chord-row" (pointerdown)="onRowPointerDown($event)" [title]="t.chordRow">
       @for (chip of chips(); track chip.id) {
+        <!-- "chord-chip", not "chip": the global .chip (pill buttons) has a
+             min-height that pushed the chord away from its letter. -->
         <button
           type="button"
-          class="chip"
+          class="chord-chip"
           [style.left.ch]="chip.left"
           [attr.aria-label]="t.chordAria(chip.chord)"
           (pointerdown)="onChipPointerDown($event, chip)"
@@ -43,6 +45,18 @@
       [placeholder]="t.chordPopover.placeholder"
       (keydown.enter)="confirmPopover(chordInput.value)"
     />
+    @if (p.chordId) {
+      <!-- Move by one letter: much easier than dragging with a finger. -->
+      <div class="nudge">
+        <button type="button" class="btn icon-btn" (click)="nudge(-1)" [attr.aria-label]="t.chordPopover.left" [title]="t.chordPopover.left">
+          <app-icon name="chevronLeft" />
+        </button>
+        <span class="nudge-label">{{ t.chordPopover.move }}</span>
+        <button type="button" class="btn icon-btn" (click)="nudge(1)" [attr.aria-label]="t.chordPopover.right" [title]="t.chordPopover.right">
+          <app-icon name="chevronRight" />
+        </button>
+      </div>
+    }
     @if (palette().length) {
       <div class="palette" [attr.aria-label]="t.chordPopover.palette">
         @for (chord of palette(); track chord) {

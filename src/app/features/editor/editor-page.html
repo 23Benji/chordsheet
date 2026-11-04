@@ -2,9 +2,10 @@
   <button type="button" class="btn icon-btn" (click)="cancel()" [attr.aria-label]="t.back" [title]="t.back">
     <app-icon name="chevronLeft" />
   </button>
-  <h1>{{ isNew() ? t.titleNew : t.titleEdit }}</h1>
+  <!-- Narrower screens (iPad portrait, iPhone): no title — the tabs say where you are. -->
+  <h1 class="bar-title">{{ isNew() ? t.titleNew : t.titleEdit }}</h1>
   @if (dirty()) {
-    <span class="dirty" role="status"><span class="dot" aria-hidden="true"></span>{{ t.unsaved }}</span>
+    <span class="dirty" role="status" [title]="t.unsaved"><span class="dot" aria-hidden="true"></span><span class="dirty-text">{{ t.unsaved }}</span></span>
   }
 
   <div class="tabs" role="tablist">
@@ -12,7 +13,7 @@
       {{ t.tabVisual }}
     </button>
     <button type="button" role="tab" class="tab" [class.selected]="mode() === 'source' && !narrowPreview()" [attr.aria-selected]="mode() === 'source'" (click)="setMode('source')">
-      {{ t.tabSource }}
+      <span class="long">{{ t.tabSource }}</span><span class="short">{{ t.tabSourceShort }}</span>
     </button>
     <button type="button" role="tab" class="tab narrow-only" [class.selected]="narrowPreview()" [attr.aria-selected]="narrowPreview()" (click)="narrowPreview.set(true)">
       {{ t.tabPreview }}
@@ -20,13 +21,9 @@
   </div>
 
   <div class="bar-actions">
-    <button type="button" class="btn icon-btn" [disabled]="!canUndo()" (click)="undo()" [attr.aria-label]="t.undo" [title]="t.undo">
-      <app-icon name="undo" />
-    </button>
-    <button type="button" class="btn icon-btn" [disabled]="!canRedo()" (click)="redo()" [attr.aria-label]="t.redo" [title]="t.redo">
-      <app-icon name="redo" />
-    </button>
-    <button type="button" class="btn" (click)="cancel()">{{ t.cancel }}</button>
+    <ng-container *ngTemplateOutlet="undoRedo" />
+    <!-- The back arrow already cancels: on narrower screens this one goes. -->
+    <button type="button" class="btn cancel-text" (click)="cancel()">{{ t.cancel }}</button>
     <button type="button" class="btn btn-primary" (click)="save()">{{ t.save }}</button>
   </div>
 </header>
@@ -40,7 +37,7 @@
     <div class="tools">
       @if (mode() === 'visual') {
         <div class="group" role="group" [attr.aria-label]="t.tools.transpose">
-          <span class="group-label">{{ t.tools.transpose }}</span>
+          <span class="group-label"><span class="long">{{ t.tools.transpose }}</span><span class="short">{{ t.tools.transposeShort }}</span></span>
           <button type="button" class="btn icon-btn" (click)="transpose(-1)" [attr.aria-label]="t.tools.transposeDown" [title]="t.tools.transposeDown">
             <app-icon name="minus" />
           </button>
@@ -49,8 +46,15 @@
           </button>
         </div>
       }
-      <button type="button" class="chip" (click)="openPaste()"><app-icon name="paste" /> {{ t.tools.paste }}</button>
-      <app-popover [label]="t.tools.more" [menu]="true">
+      <button type="button" class="chip" (click)="openPaste()" [title]="t.tools.paste">
+        <app-icon name="paste" /> <span class="long">{{ t.tools.paste }}</span><span class="short">{{ t.tools.pasteShort }}</span>
+      </button>
+      <!-- iPhone: undo / redo live here (no room in the top bar), on a second row with ⋯. -->
+      <span class="tools-break" aria-hidden="true"></span>
+      <span class="tools-undo">
+        <ng-container *ngTemplateOutlet="undoRedo" />
+      </span>
+      <app-popover class="more" [label]="t.tools.more" [menu]="true">
         <app-icon trigger name="more" />
         <button type="button" class="menu-item" role="menuitem" (click)="exportCho()"><app-icon name="download" /> {{ t.tools.export }}</button>
         @if (song()?.source === 'bundled') {
@@ -106,6 +110,15 @@
     }
   </aside>
 </div>
+
+<ng-template #undoRedo>
+  <button type="button" class="btn icon-btn" [disabled]="!canUndo()" (click)="undo()" [attr.aria-label]="t.undo" [title]="t.undo">
+    <app-icon name="undo" />
+  </button>
+  <button type="button" class="btn icon-btn" [disabled]="!canRedo()" (click)="redo()" [attr.aria-label]="t.redo" [title]="t.redo">
+    <app-icon name="redo" />
+  </button>
+</ng-template>
 
 <!-- New song: which folders it goes in (after the title fields, before the lyrics). -->
 <ng-template #foldersField>

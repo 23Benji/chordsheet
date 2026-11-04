@@ -33,8 +33,12 @@ function setup(id?: string) {
     input.dispatchEvent(new Event('input'));
     fixture.detectChanges();
   };
+  // Exact text, or the long label of a button that also carries a short one
+  // (<span class="long">…</span><span class="short">…</span>, shown on phones).
   const button = (text: string) =>
-    Array.from(el.querySelectorAll<HTMLButtonElement>('button')).find((b) => b.textContent?.trim() === text)!;
+    Array.from(el.querySelectorAll<HTMLButtonElement>('button')).find(
+      (b) => b.textContent?.trim() === text || b.querySelector('.long')?.textContent?.trim() === text,
+    )!;
   return { fixture, el, type, button, saved, navigate };
 }
 

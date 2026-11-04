@@ -44,7 +44,11 @@ describe('HintBanner', () => {
   });
 
   it('reminds to make a backup after 14 days; "Più tardi" snoozes it', () => {
-    const { fixture, el, exported } = setup({ createdAt: Date.now() - 30 * DAY, lastBackupAt: Date.now() - 20 * DAY });
+    // 20 calendar days ago (not 20 × 24 h: across a daylight-saving change
+    // that lands 19 calendar days back late in the evening).
+    const twentyDaysAgo = new Date();
+    twentyDaysAgo.setDate(twentyDaysAgo.getDate() - 20);
+    const { fixture, el, exported } = setup({ createdAt: Date.now() - 30 * DAY, lastBackupAt: twentyDaysAgo.getTime() });
     expect(el.textContent).toContain('Ultimo backup: 20 giorni fa');
     Array.from(el.querySelectorAll<HTMLButtonElement>('button')).find((b) => b.textContent?.includes('Crea un backup'))!.click();
     expect(exported).toHaveBeenCalled();

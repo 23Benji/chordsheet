@@ -22,7 +22,7 @@ describe('LineEditor', () => {
   it('shows chords above the text at their character position', () => {
     const { el, text } = setup('[G]Dio è [D]grande');
     expect(text.value).toBe('Dio è grande');
-    const chips = Array.from(el.querySelectorAll<HTMLElement>('.chip'));
+    const chips = Array.from(el.querySelectorAll<HTMLElement>('.chord-chip'));
     expect(chips.map((c) => [c.textContent, c.style.left])).toEqual([
       ['G', '0ch'],
       ['D', '6ch'],
@@ -51,7 +51,7 @@ describe('LineEditor', () => {
 
   it('a focused chord moves with the arrow keys and is deleted with Canc', () => {
     const { fixture, el, current } = setup('[G]Dio');
-    const chip = () => el.querySelector<HTMLElement>('.chip')!;
+    const chip = () => el.querySelector<HTMLElement>('.chord-chip')!;
     chip().dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowRight' }));
     fixture.detectChanges();
     expect(current()).toBe('D[G]io');

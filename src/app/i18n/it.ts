@@ -524,6 +524,7 @@ export const IT = {
     unsaved: 'Modifiche non salvate',
     tabVisual: 'Visuale',
     tabSource: 'Sorgente ChordPro',
+    tabSourceShort: 'ChordPro',
     tabPreview: 'Anteprima',
     preview: 'Anteprima',
     save: 'Salva',
@@ -544,9 +545,11 @@ export const IT = {
 
     tools: {
       transpose: 'Trasponi il canto',
+      transposeShort: 'Trasponi',
       transposeDown: 'Abbassa tutti gli accordi di un semitono',
       transposeUp: 'Alza tutti gli accordi di un semitono',
       paste: 'Incolla testo con accordi sopra',
+      pasteShort: 'Incolla',
       export: 'Esporta .cho',
       restore: 'Ripristina originale',
       delete: 'Elimina canto',
@@ -590,6 +593,9 @@ export const IT = {
       remove: 'Elimina',
       cancel: 'Annulla',
       palette: 'Accordi del canto',
+      move: 'Sposta di una lettera',
+      left: 'Sposta a sinistra',
+      right: 'Sposta a destra',
     },
 
     pasteDialog: {

@@ -80,7 +80,9 @@
 
 .body {
   display: grid;
-  grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
+  // The editor gets the larger share: on an iPad in landscape a normal lyric
+  // line must fit without scrolling sideways inside it.
+  grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
   min-height: 0;
 }
 
@@ -196,14 +198,63 @@
   font-size: 13px;
 }
 
-.narrow-only {
+.narrow-only,
+.short,
+.tools-undo,
+.tools-break {
   display: none;
+}
+
+.tools-undo {
+  align-items: center;
 }
 
 // Narrow screens: editor or preview, chosen with the tabs.
 @media (max-width: 1099px) {
   .narrow-only {
     display: inline-block;
+  }
+
+  // One row: ‹ · Visuale | ChordPro | Anteprima · ↶ ↷ · Salva
+  .bar {
+    flex-wrap: nowrap;
+    gap: 8px;
+  }
+
+  .bar-title,
+  .cancel-text,
+  .dirty-text {
+    display: none;
+  }
+
+  // A segmented control: equal segments, centred between back and Salva.
+  .tabs {
+    flex: 1 1 auto;
+    max-width: 440px;
+    min-width: 0;
+    margin-inline: auto;
+  }
+
+  .tab {
+    flex: 1 1 0;
+    min-width: 0;
+    padding: 0 6px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .bar-actions {
+    flex: none;
+    margin-left: 0;
+  }
+
+  .tab .long {
+    display: none;
+  }
+
+  .tab .short {
+    display: inline;
   }
 
   .body {
@@ -268,6 +319,45 @@
   .edit-pane,
   .preview-pane {
     padding-inline: 16px;
+  }
+
+  .bar {
+    padding-inline: 8px 16px;
+    gap: 6px;
+  }
+
+  // Undo / redo move to the tools row; the paste button gets a short label.
+  .bar-actions > .icon-btn {
+    display: none;
+  }
+
+  .tools-undo {
+    display: inline-flex;
+  }
+
+  .tools .long {
+    display: none;
+  }
+
+  .tools .short {
+    display: inline;
+  }
+
+  // Second row: ↶ ↷ on the left, ⋯ on the right.
+  .tools-break {
+    display: block;
+    flex-basis: 100%;
+    height: 0;
+  }
+
+  .tools .more {
+    margin-left: auto;
+  }
+
+  // Three segments must fit between ‹ and Salva.
+  .tab {
+    padding: 0 4px;
+    font-size: 14px;
   }
 
   // The page scrolls up and down only; long lyric lines scroll inside their

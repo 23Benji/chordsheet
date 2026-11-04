@@ -20,6 +20,7 @@ import {
   updateChord,
 } from '../../core/editor-model';
 import { IT } from '../../i18n/it';
+import { Icon } from '../../ui/icon';
 
 export interface LineChange {
   line: EditorLyricsLine;
@@ -50,6 +51,7 @@ const POPOVER_PX = 320;
  */
 @Component({
   selector: 'app-line-editor',
+  imports: [Icon],
   templateUrl: './line-editor.html',
   styleUrl: './line-editor.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -92,8 +94,14 @@ export class LineEditor {
       el.setSelectionRange(request.caret, request.caret);
     });
     effect(() => {
-      // Focus the chord field as soon as the popover opens.
-      if (this.popover()) queueMicrotask(() => this.chordInput()?.nativeElement.select());
+      // Focus the chord field as soon as the box opens — except on touch
+      // screens when the song's chords are offered as buttons: the on-screen
+      // keyboard would cover them, and a tap on a chord is quicker.
+      const p = this.popover();
+      if (!p) return;
+      const touch = window.matchMedia?.('(pointer: coarse)').matches;
+      if (touch && this.palette().length) return;
+      queueMicrotask(() => this.chordInput()?.nativeElement.select());
     });
   }
 
@@ -201,6 +209,16 @@ export class LineEditor {
     else if (p.chordId) this.emit(updateChord(this.line(), p.chordId, chord));
     else if (chord) this.emit(addChord(this.line(), p.pos, chord));
     this.closePopover();
+  }
+
+  /** ◀ ▶ in the chord box: move the chord one letter left / right. */
+  protected nudge(step: -1 | 1): void {
+    const p = this.popover();
+    if (!p?.chordId) return;
+    const pos = Math.max(0, p.pos + step);
+    if (pos === p.pos) return;
+    this.emit(moveChord(this.line(), p.chordId, pos), `drag:${p.chordId}`);
+    this.popover.set({ ...p, pos });
   }
 
   protected removeFromPopover(): void {
