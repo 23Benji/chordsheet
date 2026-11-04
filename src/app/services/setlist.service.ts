@@ -41,7 +41,12 @@ export class SetlistService {
   }
 
   addSong(setlist: Setlist, songId: string): Promise<Setlist> {
-    return this.updateItems(setlist, [...setlist.items, newItem(songId)]);
+    return this.addSongs(setlist, [songId]);
+  }
+
+  /** Appends the songs at the end, in the given order. */
+  addSongs(setlist: Setlist, songIds: readonly string[]): Promise<Setlist> {
+    return this.updateItems(setlist, [...setlist.items, ...songIds.map((id) => newItem(id))]);
   }
 
   duplicate(setlist: Setlist): Promise<Setlist> {

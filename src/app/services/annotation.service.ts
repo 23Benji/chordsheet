@@ -75,8 +75,9 @@ export class AnnotationService {
     return after.filter((a) => a.orphaned).length;
   }
 
-  /** Forget a deleted song's annotations (the DB rows are deleted by LibraryService). */
-  forgetSong(songId: string): void {
-    this.annotations.update((list) => list.filter((a) => a.songId !== songId));
+  /** Forget deleted songs' annotations (the DB rows are deleted by LibraryService). */
+  forgetSongs(songIds: readonly string[]): void {
+    const gone = new Set(songIds);
+    this.annotations.update((list) => list.filter((a) => !gone.has(a.songId)));
   }
 }

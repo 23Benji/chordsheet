@@ -3,47 +3,84 @@ import { IT } from '../../i18n/it';
 import { Icon } from '../../ui/icon';
 
 /**
- * Bottom bar while selecting songs in the library: "Aggiungi a…", and inside
- * a folder also "Sposta in…" and "Togli". The library does the work.
+ * Bottom toolbar while selecting songs in the library, like the iOS system
+ * apps: icon over a short label. Cartella (add / move / take out), Scaletta,
+ * Condividi, Elimina. The library does the work; buttons are disabled until
+ * at least one song is ticked.
  */
 @Component({
   selector: 'app-selection-bar',
   imports: [Icon],
   template: `
     <div class="bar" role="toolbar" [attr.aria-label]="t.selected(count())">
-      <button type="button" class="btn btn-secondary" (click)="add.emit()">
-        <app-icon name="folderPlus" /> {{ t.addTo }}
+      <button type="button" class="action" [disabled]="!count()" (click)="folder.emit()">
+        <app-icon name="folderPlus" /> <span>{{ t.barFolder }}</span>
       </button>
-      @if (folderName(); as here) {
-        <button type="button" class="btn btn-secondary" (click)="move.emit()">
-          <app-icon name="folderInput" /> {{ t.moveTo }}
-        </button>
-        <button type="button" class="btn btn-secondary" (click)="remove.emit()" [title]="t.removeHereHint(here)">
-          <app-icon name="folderMinus" /> {{ t.removeHere }}
-        </button>
-      }
+      <button type="button" class="action" [disabled]="!count()" (click)="setlist.emit()">
+        <app-icon name="listAdd" /> <span>{{ t.barSetlist }}</span>
+      </button>
+      <button type="button" class="action" [disabled]="!count()" (click)="share.emit()">
+        <app-icon name="share" /> <span>{{ t.barShare }}</span>
+      </button>
+      <button type="button" class="action danger" [disabled]="!count()" (click)="delete.emit()">
+        <app-icon name="trash" /> <span>{{ t.barDelete }}</span>
+      </button>
     </div>
   `,
   styles: `
     .bar {
       display: flex;
-      gap: 6px;
-      padding: 10px 12px max(10px, env(safe-area-inset-bottom));
+      padding: 6px 8px max(6px, env(safe-area-inset-bottom));
       border-top: 1px solid var(--border);
       background: var(--bg-elev-1);
     }
-    /* Three buttons must fit the 340px library column too. */
-    .btn {
-      flex: 1 1 auto;
-      gap: 6px;
+    /* Four equal columns: fits the 340px library column as well as a phone. */
+    .action {
+      flex: 1 1 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 3px;
       min-width: 0;
-      padding-inline: 8px;
-      font-size: 14px;
-      white-space: nowrap;
+      min-height: 48px;
+      padding: 6px 2px;
+      border: none;
+      border-radius: var(--radius-m);
+      background: none;
+      color: var(--accent);
+      font: inherit;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+
+      app-icon {
+        font-size: 22px;
+      }
+      span {
+        max-width: 100%;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+      &:hover:not(:disabled) {
+        background: var(--surface);
+      }
+      &:focus-visible {
+        outline: 2px solid var(--accent);
+        outline-offset: -2px;
+      }
+      &:disabled {
+        color: var(--text-muted);
+        opacity: 0.5;
+        cursor: default;
+      }
+    }
+    .danger:not(:disabled) {
+      color: var(--coral);
     }
     @media (max-width: 600px) {
       .bar {
-        padding-bottom: 10px;
+        padding-bottom: 6px;
       }
     }
   `,
@@ -52,9 +89,8 @@ import { Icon } from '../../ui/icon';
 export class SelectionBar {
   protected readonly t = IT.folders;
   readonly count = input.required<number>();
-  /** The folder being shown, if any (enables Sposta / Togli). */
-  readonly folderName = input<string | null>(null);
-  readonly add = output<void>();
-  readonly move = output<void>();
-  readonly remove = output<void>();
+  readonly folder = output<void>();
+  readonly setlist = output<void>();
+  readonly share = output<void>();
+  readonly delete = output<void>();
 }

@@ -87,7 +87,27 @@ export const IT = {
     selectAll: 'Seleziona tutti',
     selectNone: 'Deseleziona',
     selected: (n: number) => (n === 1 ? '1 selezionato' : `${n} selezionati`),
-    selectHint: 'Tocca i canti da spostare o aggiungere a una cartella.',
+    selectHint: 'Tocca i canti da selezionare.',
+    // Bottom bar while selecting (icon over a short label, like the iOS toolbars)
+    barFolder: 'Cartella',
+    barSetlist: 'Scaletta',
+    barShare: 'Condividi',
+    barDelete: 'Elimina',
+    removeFrom: (folder: string) => `Togli da “${folder}”`,
+    addToSetlistTitle: 'Aggiungi alla scaletta',
+    newSetlistEllipsis: 'Nuova scaletta…',
+    songsAddedToSetlist: (n: number, setlist: string) =>
+      n === 1 ? `1 canto aggiunto a “${setlist}”.` : `${n} canti aggiunti a “${setlist}”.`,
+    confirmDeleteSongs: (n: number, extraVersions: number) => ({
+      title: n === 1 ? 'Eliminare 1 canto?' : `Eliminare ${n} canti?`,
+      message:
+        (n === 1 ? 'Il canto verrà tolto' : 'I canti verranno tolti') +
+        ' dalla libreria di questo dispositivo, insieme a impostazioni e note.' +
+        (extraVersions ? ` Vengono eliminate anche le altre versioni (${extraVersions} in più).` : ''),
+      confirm: 'Elimina',
+      cancel: 'Annulla',
+    }),
+    songsDeleted: (n: number) => (n === 1 ? '1 canto eliminato.' : `${n} canti eliminati.`),
     addTo: 'Aggiungi a…',
     addToTitle: 'Aggiungi alla cartella',
     moveTo: 'Sposta in…',

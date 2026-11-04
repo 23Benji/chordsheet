@@ -41,6 +41,12 @@ describe('FolderService', () => {
     expect(rows.get(one.id)!.songIds).toEqual(['y']);
     expect(rows.get(two.id)!.songIds).toEqual([]);
 
+    // Several deleted at once: one write per folder that held any of them.
+    await folders.addSongs([one.id, two.id], ['p', 'q']);
+    await folders.forgetSongs(['p', 'q', 'y']);
+    expect(rows.get(one.id)!.songIds).toEqual([]);
+    expect(rows.get(two.id)!.songIds).toEqual([]);
+
     folders.current.set(one.id);
     await folders.remove(one.id);
     expect(folders.current()).toBeNull();

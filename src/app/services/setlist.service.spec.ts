@@ -19,6 +19,10 @@ describe('SetlistService', () => {
     const list = await service.create('Domenica', '2026-11-08');
     const withSong = await service.addSong(list, 'song-1');
     expect(rows.get(list.id)?.items.map((i) => i.songId)).toEqual(['song-1']);
+    // Several at once (library selection): appended in the given order.
+    const more = await service.addSongs(withSong, ['song-3', 'song-2']);
+    expect(rows.get(list.id)?.items.map((i) => i.songId)).toEqual(['song-1', 'song-3', 'song-2']);
+    expect(new Set(more.items.map((i) => i.id)).size).toBe(3);
 
     const copy = await service.duplicate(withSong);
     expect(service.setlists().map((s) => s.name).sort()).toEqual(['Domenica', 'Domenica (copia)']);

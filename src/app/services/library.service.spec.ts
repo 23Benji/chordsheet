@@ -46,3 +46,32 @@ describe('LibraryService.importEntries', () => {
     expect(library.songs().filter((s) => s.number === 1).map((s) => s.suffix)).toEqual(['', 'b']);
   });
 });
+
+describe('LibraryService.deleteSongs', () => {
+  it('deletes several songs, their prefs and notes in one transaction, and leaves folders', async () => {
+    const song = (id: string, number: number): Song =>
+      ({ id, number, suffix: '', title: id, chordpro: `{title: ${id}}` }) as Song;
+    const rows = new Map([song('a', 1), song('b', 2), song('c', 3)].map((s) => [s.id, s]));
+    const deleted: Record<string, string[]> = { songs: [], prefs: [], notes: [] };
+    const db = {
+      songs: {
+        toArray: async () => [...rows.values()],
+        bulkDelete: async (ids: string[]) => ids.forEach((id) => rows.delete(id) && deleted['songs'].push(id)),
+      },
+      songPrefs: { bulkDelete: async (ids: string[]) => void deleted['prefs'].push(...ids) },
+      annotations: {
+        toArray: async () => [],
+        where: () => ({ anyOf: (ids: string[]) => ({ delete: async () => void deleted['notes'].push(...ids) }) }),
+      },
+      folders: { toArray: async () => [], bulkPut: async () => undefined },
+      transaction: async (_mode: string, _tables: unknown, work: () => Promise<void>) => work(),
+    };
+    TestBed.configureTestingModule({ providers: [{ provide: DB, useValue: db }] });
+    const library = TestBed.inject(LibraryService);
+    await library.load();
+
+    await library.deleteSongs(['a', 'c']);
+    expect(library.songs().map((s) => s.id)).toEqual(['b']);
+    expect(deleted).toEqual({ songs: ['a', 'c'], prefs: ['a', 'c'], notes: ['a', 'c'] });
+  });
+});

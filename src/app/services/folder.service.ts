@@ -75,10 +75,16 @@ export class FolderService {
   }
 
   /** A deleted song leaves every folder. */
-  async forgetSong(songId: string): Promise<void> {
+  forgetSong(songId: string): Promise<void> {
+    return this.forgetSongs([songId]);
+  }
+
+  /** Deleted songs leave every folder (one write per folder, however many songs). */
+  async forgetSongs(songIds: readonly string[]): Promise<void> {
+    const gone = new Set(songIds);
     await this.removeSongs(
-      this._folders().filter((f) => f.songIds.includes(songId)).map((f) => f.id),
-      [songId],
+      this._folders().filter((f) => f.songIds.some((id) => gone.has(id))).map((f) => f.id),
+      songIds,
     );
   }
 

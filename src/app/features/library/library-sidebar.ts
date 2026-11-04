@@ -25,6 +25,7 @@ import { FolderService } from '../../services/folder.service';
 import { ToastService } from '../../services/toast.service';
 import { LayoutService } from '../../services/layout.service';
 import { LibraryService } from '../../services/library.service';
+import { SetlistService } from '../../services/setlist.service';
 import { SongPrefsService } from '../../services/song-prefs.service';
 import { ConfirmDialog } from '../../ui/confirm-dialog';
 import { HintBanner } from '../../ui/hint-banner';
@@ -52,6 +53,7 @@ export class LibrarySidebar {
   private readonly prefs = inject(SongPrefsService);
   private readonly router = inject(Router);
   private readonly toast = inject(ToastService);
+  private readonly setlists = inject(SetlistService);
   protected readonly folderService = inject(FolderService);
   protected readonly layout = inject(LayoutService);
   protected readonly t = IT.library;
@@ -129,7 +131,7 @@ export class LibrarySidebar {
     return rows.map((s) => (s.number === null ? s : mainVersion(groups.get(s.number)!)));
   });
 
-  // ── Selecting songs (to add to / move between folders) ────────────────────
+  // ── Selecting songs (folders, setlists, share, delete several at once) ────
 
   protected readonly selecting = signal(false);
   /** Selected library entries: entry key → the row's song (all its versions are filed). */
@@ -184,12 +186,33 @@ export class LibrarySidebar {
     return this.sheet().choose(title, actions, this.ft.cancel);
   }
 
-  protected async addSelected(): Promise<void> {
+  /**
+   * "Cartella": outside a folder it asks straight away where to add; inside
+   * one it first asks what to do (add elsewhere, move, take out).
+   */
+  protected async folderSelected(): Promise<void> {
+    const here = this.folder();
+    if (!here) return this.addSelected();
+    const choice = await this.sheet().choose(
+      this.ft.selected(this.selected().size),
+      [
+        { id: 'add', label: this.ft.addTo, icon: 'folderPlus' },
+        { id: 'move', label: this.ft.moveTo, icon: 'folderInput' },
+        { id: 'remove', label: this.ft.removeFrom(here.name), icon: 'folderMinus' },
+      ],
+      this.ft.cancel,
+    );
+    if (choice === 'add') await this.addSelected();
+    else if (choice === 'move') await this.moveSelected();
+    else if (choice === 'remove') await this.removeSelectedHere();
+  }
+
+  private async addSelected(): Promise<void> {
     const choice = await this.pickFolder(this.ft.addToTitle, this.folder()?.id);
     if (choice) await this.addSelectedTo(choice === 'new' ? null : choice);
   }
 
-  protected async moveSelected(): Promise<void> {
+  private async moveSelected(): Promise<void> {
     const choice = await this.pickFolder(this.ft.moveToTitle, this.folder()?.id);
     if (choice) await this.moveSelectedTo(choice === 'new' ? null : choice);
   }
@@ -218,13 +241,61 @@ export class LibrarySidebar {
     this.toast.show(this.ft.songsMoved(count, target.name));
   }
 
-  protected async removeSelectedHere(): Promise<void> {
+  private async removeSelectedHere(): Promise<void> {
     const from = this.folder();
     if (!from) return;
     const count = this.selected().size;
     await this.folderService.removeSongs([from.id], this.selectedIds());
     this.stopSelecting();
     this.toast.show(this.ft.songsRemoved(count, from.name));
+  }
+
+  /**
+   * "Scaletta": appends the ticked songs to a setlist (or a new one), in the
+   * order they were ticked — so you can build a setlist by tapping songs in
+   * order. One item per row (the version shown), not every version.
+   */
+  protected async addSelectedToSetlist(): Promise<void> {
+    const choice = await this.sheet().choose(
+      this.ft.addToSetlistTitle,
+      [
+        ...this.setlists.setlists().map((s): SheetAction => ({ id: s.id, label: s.name, icon: 'list' })),
+        { id: 'new', label: this.ft.newSetlistEllipsis, icon: 'plus' },
+      ],
+      this.ft.cancel,
+    );
+    if (!choice) return;
+    const setlist =
+      choice === 'new'
+        ? await this.setlists.create(this.st.defaultName, new Date().toISOString().slice(0, 10))
+        : this.setlists.byId().get(choice);
+    if (!setlist) return;
+    const songs = [...this.selected().values()];
+    await this.setlists.addSongs(setlist, songs.map((s) => s.id));
+    this.stopSelecting();
+    this.toast.show(this.ft.songsAddedToSetlist(songs.length, setlist.name));
+  }
+
+  /** "Condividi": a songbook file with the ticked songs (all versions, no personal data). */
+  protected async shareSelected(): Promise<void> {
+    const ids = new Set(this.selectedIds());
+    const songs = this.library.songs().filter((s) => ids.has(s.id));
+    // The selection stays: sharing can be cancelled, as in Photos.
+    await this.shareSongs(songs);
+  }
+
+  /** "Elimina": after a confirmation, deletes the ticked songs and all their versions. */
+  protected async deleteSelected(): Promise<void> {
+    const count = this.selected().size;
+    const ids = this.selectedIds();
+    const ok = await this.confirm().ask({ ...this.ft.confirmDeleteSongs(count, ids.length - count), danger: true });
+    if (!ok) return;
+    const openId = this.currentId();
+    await this.library.deleteSongs(ids);
+    this.stopSelecting();
+    // The open song is gone: go back to the start page instead of "not found".
+    if (openId && ids.includes(openId)) void this.router.navigate(['/']);
+    this.toast.show(this.ft.songsDeleted(count));
   }
 
   // ── Folders ───────────────────────────────────────────────────────────────
@@ -265,13 +336,16 @@ export class LibrarySidebar {
     const folder = this.folder();
     if (!folder) return;
     const ids = new Set(folder.songIds);
-    const songs = this.library.songs().filter((s) => ids.has(s.id));
+    await this.shareSongs(this.library.songs().filter((s) => ids.has(s.id)), folder.name);
+  }
+
+  private async shareSongs(songs: Song[], name?: string): Promise<void> {
     // Loaded on demand: the library is part of the start-up bundle.
     const [{ shareOrDownload }, { createSongbookFile, songbookFileName }] = await Promise.all([
       import('../../core/export'),
       import('../../core/songbook-file'),
     ]);
-    await shareOrDownload(songbookFileName(new Date(), folder.name), JSON.stringify(createSongbookFile(songs)));
+    await shareOrDownload(songbookFileName(new Date(), name), JSON.stringify(createSongbookFile(songs)));
   }
 
   protected versionCount(song: Song): number {

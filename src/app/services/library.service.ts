@@ -132,16 +132,26 @@ export class LibraryService {
   }
 
   /** Deletes a song with its personal settings and notes. */
-  async deleteSong(id: string): Promise<void> {
-    // A Dexie transaction: either all three deletions happen, or none.
+  deleteSong(id: string): Promise<void> {
+    return this.deleteSongs([id]);
+  }
+
+  /**
+   * Deletes several songs with their personal settings and notes. Setlists
+   * keep their rows (shown as "song not found"), as for a single delete.
+   */
+  async deleteSongs(ids: readonly string[]): Promise<void> {
+    if (!ids.length) return;
+    // A Dexie transaction: either all the deletions happen, or none.
     await this.db.transaction('rw', [this.db.songs, this.db.songPrefs, this.db.annotations], async () => {
-      await this.db.songs.delete(id);
-      await this.db.songPrefs.delete(id);
-      await this.db.annotations.where('songId').equals(id).delete();
+      await this.db.songs.bulkDelete([...ids]);
+      await this.db.songPrefs.bulkDelete([...ids]);
+      await this.db.annotations.where('songId').anyOf([...ids]).delete();
     });
-    this._songs.update((songs) => songs.filter((s) => s.id !== id));
-    this.annotationService.forgetSong(id);
-    await this.folders.forgetSong(id);
+    const gone = new Set(ids);
+    this._songs.update((songs) => songs.filter((s) => !gone.has(s.id)));
+    this.annotationService.forgetSongs(ids);
+    await this.folders.forgetSongs(ids);
   }
 
   /** The original text of a bundled song (same number + suffix), for "Ripristina originale". */

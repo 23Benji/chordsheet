@@ -157,14 +157,14 @@
   }
 </ng-template>
 
-<!-- Selecting: what to do with the ticked songs. -->
-@if (selecting() && selected().size) {
+<!-- Selecting: what to do with the ticked songs (greyed out until one is ticked). -->
+@if (selecting()) {
   <app-selection-bar
     [count]="selected().size"
-    [folderName]="folder()?.name ?? null"
-    (add)="addSelected()"
-    (move)="moveSelected()"
-    (remove)="removeSelectedHere()"
+    (folder)="folderSelected()"
+    (setlist)="addSelectedToSetlist()"
+    (share)="shareSelected()"
+    (delete)="deleteSelected()"
   />
 }
 
