@@ -67,7 +67,8 @@ export class App {
   /** "Libreria" on the iPhone bar: show the song list. */
   protected openLibrary(): void {
     if (this.layout.phone()) {
-      void this.router.navigate(['/']);
+      if (this.section() === 'library' && this.router.url === '/') this.layout.libraryToTop.update((n) => n + 1);
+      else void this.router.navigate(['/']);
       return;
     }
     if (this.section() !== 'library') void this.router.navigate(['/']);

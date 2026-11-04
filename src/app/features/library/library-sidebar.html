@@ -1,6 +1,21 @@
+<!--
+  iPhone: everything down to the list scrolls together in .scroller, like a
+  native iOS list with a large title. The bar (.head) stays on top; the large
+  title and the search scroll away 1:1 with the finger (no animation, no
+  height change, so nothing jumps), and a small title fades into the bar.
+  Wider screens: .scroller is `display: contents` and only the list scrolls.
+-->
+<div class="scroller" #scroller (scroll)="onScroll()">
 <div class="head">
-  <!-- iPhone: a plain title; the bottom bar switches between sections. -->
-  <h1 class="phone-title">{{ t.title }}</h1>
+  <!-- iPhone bar: [Seleziona tutti] · small title (tap = back to the top) · [Seleziona / Fine] -->
+  <span class="nav-left">
+    @if (selecting() && results().length) {
+      <button type="button" class="btn link" (click)="toggleAll()">{{ allSelected() ? ft.selectNone : ft.selectAll }}</button>
+    }
+  </span>
+  <button type="button" class="nav-title" (click)="scrollToTop()" [attr.aria-hidden]="true" tabindex="-1">
+    {{ selecting() ? (selected().size ? ft.selected(selected().size) : ft.select) : t.title }}
+  </button>
   <nav class="tabs" [attr.aria-label]="st.title">
     <a class="tab" routerLink="/" [class.selected]="!onSetlists()" [attr.aria-current]="!onSetlists() ? 'page' : null">{{ st.tabLibrary }}</a>
     <a class="tab" routerLink="/scalette" [class.selected]="onSetlists()" [attr.aria-current]="onSetlists() ? 'page' : null" (click)="closeOnNarrowScreen()">{{ st.tabSetlists }}</a>
@@ -36,13 +51,8 @@
   </button>
 </div>
 
-<!--
-  iPhone: the search row tucks away while scrolling down the list and comes
-  back on the first scroll up (like Mail). The grid 1fr → 0fr trick animates
-  the height without knowing it in advance.
--->
-<div class="collapsible">
-<div class="collapsible-inner">
+<!-- iPhone: the large title, drawn behind the bar's row; scrolls away with the list. -->
+<h1 class="large-title">{{ t.title }}</h1>
 
 <app-hint-banner class="hint" />
 
@@ -117,9 +127,6 @@
   </div>
 </div>
 
-</div>
-</div>
-
 @if (selecting()) {
   <!-- Outside the collapsible part: always visible while selecting. -->
   <div class="select-row" role="status">
@@ -130,7 +137,7 @@
   </div>
 }
 
-<nav class="list" #list [attr.aria-label]="t.title" (scroll)="onListScroll()">
+<nav class="list" #list [attr.aria-label]="t.title">
   @for (song of results(); track song.id; let i = $index) {
     @if (selecting()) {
       <!-- Selecting: a tap ticks the song instead of opening it. -->
@@ -166,6 +173,7 @@
     <p class="list-count">{{ t.count(results().length) }}</p>
   }
 </nav>
+</div>
 
 <ng-template #rowContent let-song>
   @if (song.number !== null) {

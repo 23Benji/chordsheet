@@ -46,7 +46,7 @@ type LibrarySort = 'number' | 'title';
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
     '(document:keydown)': 'onDocumentKeydown($event)',
-    '[class.tucked]': 'tucked()',
+    '[class.selecting]': 'selecting()',
   },
 })
 export class LibrarySidebar {
@@ -66,6 +66,9 @@ export class LibrarySidebar {
 
   private readonly searchInput = viewChild.required<ElementRef<HTMLInputElement>>('search');
   private readonly list = viewChild<ElementRef<HTMLElement>>('list');
+  /** iPhone: the element that scrolls (title, search and list together). */
+  private readonly scroller = viewChild.required<ElementRef<HTMLElement>>('scroller');
+  private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
   private readonly nameDialog = viewChild.required(FolderNameDialog);
   private readonly confirm = viewChild.required(ConfirmDialog);
   private readonly sheet = viewChild.required(ActionSheet);
@@ -196,7 +199,12 @@ export class LibrarySidebar {
     this.folderService.current.set(folderId);
     this.filter.set(filter);
     this.activeIndex.set(0);
-    this.list()?.nativeElement.scrollTo({ top: 0 });
+    this.jumpToTop();
+  }
+
+  /** A new list (folder, filter, sort) starts at the top, without animation. */
+  private jumpToTop(): void {
+    (this.layout.phone() ? this.scroller() : this.list())?.nativeElement.scrollTo({ top: 0 });
   }
 
   protected async chooseSort(): Promise<void> {
@@ -210,7 +218,7 @@ export class LibrarySidebar {
     );
     if (choice === 'number' || choice === 'title') {
       this.sort.set(choice);
-      this.list()?.nativeElement.scrollTo({ top: 0 });
+      this.jumpToTop();
     }
   }
 
@@ -442,66 +450,34 @@ export class LibrarySidebar {
   constructor() {
     // Another component (e.g. the "/" shortcut) can ask for search focus.
     effect(() => {
-      if (this.layout.focusSearch() > 0) {
-        this.tucked.set(false);
-        this.focusSearch();
-      }
+      if (this.layout.focusSearch() > 0) this.focusSearch();
     });
-    // A new folder, filter or search shows a new list from the top: header back.
-    // `untracked` keeps `tucked` itself out of this effect's dependencies.
+    // Bottom bar: tapping "Libreria" while already on it goes back to the top (iOS).
     effect(() => {
-      this.folder();
-      this.filter();
-      this.query();
-      untracked(() => this.tucked.set(false));
+      if (this.layout.libraryToTop() > 0) untracked(() => this.scrollToTop());
     });
   }
 
-  // ── iPhone: header tucks away while scrolling down ────────────────────────
+  // ── iPhone: large title that scrolls away (like the system apps) ──────────
 
-  /** Search, folders and filters hidden (phone only, while scrolling down the list). */
-  protected readonly tucked = signal(false);
-  private lastTop = 0;
-  /** scrollTop where the current scroll direction started. */
-  private turnTop = 0;
-  private direction = 0;
-  /** While the header animates the list changes height (and may clamp scrollTop): ignore. */
-  private lockedUntil = 0;
-
-  protected onListScroll(): void {
+  /**
+   * Hands the scroll position to CSS as `--scroll` (a plain number of px).
+   * The stylesheet derives the large title's fade, the small title and the
+   * bar's background from it — all follow the finger 1:1, nothing animates
+   * on its own and no height changes, so the list never jumps.
+   * Written straight to the element's style: a signal would re-render the
+   * template on every scrolled frame for nothing.
+   */
+  protected onScroll(): void {
     if (!this.layout.phone()) return;
-    const list = this.list()!.nativeElement;
-    const top = list.scrollTop;
-    const delta = top - this.lastTop;
-    if (delta && Math.sign(delta) !== this.direction) {
-      this.direction = Math.sign(delta);
-      this.turnTop = this.lastTop;
-    }
-    this.lastTop = top;
-    if (performance.now() < this.lockedUntil) return;
-    // At the top (also iOS rubber band, top < 0): always the full header.
-    if (top <= 8) return this.setTucked(false);
-    // At the bottom: iOS bounces past the end and springs back — that spring
-    // back is not "scrolling up". Count a scroll up only from the end itself.
-    const end = list.scrollHeight - list.clientHeight;
-    if (top >= end - 1) {
-      this.turnTop = end;
-      this.direction = 0;
-      return;
-    }
-    // Hiding only pays off when the list is clearly longer than the screen.
-    if (!this.tucked() && list.scrollHeight - list.clientHeight < 240) return;
-    // Not while typing: the search field would vanish under the finger.
-    if (document.activeElement === this.searchInput().nativeElement) return;
-    // A small travel in one direction (not one event: slow scrolls move ~1px per frame).
-    if (top - this.turnTop > 24) this.setTucked(true);
-    else if (this.turnTop - top > 24) this.setTucked(false);
+    const top = Math.max(0, this.scroller().nativeElement.scrollTop);
+    this.host.nativeElement.style.setProperty('--scroll', `${Math.min(top, 200)}`);
   }
 
-  private setTucked(value: boolean): void {
-    if (this.tucked() === value) return;
-    this.tucked.set(value);
-    this.lockedUntil = performance.now() + 350;
+  /** Small title in the bar, or "Libreria" in the bottom bar again: back to the top. */
+  protected scrollToTop(): void {
+    const target = this.layout.phone() ? this.scroller() : this.list();
+    target?.nativeElement.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
   private matchesFilter(f: LibraryFilter): (song: Song) => boolean {

@@ -20,6 +20,8 @@ export class LayoutService {
   readonly forceShell = signal(false);
   /** Bumped to ask the library search box to take focus (e.g. after pressing "/"). */
   readonly focusSearch = signal(0);
+  /** Bumped when "Libreria" is tapped in the bottom bar while already there: back to the top. */
+  readonly libraryToTop = signal(0);
 
   constructor() {
     const query = window.matchMedia?.('(max-width: 600px)');
