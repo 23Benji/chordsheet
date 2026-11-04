@@ -174,13 +174,33 @@
   white-space: nowrap;
 }
 
+// Collapsible block (search → filters). Only ever tucked on iPhone; on wider
+// screens it's a plain one-row grid. `0fr` → `1fr` animates to the content's height.
+.collapsible {
+  display: grid;
+  // minmax(0, …): without it the column grows to the folder chips' full width.
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: 1fr;
+}
+
+.collapsible-inner {
+  min-width: 0;
+  min-height: 0;
+}
+
+// The iPhone toggle chip; wider screens keep the full-width switch.
+.notes-toggle {
+  display: none;
+}
+
+// Outside .controls, so it stays while the rest is tucked away.
 .select-row {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 8px;
   min-height: var(--tap-small);
-  margin-top: 6px;
+  margin: -2px 16px 0;
   color: var(--text-muted);
   font-size: 14px;
 
@@ -336,6 +356,93 @@
   // The head's "+" moves into the floating button's menu.
   .new {
     display: none;
+  }
+
+  // ── Compact header ────────────────────────────────────────────────────────
+  .search {
+    margin-top: 4px;
+
+    input {
+      height: 38px;
+    }
+  }
+
+  .search-icon {
+    top: 9px;
+  }
+
+  // No keyboard shortcuts on a phone.
+  .kbd,
+  .filter,
+  .sort-label {
+    display: none;
+  }
+
+  .folder-bar {
+    margin-top: 10px;
+  }
+
+  // One row: count · ⋯ · Con note · Numero ▾
+  .controls {
+    padding: 8px 16px 6px;
+  }
+
+  .sort-row {
+    gap: 6px;
+    margin-top: 0;
+  }
+
+  .notes-toggle {
+    display: inline-flex;
+    padding: 0 10px;
+    gap: 4px;
+    color: var(--text-muted);
+
+    &.on {
+      color: var(--accent);
+    }
+  }
+
+  // ── Tucked while scrolling down (like Mail) ───────────────────────────────
+  .phone-title {
+    transition: font-size 0.25s ease;
+  }
+
+  .head {
+    transition: padding 0.25s ease;
+  }
+
+  .collapsible {
+    transition:
+      grid-template-rows 0.25s ease,
+      opacity 0.2s ease;
+  }
+
+  .collapsible-inner {
+    overflow: hidden;
+  }
+
+  :host(.tucked) {
+    .head {
+      padding-bottom: 2px;
+    }
+
+    .phone-title {
+      font-size: 20px;
+    }
+
+    .collapsible {
+      grid-template-rows: 0fr;
+      opacity: 0;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .phone-title,
+    .head,
+    .collapsible {
+      transition: none;
+    }
   }
 
 }

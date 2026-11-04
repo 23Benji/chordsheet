@@ -36,6 +36,14 @@
   </button>
 </div>
 
+<!--
+  iPhone: search, folders and filters tuck away while scrolling down the list
+  and come back on the first scroll up (like Mail). The grid 1fr → 0fr trick
+  animates the height without knowing it in advance.
+-->
+<div class="collapsible">
+<div class="collapsible-inner">
+
 <app-hint-banner class="hint" />
 
 <div class="search">
@@ -81,8 +89,19 @@
       </button>
     }
     <span class="spacer"></span>
+    <!-- iPhone: "Tutti | Con le mie note" shrinks to this toggle chip. -->
+    <button
+      type="button"
+      class="chip notes-toggle"
+      [class.on]="filter() === 'notes'"
+      [attr.aria-pressed]="filter() === 'notes'"
+      [title]="t.notesFilterHint"
+      (click)="filter.set(filter() === 'notes' ? 'all' : 'notes'); activeIndex.set(0)"
+    >
+      <app-icon name="note" /> {{ t.notesShort }}
+    </button>
     <label class="sort">
-      <span>{{ t.sortLabel }}</span>
+      <span class="sort-label">{{ t.sortLabel }}</span>
       <span class="select">
         <select [value]="sort()" (change)="sort.set($any($event.target).value)">
           <option value="number">{{ t.sort.number }}</option>
@@ -92,17 +111,22 @@
       </span>
     </label>
   </div>
-  @if (selecting()) {
-    <div class="select-row" role="status">
-      <span>{{ selected().size ? ft.selected(selected().size) : ft.selectHint }}</span>
-      @if (results().length) {
-        <button type="button" class="btn link" (click)="toggleAll()">{{ allSelected() ? ft.selectNone : ft.selectAll }}</button>
-      }
-    </div>
-  }
 </div>
 
-<nav class="list" #list [attr.aria-label]="t.title">
+</div>
+</div>
+
+@if (selecting()) {
+  <!-- Outside the collapsible part: always visible while selecting. -->
+  <div class="select-row" role="status">
+    <span>{{ selected().size ? ft.selected(selected().size) : ft.selectHint }}</span>
+    @if (results().length) {
+      <button type="button" class="btn link" (click)="toggleAll()">{{ allSelected() ? ft.selectNone : ft.selectAll }}</button>
+    }
+  </div>
+}
+
+<nav class="list" #list [attr.aria-label]="t.title" (scroll)="onListScroll()">
   @for (song of results(); track song.id; let i = $index) {
     @if (selecting()) {
       <!-- Selecting: a tap ticks the song instead of opening it. -->

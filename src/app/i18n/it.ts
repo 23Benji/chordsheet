@@ -26,6 +26,8 @@ export const IT = {
       all: 'Tutti',
       notes: 'Con le mie note',
     },
+    /** iPhone: the filter is a small toggle chip next to the sort. */
+    notesShort: 'Con note',
     notesFilterHint: 'Solo i canti in cui hai aggiunto note, evidenziazioni, assoli, accordi personali o un promemoria',
     sortLabel: 'Ordina',
     sort: { number: 'Numero', title: 'Titolo' },

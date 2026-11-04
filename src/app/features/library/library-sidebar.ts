@@ -6,6 +6,7 @@ import {
   effect,
   inject,
   signal,
+  untracked,
   viewChild,
 } from '@angular/core';
 import { NgTemplateOutlet } from '@angular/common';
@@ -45,6 +46,7 @@ type LibrarySort = 'number' | 'title';
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
     '(document:keydown)': 'onDocumentKeydown($event)',
+    '[class.tucked]': 'tucked()',
   },
 })
 export class LibrarySidebar {
@@ -359,8 +361,58 @@ export class LibrarySidebar {
   constructor() {
     // Another component (e.g. the "/" shortcut) can ask for search focus.
     effect(() => {
-      if (this.layout.focusSearch() > 0) this.focusSearch();
+      if (this.layout.focusSearch() > 0) {
+        this.tucked.set(false);
+        this.focusSearch();
+      }
     });
+    // A new folder, filter or search shows a new list from the top: header back.
+    // `untracked` keeps `tucked` itself out of this effect's dependencies.
+    effect(() => {
+      this.folder();
+      this.filter();
+      this.query();
+      untracked(() => this.tucked.set(false));
+    });
+  }
+
+  // ── iPhone: header tucks away while scrolling down ────────────────────────
+
+  /** Search, folders and filters hidden (phone only, while scrolling down the list). */
+  protected readonly tucked = signal(false);
+  private lastTop = 0;
+  /** scrollTop where the current scroll direction started. */
+  private turnTop = 0;
+  private direction = 0;
+  /** While the header animates the list changes height (and may clamp scrollTop): ignore. */
+  private lockedUntil = 0;
+
+  protected onListScroll(): void {
+    if (!this.layout.phone()) return;
+    const list = this.list()!.nativeElement;
+    const top = list.scrollTop;
+    const delta = top - this.lastTop;
+    if (delta && Math.sign(delta) !== this.direction) {
+      this.direction = Math.sign(delta);
+      this.turnTop = this.lastTop;
+    }
+    this.lastTop = top;
+    if (performance.now() < this.lockedUntil) return;
+    // At the top (also iOS rubber band, top < 0): always the full header.
+    if (top <= 8) return this.setTucked(false);
+    // Hiding only pays off when the list is clearly longer than the screen.
+    if (!this.tucked() && list.scrollHeight - list.clientHeight < 240) return;
+    // Not while typing: the search field would vanish under the finger.
+    if (document.activeElement === this.searchInput().nativeElement) return;
+    // A small travel in one direction (not one event: slow scrolls move ~1px per frame).
+    if (top - this.turnTop > 24) this.setTucked(true);
+    else if (this.turnTop - top > 24) this.setTucked(false);
+  }
+
+  private setTucked(value: boolean): void {
+    if (this.tucked() === value) return;
+    this.tucked.set(value);
+    this.lockedUntil = performance.now() + 350;
   }
 
   private matchesFilter(f: LibraryFilter): (song: Song) => boolean {
