@@ -352,7 +352,16 @@ export class SongView {
 
     // iPhone/iPad app: fetch the PDF code in the background, so "Stampa / PDF"
     // opens the share sheet right away (iOS only allows it shortly after the tap).
-    if (this.pdfInsteadOfPrint) setTimeout(() => void import('./song-pdf-render'), 1500);
+    if (this.pdfInsteadOfPrint) {
+      effect(() => {
+        // Everything the PDF shows: song, transposed sheet, number, key, capo.
+        this.song();
+        this.sheet();
+        this.keys();
+        this.capo();
+        untracked(() => this.preparePdfs());
+      });
+    }
 
     // Opening another song starts again from page 1. `untracked` stops the
     // effect from re-running for the signals used inside it.
@@ -382,7 +391,7 @@ export class SongView {
 
   protected print(mode: 'chords' | 'lyrics'): void {
     if (this.pdfInsteadOfPrint) {
-      void this.sharePdf(mode);
+      this.sharePdf(mode);
       return;
     }
     // Print the clean sheet (.print-sheet). 'lyrics' = words only, for the
@@ -395,29 +404,84 @@ export class SongView {
     setTimeout(() => window.print(), 50);
   }
 
-  private async sharePdf(mode: 'chords' | 'lyrics'): Promise<void> {
+  /**
+   * iOS opens the share sheet only right after a tap ("transient user
+   * activation"). Building the PDF takes a moment (the first time jsPDF must
+   * load too), so both PDFs are made in advance whenever the song or its
+   * transposition changes; the tap then just hands the ready file over.
+   */
+  private readonly readyPdfs = new Map<'chords' | 'lyrics', File>();
+  private pdfGeneration = 0;
+
+  /** Called (debounced) when what the PDF shows changes. */
+  private preparePdfs(): void {
+    const generation = ++this.pdfGeneration;
+    this.readyPdfs.clear();
+    setTimeout(async () => {
+      for (const mode of ['chords', 'lyrics'] as const) {
+        if (generation !== this.pdfGeneration) return; // the song changed meanwhile
+        try {
+          const file = await this.buildPdf(mode);
+          if (file && generation === this.pdfGeneration) this.readyPdfs.set(mode, file);
+        } catch {
+          // Built again on the tap; an error is reported there.
+        }
+      }
+    }, 400);
+  }
+
+  private async buildPdf(mode: 'chords' | 'lyrics'): Promise<File | null> {
     const song = this.song();
     const sheet = this.sheet();
-    if (!song || !sheet) return;
-    const et = IT.exportMenu;
+    if (!song || !sheet) return null;
     const meta = [this.label() ? `N. ${this.label()}` : '', sheet.subtitle ?? ''];
     if (mode === 'chords') {
       const key = this.keys().shapeKey;
       meta.push(key ? `${this.t.key} ${key}` : '', this.capo() > 0 ? this.t.capo(this.capo()) : '', song.tempo ? this.t.tempo(song.tempo) : '');
     }
     const base = choFileName(song).replace(/\.cho$/, '');
-    const fileName = `${base}${mode === 'lyrics' ? ` (${et.pdfLyricsSuffix})` : ''}.pdf`;
-    try {
-      // Loaded on demand (jsPDF): preloaded in the background when the song opens.
-      const { songPdfFile } = await import('./song-pdf-render');
-      const file = await songPdfFile(
-        sheet,
-        { mode, title: song.title, meta: meta.filter(Boolean), label: sectionLabel, repeat: `(${this.t.sections.repeat})` },
-        fileName,
-      );
+    const fileName = `${base}${mode === 'lyrics' ? ` (${IT.exportMenu.pdfLyricsSuffix})` : ''}.pdf`;
+    const { songPdfFile } = await import('./song-pdf-render');
+    return songPdfFile(
+      sheet,
+      { mode, title: song.title, meta: meta.filter(Boolean), label: sectionLabel, repeat: `(${this.t.sections.repeat})` },
+      fileName,
+    );
+  }
+
+  private sharePdf(mode: 'chords' | 'lyrics'): void {
+    const ready = this.readyPdfs.get(mode);
+    // Ready: share straight away, still inside the tap.
+    if (ready) {
+      void this.shareFile(ready);
+      return;
+    }
+    // Not ready yet (just opened / just transposed): build it, then try.
+    void this.buildPdf(mode)
+      .then((file) => file && this.shareFile(file))
+      .catch(() => this.toast.show(IT.exportMenu.pdfError));
+  }
+
+  /**
+   * If iOS refuses because the tap is "too old" (NotAllowedError), offer a
+   * button: tapping it is a new tap, and the file is ready by then.
+   */
+  private async shareFile(file: File): Promise<void> {
+    const et = IT.exportMenu;
+    if (!navigator.canShare?.({ files: [file] })) {
       const { shareOrDownloadFile } = await import('../../core/export');
       await shareOrDownloadFile(file);
-    } catch {
+      return;
+    }
+    try {
+      await navigator.share({ files: [file], title: file.name });
+    } catch (e) {
+      const name = (e as Error).name;
+      if (name === 'AbortError') return; // the user closed the share sheet
+      if (name === 'NotAllowedError') {
+        this.toast.show(et.pdfReady, 0, { label: et.pdfShare, run: () => void navigator.share({ files: [file], title: file.name }).catch(() => undefined) });
+        return;
+      }
       this.toast.show(et.pdfError);
     }
   }

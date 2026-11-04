@@ -90,10 +90,17 @@
     transition: opacity 0.15s;
   }
 
-  &:hover .row-actions,
   &:focus-within .row-actions,
   .row-actions:has(.convert) {
     opacity: 1;
+  }
+
+  // Only with a mouse: on iOS a :hover that reveals something turns the first
+  // tap into a "hover" and only the second into a click.
+  @media (hover: hover) {
+    &:hover .row-actions {
+      opacity: 1;
+    }
   }
 }
 

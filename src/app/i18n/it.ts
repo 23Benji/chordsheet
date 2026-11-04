@@ -389,6 +389,8 @@ export const IT = {
     pdfLyricsSuffix: 'testo',
     pdfPreparing: 'Preparo il PDF…',
     pdfError: 'Non è stato possibile creare il PDF.',
+    pdfReady: 'PDF pronto.',
+    pdfShare: 'Condividi PDF',
   },
 
   exportNotes: {
