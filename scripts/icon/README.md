@@ -1,10 +1,12 @@
-App icons: a chord diagram on a frosted-glass tile over a warm dark
-background with an amber glow (dark-mode, "glassy").
+App icon "Accordo": two lines of lyrics with a small amber mark above each
+(a chord over a syllable) on a warm dark glass surface that fills the whole
+icon — minimal, no instrument.
 
 - `icon-art.svg` — the artwork, 512 × 512, full bleed. **Edit this one.**
 - `make-variants.mjs` builds the three framings from it:
   `icon.svg` (rounded corners), `icon-apple.svg` (full bleed — iOS rounds it),
-  `icon-maskable.svg` (artwork inside Android's 80 % safe circle).
+  `icon-maskable.svg` (only the symbol, `id="symbol"`, scaled into
+  Android's 80 % safe circle; the glass stays full bleed).
 
 Regenerate on macOS (Chrome renders the blur/glow; `sips` alone can't):
 
