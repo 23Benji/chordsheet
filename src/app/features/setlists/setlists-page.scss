@@ -25,7 +25,12 @@
 .title {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 12px;
+}
+
+.gear {
+  margin-left: auto;
+  color: var(--accent);
 }
 
 .head-actions {
@@ -155,5 +160,10 @@
 @media (max-width: 600px) {
   .page {
     padding-inline: 16px;
+  }
+
+  // The title line spans the row, so the gear sits at the far right.
+  .title {
+    flex: 1 1 100%;
   }
 }

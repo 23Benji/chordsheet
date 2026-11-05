@@ -51,8 +51,6 @@ export const IT = {
     hasNotes: 'Ha note personali',
     newSong: 'Nuovo canto',
     settings: 'Impostazioni',
-    fabOpen: 'Nuovo canto e impostazioni',
-    fabClose: 'Chiudi menu',
     versions: (n: number) => `${n} versioni`,
     versionsHint: 'Questo canto ha più versioni: scegli quale nella pagina del canto',
   },

@@ -1,6 +1,12 @@
 <div class="page">
   <header class="head">
-    <div class="title"><app-sidebar-toggle /><h1>{{ t.title }}</h1></div>
+    <div class="title">
+      <app-sidebar-toggle /><h1>{{ t.title }}</h1>
+      <!-- iPhone: Impostazioni top right, in the same place as in Libreria. -->
+      <a class="btn icon-btn gear phone-only" routerLink="/impostazioni" [attr.aria-label]="settingsLabel" [title]="settingsLabel">
+        <app-icon name="settings" />
+      </a>
+    </div>
     <div class="head-actions">
       <label class="btn btn-secondary">
         <app-icon name="fileUp" /> {{ t.import }}

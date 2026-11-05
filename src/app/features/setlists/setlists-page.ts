@@ -26,6 +26,7 @@ export class SetlistsPage {
   private readonly toast = inject(ToastService);
   private readonly dialog = viewChild.required(ConfirmDialog);
   protected readonly t = IT.setlists;
+  protected readonly settingsLabel = IT.settings.link;
   protected readonly formatDate = formatSetlistDate;
 
   protected readonly creating = signal(false);

@@ -21,6 +21,8 @@
     <a class="tab" routerLink="/scalette" [class.selected]="onSetlists()" [attr.aria-current]="onSetlists() ? 'page' : null" (click)="closeOnNarrowScreen()">{{ st.tabSetlists }}</a>
   </nav>
   <span class="spacer"></span>
+  <!-- iPhone: "Seleziona" and the gear share the right column of the bar (display: contents on wider screens). -->
+  <span class="nav-right">
   <!-- "Seleziona" / "Fine" top right, as in the system apps (an icon on wider screens, where the head is narrow). -->
   <button
     type="button"
@@ -35,6 +37,13 @@
       <app-icon class="wide-only" name="circleCheck" />
     }
   </button>
+  <!-- iPhone: Impostazioni at the top right, like the account button in Apple's apps. -->
+  @if (!selecting()) {
+    <a class="btn icon-btn gear phone-only" routerLink="/impostazioni" [attr.aria-label]="ss.link" [title]="ss.link">
+      <app-icon name="settings" />
+    </a>
+  }
+  </span>
   @if (!selecting()) {
     <a class="btn icon-btn new" routerLink="/nuovo" (click)="closeOnNarrowScreen()" [attr.aria-label]="t.newSong" [title]="t.newSong">
       <app-icon name="plus" />

@@ -5,7 +5,9 @@
 }
 
 .page {
-  max-width: 720px;
+  // Wide enough to use a laptop screen, narrow enough that a label and its
+  // switch stay close together (full-width rows are hard to scan).
+  max-width: 880px;
   margin: 0 auto;
   padding: calc(max(24px, env(safe-area-inset-top)) + var(--top-gap)) 24px 56px;
 
@@ -17,7 +19,7 @@
 .title-row {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 14px;
 }
 
 .back {
