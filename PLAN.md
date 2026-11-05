@@ -324,7 +324,8 @@ Benji: "I don't think more features are wise to add" — small improvements to w
    - [x] Library selection, folder, setlist (list and page) and editor "Elimina": no dialog; toast "… eliminato" + Annulla for 8 s (`UNDO_MS`). Other confirmations (leave without saving, restore a backup, sign out) stay
    - [x] Tests (delete/restore with an in-memory DB, toast timing) + real app: setlist and 2 songs deleted and brought back, still there after reload
 6. **"Automatico" theme**: follows the iPhone's light/dark mode
-   - [ ] 
+   - [x] Tile "Auto" (half Chiaro, half Scuro) first among the themes: Chiaro by day, Scuro when the system is in dark mode, switching live (`SettingsService.theme`, `resolveTheme` + tests); phone: tiles in two rows of three
+   - [x] Screenshots 390 + 1280 with the system in light and dark mode
 7. **Statistiche** from the setlists (Benji makes a new scaletta every Sunday): which songs are sung most, which parts of the songbook (1–50, 51–100, 100+…), which numbers — with charts. Not a new button: an option inside Scalette ("Statistiche" in its ⋯ menu). "Maybe not everyone will use it", so it stays out of the way.
    - [ ] 
 

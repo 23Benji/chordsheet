@@ -303,7 +303,7 @@ export const IT = {
 
     theme: 'Tema',
     themeHint: 'Scuri per il palco, chiari per la luce del giorno',
-    themes: { dark: 'Scuro', black: 'Nero', light: 'Chiaro', mono: 'Bianco', paper: 'Carta' },
+    themes: { auto: 'Auto', dark: 'Scuro', black: 'Nero', light: 'Chiaro', mono: 'Bianco', paper: 'Carta' },
 
     fontSize: 'Dimensione del testo',
     fontSizeHint: 'Per tutti i canti (puoi cambiarla anche nel singolo canto)',

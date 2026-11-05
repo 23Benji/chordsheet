@@ -1,5 +1,5 @@
-import { Injectable, effect, inject, signal } from '@angular/core';
-import { Settings } from '../core/models';
+import { Injectable, computed, effect, inject, signal } from '@angular/core';
+import { Settings, Theme, resolveTheme } from '../core/models';
 import { DB } from '../data/db';
 
 export const DEFAULT_SETTINGS: Settings = {
@@ -22,10 +22,21 @@ export class SettingsService {
   private readonly _settings = signal<Settings>(DEFAULT_SETTINGS);
   readonly settings = this._settings.asReadonly();
 
+  /** The phone/computer is in dark mode (follows the system switch live). */
+  private readonly systemDark = signal(false);
+  /** The theme on screen: the chosen one, or for "Automatico" Chiaro / Scuro following the system. */
+  readonly theme = computed<Theme>(() => resolveTheme(this._settings().theme, this.systemDark()));
+
   constructor() {
+    const dark = window.matchMedia?.('(prefers-color-scheme: dark)');
+    if (dark) {
+      this.systemDark.set(dark.matches);
+      // Changes while the app is open too (iOS switches at sunset).
+      dark.addEventListener?.('change', (e) => this.systemDark.set(e.matches));
+    }
     // An effect re-runs whenever a signal it reads changes: keeps <html data-theme> in sync.
     effect(() => {
-      document.documentElement.setAttribute('data-theme', this._settings().theme);
+      document.documentElement.setAttribute('data-theme', this.theme());
       // The browser / status bar colour follows the theme's background.
       const bg = getComputedStyle(document.documentElement).getPropertyValue('--bg').trim();
       if (bg) document.querySelector('meta[name="theme-color"]')?.setAttribute('content', bg);

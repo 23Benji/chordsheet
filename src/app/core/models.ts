@@ -105,11 +105,16 @@ export type Instrument = 'guitar' | 'piano' | 'bass';
 
 /** Colour themes (tokens in styles/_tokens.scss). */
 export type Theme = 'dark' | 'light' | 'black' | 'mono' | 'paper';
-export const THEMES: Theme[] = ['dark', 'black', 'light', 'mono', 'paper'];
+/** What the user picks: a theme, or "auto" (Chiaro by day, Scuro when the phone is in dark mode). */
+export type ThemeChoice = Theme | 'auto';
+export const THEMES: ThemeChoice[] = ['auto', 'dark', 'black', 'light', 'mono', 'paper'];
 export const isDarkTheme = (theme: Theme) => theme === 'dark' || theme === 'black';
+/** The theme actually shown for a choice, given the system's light/dark mode. */
+export const resolveTheme = (choice: ThemeChoice, systemDark: boolean): Theme =>
+  choice === 'auto' ? (systemDark ? 'dark' : 'light') : choice;
 
 export interface Settings {
-  theme: Theme;
+  theme: ThemeChoice;
   fontScale: number;
   chordStyle: 'above' | 'inline';
   showChordDiagrams: boolean;

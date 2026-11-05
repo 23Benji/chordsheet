@@ -66,7 +66,7 @@ export class SettingsPage implements OnInit {
   protected readonly fontMax = FONT_MAX;
 
   protected readonly settings = this.settingsService.settings;
-  protected readonly darkTheme = computed(() => isDarkTheme(this.settings().theme));
+  protected readonly darkTheme = computed(() => isDarkTheme(this.settingsService.theme()));
   protected readonly fontPercent = computed(() => Math.round(this.settings().fontScale * 100));
   protected readonly appName = IT.appName;
   protected readonly autoStatus = this.backup.autoStatus;

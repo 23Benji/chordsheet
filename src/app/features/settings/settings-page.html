@@ -22,11 +22,19 @@
             [attr.aria-checked]="settings().theme === theme"
             (click)="set('theme', theme)"
           >
-            <!-- data-theme on the swatch: the tokens of that theme apply inside it. -->
-            <span class="swatch" [attr.data-theme]="theme" aria-hidden="true">
-              <span class="aa">Aa</span>
-              <span class="chord-bar"></span>
-            </span>
+            @if (theme === 'auto') {
+              <!-- Automatico: half Chiaro, half Scuro. -->
+              <span class="swatch auto" aria-hidden="true">
+                <span class="half" data-theme="light"><span class="aa">A</span></span>
+                <span class="half" data-theme="dark"><span class="aa">a</span></span>
+              </span>
+            } @else {
+              <!-- data-theme on the swatch: the tokens of that theme apply inside it. -->
+              <span class="swatch" [attr.data-theme]="theme" aria-hidden="true">
+                <span class="aa">Aa</span>
+                <span class="chord-bar"></span>
+              </span>
+            }
             <span class="theme-name">{{ t.themes[theme] }}</span>
           </button>
         }
