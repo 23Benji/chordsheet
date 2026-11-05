@@ -117,6 +117,24 @@ describe('SongView', () => {
     expect(chords()[0]).toBe('Bb'); // shapes in Bb (a flat key)
   });
 
+  it('Capo consigliato: "Usa" sets it; going back to no capo does not bring the tip back', () => {
+    const bb = songFromChordPro('{title: In Bb}\n{meta: numero 9}\n[Bb]uno [Eb]due [F]tre [Gm]quattro [Bb]cinque', '', 'bundled');
+    const { el, click, chords, fixture } = setup(bb);
+    el.querySelector<HTMLButtonElement>('button[aria-label="Tonalità e capo"]')!.click();
+    fixture.detectChanges();
+    const tip = () => document.querySelector('app-capo-tip');
+    expect(tip()?.textContent).toContain('Capo 3 · forme in G');
+
+    Array.from(document.querySelectorAll<HTMLButtonElement>('app-capo-tip button')).find((b) => b.textContent?.trim() === 'Usa')!.click();
+    fixture.detectChanges();
+    expect(chords()[0]).toBe('G');
+    expect(tip()).toBeNull();
+
+    for (let i = 0; i < 3; i++) click('Capo giù');
+    expect(chords()[0]).toBe('Bb');
+    expect(tip()).toBeNull(); // snoozed for this song
+  });
+
   it('shows a version switcher only for songs with several versions', () => {
     const versions = ['', 'b', 'c', 'd'].map(version);
     const { el, fixture } = setup(versions[2], [song, ...versions]);

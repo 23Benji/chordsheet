@@ -287,6 +287,8 @@ In this order, one at a time (build + tests + screenshots + push after each):
 3. **Capo consigliato**: for the current key, suggest the capo that gives easy open shapes (e.g. Bb → capo 3, shapes in G)
    - [x] `core/capo.ts` (+ tests): shape difficulty per chord, average over the song for capo 0–7 (+0.1 per fret), suggest only when the song is hard as it is (≥ 1) and the gain is clear (≥ 0.6) — 27 of the 166 bundled songs get a suggestion
    - [x] Tonalità panel: "Capo consigliato · Capo 3 · forme in G" + Usa (guitar only, follows transposition); screenshots 390 + 1280
+   - [x] After "Usa" the tip rests 30 days on that song (going back to the original key doesn't bring it back)
+   - [x] After "Usa" the tip rests 30 days on that song (going back to the original key doesn't bring it back)
 4. **Share a setlist as a QR code / link**: the setlist travels inside the link (no server); opening it on another device imports it, matching songs by number
 5. **Accordatore** (tuner), experimental: microphone + pitch detection, offline; try it and keep it only if it is accurate enough
 

@@ -27,6 +27,8 @@ export interface SongPrefs {
   memo?: string;
   /** How the guitarist starts the song (shown at the top as "Intro"). */
   intro?: SongIntro;
+  /** "Capo consigliato" stays hidden until this time (ms) after "Usa" was tapped. */
+  capoTipSnoozedUntil?: number;
 }
 
 export interface SongIntro {

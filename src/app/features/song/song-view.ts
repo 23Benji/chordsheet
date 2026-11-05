@@ -22,7 +22,7 @@ import { currentPlatform, isIos } from '../../core/platform';
 import { numberLabel } from '../../core/song-meta';
 import { clampTranspose, keyUsesFlats, keyView, transposeChord } from '../../core/transpose';
 import { IT } from '../../i18n/it';
-import { sheetChords, suggestCapo } from '../../core/capo';
+import { CAPO_TIP_SNOOZE_MS, sheetChords, suggestCapo } from '../../core/capo';
 import { CapoTip } from './capo-tip';
 import { AnnotationService } from '../../services/annotation.service';
 import { LayoutService } from '../../services/layout.service';
@@ -323,12 +323,18 @@ export class SongView {
   protected readonly capoTip = computed(() => {
     const parsed = this.parsed();
     if (!parsed || this.instrument() !== 'guitar') return null;
+    if ((this.prefs().capoTipSnoozedUntil ?? 0) > Date.now()) return null;
     const sounding = sheetChords(parsed).map((c) => transposeChord(c, this.transpose(), false));
     return suggestCapo(sounding, this.capo(), this.keys().soundingKey);
   });
 
+  /** "Usa": set the capo, and don't suggest again on this song for a while. */
   protected useCapo(capo: number): void {
-    void this.prefsService.update(this.id(), { capo, transpose: this.transpose() });
+    void this.prefsService.update(this.id(), {
+      capo,
+      transpose: this.transpose(),
+      capoTipSnoozedUntil: Date.now() + CAPO_TIP_SNOOZE_MS,
+    });
   }
 
   protected changeCapo(delta: number): void {

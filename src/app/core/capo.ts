@@ -10,6 +10,12 @@
 import { Sheet } from './chordpro';
 import { mod12, noteName, parseChord } from './transpose';
 
+/**
+ * After "Usa" the suggestion rests for this long on that song: going back to
+ * the original key is a choice, not something to be nagged about.
+ */
+export const CAPO_TIP_SNOOZE_MS = 30 * 24 * 60 * 60 * 1000;
+
 /** Highest capo we suggest: beyond the 7th fret the neck gets cramped. */
 export const MAX_CAPO = 7;
 
