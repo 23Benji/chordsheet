@@ -1,19 +1,31 @@
 import { CdkDrag, CdkDragDrop, CdkDragHandle, CdkDropList } from '@angular/cdk/drag-drop';
-import { ChangeDetectionStrategy, Component, computed, inject, input, signal, viewChild } from '@angular/core';
+import { CdkScrollable } from '@angular/cdk/scrolling';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  ElementRef,
+  afterRenderEffect,
+  computed,
+  inject,
+  input,
+  signal,
+  viewChild,
+} from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { shareOrDownload } from '../../core/export';
 import { SetlistItem, Song } from '../../core/models';
-import { searchSongs } from '../../core/search';
-import { effectiveTranspose, exportSetlist, moveItem, setlistFileName } from '../../core/setlists';
-import { compareByNumber, numberLabel } from '../../core/song-meta';
+import { effectiveTranspose, exportSetlist, formatSetlistDate, moveItem, setlistFileName } from '../../core/setlists';
+import { numberLabel } from '../../core/song-meta';
 import { clampTranspose, keyView } from '../../core/transpose';
 import { IT } from '../../i18n/it';
-import { LibraryService } from '../../services/library.service';
 import { SetlistService } from '../../services/setlist.service';
+import { LibraryService } from '../../services/library.service';
 import { SongPrefsService } from '../../services/song-prefs.service';
+import { ActionSheet } from '../../ui/action-sheet';
 import { ConfirmDialog } from '../../ui/confirm-dialog';
 import { Icon } from '../../ui/icon';
 import { SidebarToggle } from '../../ui/sidebar-toggle';
+import { AddSongsSheet } from './add-songs-sheet';
 
 interface Row {
   item: SetlistItem;
@@ -25,13 +37,23 @@ interface Row {
   playIndex: number;
 }
 
-/** One setlist: reorder (drag & drop), per-song transpose and note, add songs, play. */
+/**
+ * One setlist. Layout (both phone and computer): name, date · count, then
+ * "Suona" and "Aggiungi canti" at the top, where you look first. Each song is
+ * one compact row; tapping it opens its options (key, note, play from here,
+ * open, move, remove), so the list itself stays calm. On computers the row
+ * also shows the key stepper and "Suona da qui" for quick edits.
+ */
 @Component({
   selector: 'app-setlist-page',
-  imports: [RouterLink, Icon, ConfirmDialog, CdkDropList, CdkDrag, CdkDragHandle, SidebarToggle],
+  imports: [RouterLink, Icon, ConfirmDialog, ActionSheet, CdkDropList, CdkDrag, CdkDragHandle, SidebarToggle, AddSongsSheet],
   templateUrl: './setlist-page.html',
   styleUrl: './setlist-page.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
+  // The page itself scrolls (overflow-y: auto on :host). Marking it as a CDK
+  // "scrollable" lets drag & drop scroll it while a song is dragged to the
+  // top or bottom edge — without it you can't drag past what's on screen.
+  hostDirectives: [CdkScrollable],
 })
 export class SetlistPage {
   private readonly service = inject(SetlistService);
@@ -39,11 +61,17 @@ export class SetlistPage {
   private readonly prefs = inject(SongPrefsService);
   private readonly router = inject(Router);
   private readonly dialog = viewChild.required(ConfirmDialog);
+  private readonly menu = viewChild.required(ActionSheet);
+  private readonly addSheet = viewChild.required(AddSongsSheet);
+  private readonly itemDialog = viewChild.required<ElementRef<HTMLDialogElement>>('itemDialog');
+  private readonly nameField = viewChild<ElementRef<HTMLTextAreaElement>>('name');
   protected readonly t = IT.setlists;
   protected readonly numberLabel = numberLabel;
+  protected readonly formatDate = formatSetlistDate;
 
   readonly id = input.required<string>();
   protected readonly setlist = computed(() => this.service.byId().get(this.id()) ?? null);
+  protected readonly songIds = computed(() => (this.setlist()?.items ?? []).map((i) => i.songId));
 
   protected readonly rows = computed<Row[]>(() => {
     const songs = this.library.byId();
@@ -56,33 +84,61 @@ export class SetlistPage {
     });
   });
 
-  // ── Adding songs ──────────────────────────────────────────────────────────
+  protected readonly canPlay = computed(() => this.rows().some((r) => r.song));
 
-  protected readonly query = signal('');
-  protected readonly results = computed(() => {
-    if (!this.query().trim()) return [];
-    const songs = [...this.library.songs()].sort(compareByNumber);
-    const entries = new Map(this.library.searchEntries().map((e) => [e.id, e]));
-    const byId = this.library.byId();
-    return searchSongs(songs.map((s) => entries.get(s.id)!), this.query())
-      .slice(0, 8)
-      .map((id) => byId.get(id)!);
-  });
+  constructor() {
+    // The name is a <textarea> so a long name wraps instead of running off
+    // the screen. It grows with its text: after each render, height = content.
+    afterRenderEffect(() => {
+      this.setlist()?.name;
+      const field = this.nameField()?.nativeElement;
+      if (field) this.fitName(field);
+    });
+  }
 
-  protected add(song: Song, input?: HTMLInputElement): void {
+  protected fitName(field: HTMLTextAreaElement): void {
+    field.style.height = 'auto';
+    field.style.height = `${field.scrollHeight}px`;
+  }
+
+  // ── Name and date ─────────────────────────────────────────────────────────
+
+  protected rename(field: HTMLTextAreaElement): void {
     const setlist = this.setlist();
+    // A pasted name may contain line breaks: a name is one line.
+    const name = field.value.replace(/\s+/g, ' ').trim();
     if (!setlist) return;
-    void this.service.addSong(setlist, song.id);
-    if (input) {
-      input.value = '';
-      this.query.set('');
+    if (!name) {
+      field.value = setlist.name;
+      this.fitName(field);
+    } else if (name !== setlist.name) {
+      void this.service.update(setlist, { name });
+    }
+  }
+
+  /** The date chip opens the browser's own date picker (the real input is hidden behind it). */
+  protected pickDate(input: HTMLInputElement): void {
+    try {
+      input.showPicker();
+    } catch {
       input.focus();
     }
   }
 
-  protected onSearchEnter(input: HTMLInputElement): void {
-    const first = this.results()[0];
-    if (first) this.add(first, input);
+  protected setDate(date: string): void {
+    const setlist = this.setlist();
+    if (setlist && (date || undefined) !== setlist.date) void this.service.update(setlist, { date: date || undefined });
+  }
+
+  // ── Adding songs ──────────────────────────────────────────────────────────
+
+  protected openAdd(): void {
+    this.addSheet().open();
+  }
+
+  protected add(song: Song): void {
+    const setlist = this.setlist();
+    if (setlist) void this.service.addSong(setlist, song.id);
   }
 
   // ── Editing ───────────────────────────────────────────────────────────────
@@ -96,16 +152,6 @@ export class SetlistPage {
     this.setItems((this.setlist()?.items ?? []).map((i) => (i.id === item.id ? { ...i, ...patch } : i)));
   }
 
-  protected rename(name: string): void {
-    const setlist = this.setlist();
-    if (setlist && name.trim() && name.trim() !== setlist.name) void this.service.update(setlist, { name: name.trim() });
-  }
-
-  protected setDate(date: string): void {
-    const setlist = this.setlist();
-    if (setlist) void this.service.update(setlist, { date: date || undefined });
-  }
-
   /** CDK drag & drop gives the old and new position of the dragged item. */
   protected drop(event: CdkDragDrop<unknown>): void {
     if (event.previousIndex !== event.currentIndex) {
@@ -113,11 +159,14 @@ export class SetlistPage {
     }
   }
 
-  protected move(index: number, delta: number): void {
-    this.setItems(moveItem(this.setlist()?.items ?? [], index, index + delta));
+  protected move(item: SetlistItem, delta: number): void {
+    const items = this.setlist()?.items ?? [];
+    const index = items.findIndex((i) => i.id === item.id);
+    if (index >= 0) this.setItems(moveItem(items, index, index + delta));
   }
 
   protected remove(item: SetlistItem): void {
+    if (this.openId() === item.id) this.closeItem();
     this.setItems((this.setlist()?.items ?? []).filter((i) => i.id !== item.id));
   }
 
@@ -133,11 +182,50 @@ export class SetlistPage {
   }
 
   protected setNote(item: SetlistItem, note: string): void {
-    this.patchItem(item, { note: note.trim() || undefined });
+    const value = note.trim() || undefined;
+    if (value !== item.note) this.patchItem(item, { note: value });
   }
 
   protected transposeLabel(n: number): string {
     return n > 0 ? `+${n}` : n < 0 ? `−${-n}` : '0';
+  }
+
+  // ── Song options (tap on a row) ───────────────────────────────────────────
+
+  /** Which entry's options are open; the row is looked up live so the sheet follows edits. */
+  private readonly openId = signal<string | null>(null);
+  protected readonly openRow = computed(() => {
+    const id = this.openId();
+    const rows = this.rows();
+    const index = rows.findIndex((r) => r.item.id === id);
+    return index < 0 ? null : { row: rows[index], index, first: index === 0, last: index === rows.length - 1 };
+  });
+
+  protected openItem(row: Row): void {
+    this.openId.set(row.item.id);
+    this.itemDialog().nativeElement.showModal();
+  }
+
+  protected closeItem(): void {
+    const dialog = this.itemDialog().nativeElement;
+    // Save a note being typed before the sheet goes away (its input fires "change" on blur).
+    (document.activeElement as HTMLElement | null)?.blur();
+    if (dialog.open) dialog.close();
+  }
+
+  protected onItemClosed(): void {
+    this.openId.set(null);
+  }
+
+  protected onItemBackdrop(event: MouseEvent): void {
+    if (event.target === this.itemDialog().nativeElement) this.closeItem();
+  }
+
+  protected openSong(row: Row): void {
+    if (!row.song) return;
+    this.closeItem();
+    // `canGoBack`: the song's back arrow returns here instead of the library.
+    void this.router.navigate(['/canto', row.song.id], { state: { canGoBack: true } });
   }
 
   // ── Actions ───────────────────────────────────────────────────────────────
@@ -146,12 +234,29 @@ export class SetlistPage {
     const rows = this.rows().filter((r) => r.song);
     const start = row ?? rows[0];
     if (!start?.song) return;
+    this.closeItem();
+    // `canGoBack`: closing performance mode (X) comes back to this page.
     void this.router.navigate(['/canto', start.song.id, 'esibizione'], {
       queryParams: { scaletta: this.id(), pos: start.playIndex },
+      state: { canGoBack: true },
     });
   }
 
-  protected readonly canPlay = computed(() => this.rows().some((r) => r.song));
+  /** iPhone "⋯": the setlist-wide actions, which have their own buttons on bigger screens. */
+  protected async openMenu(): Promise<void> {
+    const choice = await this.menu().choose(
+      this.setlist()?.name ?? '',
+      [
+        { id: 'duplicate', label: this.t.duplicate, icon: 'copy' },
+        { id: 'share', label: this.t.share, icon: 'share' },
+        { id: 'delete', label: this.t.delete, icon: 'trash', danger: true, divider: true },
+      ],
+      this.t.cancel,
+    );
+    if (choice === 'duplicate') await this.duplicate();
+    else if (choice === 'share') this.share();
+    else if (choice === 'delete') await this.deleteSetlist();
+  }
 
   protected async duplicate(): Promise<void> {
     const setlist = this.setlist();

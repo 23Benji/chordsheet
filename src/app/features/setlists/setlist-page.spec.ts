@@ -59,36 +59,78 @@ async function render(setlist: Setlist) {
 }
 
 describe('SetlistPage', () => {
-  it('adds songs from the search box (number + Enter)', async () => {
+  // jsdom has <dialog> but not showModal()/close().
+  beforeAll(() => {
+    HTMLDialogElement.prototype.showModal ??= function (this: HTMLDialogElement) {
+      this.setAttribute('open', '');
+    };
+    HTMLDialogElement.prototype.close ??= function (this: HTMLDialogElement) {
+      this.removeAttribute('open');
+      this.dispatchEvent(new Event('close'));
+    };
+  });
+
+  const button = (root: HTMLElement, text: string) =>
+    Array.from(root.querySelectorAll<HTMLButtonElement>('button')).find((b) => b.textContent?.trim() === text)!;
+
+  it('adds songs from the "Aggiungi canti" sheet (number + Enter, or a tap)', async () => {
     const { setlist, rows } = setup([]);
     const { el, settle, titles } = await render(setlist);
-    const search = el.querySelector<HTMLInputElement>('.search input')!;
+    button(el.querySelector('.head')!, 'Aggiungi canti').click();
+    await settle();
+    const sheet = el.querySelector<HTMLDialogElement>('app-add-songs-sheet dialog')!;
+    expect(sheet.open).toBe(true);
+    // Empty search: the whole library to browse.
+    expect(sheet.querySelectorAll('.result').length).toBe(2);
+
+    const search = sheet.querySelector<HTMLInputElement>('.search input')!;
     search.value = '2';
     search.dispatchEvent(new Event('input'));
     search.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter' }));
     await settle();
     expect(titles()).toEqual(['2Celebriam il Signore']);
-    expect(rows.get(setlist.id)?.items.map((i) => i.songId)).toEqual([two.id]);
+    expect(search.value).toBe('');
+
+    sheet.querySelector<HTMLButtonElement>('[aria-label="Aggiungi Io lodo Te"]')!.click();
+    await settle();
+    expect(rows.get(setlist.id)?.items.map((i) => i.songId)).toEqual([two.id, one.id]);
+    // Songs already in the setlist get a tick.
+    expect(sheet.querySelectorAll('.result.in').length).toBe(2);
   });
 
-  it('per-song transposition shows the resulting key, reorders and plays from a song', async () => {
+  it('song options: transposition shows the resulting key, reorders and plays from a song', async () => {
     const { setlist, navigate } = setup([one.id, two.id]);
     const { el, settle, titles } = await render(setlist);
-    const item = () => el.querySelectorAll<HTMLElement>('.item')[0];
+    const sheet = el.querySelector<HTMLDialogElement>('.item-sheet')!;
 
-    item().querySelector<HTMLButtonElement>('[aria-label="Alza di un semitono"]')!.click();
-    item().querySelector<HTMLButtonElement>('[aria-label="Alza di un semitono"]')!.click();
+    el.querySelectorAll<HTMLButtonElement>('.item .row')[0].click();
     await settle();
-    expect(item().querySelector('.key')?.textContent).toBe('D');
-    expect(item().querySelector('.value.overridden')?.textContent).toBe('+2');
+    expect(sheet.open).toBe(true);
+    sheet.querySelector<HTMLButtonElement>('[aria-label="Alza di un semitono"]')!.click();
+    sheet.querySelector<HTMLButtonElement>('[aria-label="Alza di un semitono"]')!.click();
+    await settle();
+    expect(sheet.querySelector('.value.overridden')?.textContent?.replace(/\s+/g, ' ').trim()).toBe('D +2');
+    expect(el.querySelectorAll('.item')[0].querySelector('.key')?.textContent?.replace(/\s+/g, ' ').trim()).toBe('D +2');
 
-    item().querySelector<HTMLButtonElement>('[aria-label="Sposta giù"]')!.click();
+    button(sheet, 'Sposta giù').click();
     await settle();
     expect(titles()).toEqual(['2Celebriam il Signore', '1Io lodo Te']);
 
-    el.querySelectorAll<HTMLElement>('.item')[1].querySelector<HTMLButtonElement>('[aria-label="Suona da qui"]')!.click();
+    button(sheet, 'Suona da qui').click();
     expect(navigate).toHaveBeenCalledWith(['/canto', one.id, 'esibizione'], {
       queryParams: { scaletta: setlist.id, pos: 1 },
+      state: { canGoBack: true },
     });
+    expect(sheet.open).toBe(false);
+  });
+
+  it('a long name is a wrapping text field; line breaks are dropped on rename', async () => {
+    const { setlist, rows } = setup([]);
+    const { el, settle } = await render(setlist);
+    const name = el.querySelector<HTMLTextAreaElement>('textarea.name')!;
+    name.value = 'Culto\nserale';
+    name.dispatchEvent(new Event('change'));
+    await settle();
+    expect(rows.get(setlist.id)?.name).toBe('Culto serale');
   });
 });

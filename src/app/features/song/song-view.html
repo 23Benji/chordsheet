@@ -8,9 +8,9 @@
         </button>
       }
       <!-- iPhone: the library is the "/" page, so this is a plain "back" arrow. -->
-      <a class="btn icon-btn back phone-only" routerLink="/" [attr.aria-label]="t.backToLibrary" [title]="t.backToLibrary">
+      <button type="button" class="btn icon-btn back phone-only" (click)="back()" [attr.aria-label]="t.backToLibrary" [title]="t.backToLibrary">
         <app-icon name="chevronLeft" />
-      </a>
+      </button>
       <div class="titles">
         <h1>{{ song.title }}</h1>
         <p class="key-line">

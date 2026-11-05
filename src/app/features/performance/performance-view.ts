@@ -11,6 +11,7 @@ import {
   untracked,
   viewChild,
 } from '@angular/core';
+import { Location } from '@angular/common';
 import { Router } from '@angular/router';
 import { resolveAll } from '../../core/anchoring';
 import { collapseRepeats, mapSheetChords, parseChordPro } from '../../core/chordpro';
@@ -45,6 +46,9 @@ const BAR_HIDE_MS = 3000;
 /** Two columns only on screens wide enough and in landscape. */
 const LANDSCAPE_QUERY = '(min-width: 900px) and (orientation: landscape)';
 
+/** Set by the page that opened performance mode (Angular keeps navigation `state` in history.state). */
+const canGoBack = () => (history.state as { canGoBack?: boolean } | null)?.canGoBack === true;
+
 @Component({
   selector: 'app-performance-view',
   imports: [Icon, SongSheet, Pager, KeymapDialog, Swipe],
@@ -64,6 +68,7 @@ export class PerformanceView {
   private readonly annotations = inject(AnnotationService);
   private readonly setlists = inject(SetlistService);
   private readonly router = inject(Router);
+  private readonly location = inject(Location);
   protected readonly screen = inject(ScreenService);
   protected readonly t = IT.performance;
   protected readonly numberLabel = numberLabel;
@@ -221,11 +226,30 @@ export class PerformanceView {
   /** Opens song number `index` of the queue (replacing history: Back leaves performance mode). */
   private goToSong(index: number): void {
     const queryParams = this.setlist() ? { scaletta: this.scaletta(), pos: index } : { coda: this.coda() };
-    void this.router.navigate(['/canto', this.queue()[index], 'esibizione'], { queryParams, replaceUrl: true });
+    // Keep `canGoBack` from the page that opened performance mode (see exit()).
+    void this.router.navigate(['/canto', this.queue()[index], 'esibizione'], {
+      queryParams,
+      replaceUrl: true,
+      state: { canGoBack: canGoBack() },
+    });
   }
 
+  /**
+   * X / Esc: performance mode is like a full-screen sheet over the page that
+   * opened it, so closing it goes back to exactly that page — the setlist when
+   * played from a setlist, the song when started from the song. The pages that
+   * open it set `canGoBack` in the history state; then one step back is that
+   * page (song changes inside performance replace the history entry, so they
+   * don't pile up). Opened from a link or after a reload there is no such page:
+   * then go to the setlist or the song, replacing this entry.
+   */
   protected exit(): void {
-    void this.router.navigate(['/canto', this.id()]);
+    if (canGoBack()) {
+      this.location.back();
+      return;
+    }
+    const target = this.setlist() ? ['/scalette', this.setlist()!.id] : ['/canto', this.id()];
+    void this.router.navigate(target, { replaceUrl: true });
   }
 
   /** Taps: right third = next, left third = back, middle = show the bar. */

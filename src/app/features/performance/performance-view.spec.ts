@@ -1,5 +1,6 @@
 import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
+import { Location } from '@angular/common';
 import { provideRouter, Router } from '@angular/router';
 import { Song } from '../../core/models';
 import { songFromChordPro } from '../../core/song-import';
@@ -70,9 +71,9 @@ describe('PerformanceView', () => {
   it('next/prev at the end/start of a song move through the queue', () => {
     const { press, navigate } = setup(b.id, coda);
     press(' ');
-    expect(navigate).toHaveBeenLastCalledWith(['/canto', c.id, 'esibizione'], { queryParams: { coda }, replaceUrl: true });
+    expect(navigate).toHaveBeenLastCalledWith(['/canto', c.id, 'esibizione'], { queryParams: { coda }, replaceUrl: true, state: { canGoBack: false } });
     press('PageUp');
-    expect(navigate).toHaveBeenLastCalledWith(['/canto', a.id, 'esibizione'], { queryParams: { coda }, replaceUrl: true });
+    expect(navigate).toHaveBeenLastCalledWith(['/canto', a.id, 'esibizione'], { queryParams: { coda }, replaceUrl: true, state: { canGoBack: false } });
   });
 
   it('without a queue, the last page says "Fine" and next does nothing', () => {
@@ -111,7 +112,7 @@ describe('PerformanceView', () => {
   it('Esc (not in full screen) leaves performance mode', () => {
     const { press, navigate } = setup(a.id);
     press('Escape');
-    expect(navigate).toHaveBeenCalledWith(['/canto', a.id]);
+    expect(navigate).toHaveBeenCalledWith(['/canto', a.id], { replaceUrl: true });
   });
 
   it('plays a setlist: item transposition and note, next/prev by position (same song twice)', () => {
@@ -136,6 +137,7 @@ describe('PerformanceView', () => {
     expect(navigate).toHaveBeenLastCalledWith(['/canto', b.id, 'esibizione'], {
       queryParams: { scaletta: 'sl', pos: 1 },
       replaceUrl: true,
+      state: { canGoBack: false },
     });
   });
 
@@ -158,6 +160,7 @@ describe('PerformanceView', () => {
     expect(navigate).toHaveBeenLastCalledWith(['/canto', b.id, 'esibizione'], {
       queryParams: { scaletta: 'sl', pos: 1 },
       replaceUrl: true,
+      state: { canGoBack: false },
     });
   });
 
@@ -167,6 +170,32 @@ describe('PerformanceView', () => {
     const pointer = (type: string, x: number) => Object.assign(new Event(type), { clientX: x, clientY: 100, pointerId: 1, pointerType: 'touch' });
     stage.dispatchEvent(pointer('pointerdown', 400));
     stage.dispatchEvent(pointer('pointerup', 200));
-    expect(navigate).toHaveBeenLastCalledWith(['/canto', c.id, 'esibizione'], { queryParams: { coda }, replaceUrl: true });
+    expect(navigate).toHaveBeenLastCalledWith(['/canto', c.id, 'esibizione'], { queryParams: { coda }, replaceUrl: true, state: { canGoBack: false } });
+  });
+
+  describe('X / Esc goes back to the page that opened performance mode', () => {
+    const setlist: Setlist = { id: 'sl', name: 'Domenica', items: [{ id: '1', songId: a.id }], createdAt: 0, updatedAt: 0 };
+    afterEach(() => history.replaceState(null, ''));
+
+    it('opened from a setlist or a song: one step back (to that page)', () => {
+      history.replaceState({ canGoBack: true }, '');
+      const { press, navigate } = setup(a.id, undefined, setlist, 0);
+      const back = vi.spyOn(TestBed.inject(Location), 'back').mockImplementation(() => undefined);
+      press('Escape');
+      expect(back).toHaveBeenCalled();
+      expect(navigate).not.toHaveBeenCalled();
+    });
+
+    it('opened from a link: to the setlist, not the song', () => {
+      const { press, navigate } = setup(a.id, undefined, setlist, 0);
+      press('Escape');
+      expect(navigate).toHaveBeenLastCalledWith(['/scalette', 'sl'], { replaceUrl: true });
+    });
+
+    it('opened from a link without a setlist: to the song', () => {
+      const { press, navigate } = setup(a.id);
+      press('Escape');
+      expect(navigate).toHaveBeenLastCalledWith(['/canto', a.id], { replaceUrl: true });
+    });
   });
 });

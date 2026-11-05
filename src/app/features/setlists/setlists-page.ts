@@ -53,7 +53,10 @@ export class SetlistsPage {
 
   protected play(setlist: Setlist): void {
     const first = setlist.items.find((i) => this.library.byId().has(i.songId));
-    if (first) void this.router.navigate(['/canto', first.songId, 'esibizione'], { queryParams: { scaletta: setlist.id, pos: 0 } });
+    if (first) void this.router.navigate(['/canto', first.songId, 'esibizione'], {
+        queryParams: { scaletta: setlist.id, pos: 0 },
+        state: { canGoBack: true }, // X in performance mode comes back here
+      });
   }
 
   protected duplicate(setlist: Setlist): void {

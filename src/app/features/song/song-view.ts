@@ -10,6 +10,7 @@ import {
   untracked,
   viewChild,
 } from '@angular/core';
+import { Location } from '@angular/common';
 import { Router, RouterLink } from '@angular/router';
 import { anchorFor, resolveAll } from '../../core/anchoring';
 import { collapseRepeats, mapSheetChords, parseChordPro } from '../../core/chordpro';
@@ -74,6 +75,7 @@ export class SongView {
   protected readonly nt = IT.notes;
   protected readonly pt = IT.performance;
   private readonly router = inject(Router);
+  private readonly location = inject(Location);
   private readonly screen = inject(ScreenService);
   protected readonly lt = IT.library;
 
@@ -549,9 +551,18 @@ export class SongView {
   }
 
   /** Full screen must be requested inside the click itself (a browser rule). */
+  /**
+   * iPhone back arrow: to the library, unless the song was opened from a
+   * setlist (`canGoBack` in the history state) — then back to that setlist.
+   */
+  protected back(): void {
+    if ((history.state as { canGoBack?: boolean } | null)?.canGoBack) this.location.back();
+    else void this.router.navigate(['/']);
+  }
+
   protected perform(): void {
     void this.screen.enterFullscreen();
-    void this.router.navigate(['/canto', this.id(), 'esibizione']);
+    void this.router.navigate(['/canto', this.id(), 'esibizione'], { state: { canGoBack: true } });
   }
 
   protected setColumns(columns: 1 | 2): void {
