@@ -342,8 +342,9 @@ From the research list (WCAG contrast, iOS home-screen app conventions, OnSong /
 2. **iPhone status bar follows the theme** (it is fixed to black: wrong in Chiaro / Bianco / Carta)
    - [x] iOS only offers black, white-with-dark-text, or see-through with white text (unreadable on light themes): black for Scuro / Nero, white for Chiaro / Bianco / Carta (`statusBarStyle` + test), set on every theme change and, because iOS reads it early, also by a tiny script in index.html from a localStorage copy before the app starts
    - [ ] Benji: on the iPhone, Chiaro → close the app → reopen: the top strip is white with a dark clock
-3. **Launch screen**: the app's own start image instead of a plain flash (iOS `apple-touch-startup-image`, per iPhone size, light and dark)
-   - [ ] 
+3. **Launch screen**: the app's own start image instead of a plain flash (iOS `apple-touch-startup-image`, per iPhone size)
+   - [x] `scripts/splash/make-splash.mjs` (Chrome headless, like scripts/icon — no new dependency) renders `splash.html` (dark background, icon, "Chordsheet" in Caladea) for 11 iPhone and 8 iPad sizes (iPads also landscape) → 27 PNGs in `public/splash/` (3.2 MB, not in the offline cache: iOS fetches only its own) + the `<link>` tags in index.html
+   - [x] Dark only: iOS can't know the theme chosen inside the app; dark is the default. iOS may keep the launch image from when the app was added to the home screen (undocumented)
 4. **Friendly error screen**: if something unexpected breaks, "Qualcosa non ha funzionato · Ricarica" instead of a frozen app (data stays safe)
    - [ ] 
 5. **Long-press a song** for quick actions (add to setlist, folder, share, delete), like iOS context menus — library rows, setlist rows
