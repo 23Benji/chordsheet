@@ -74,7 +74,8 @@ export class BackupService {
     await this.db.kv?.put({ key: LAST_BACKUP, value: now });
   }
 
-  private async readAll(): Promise<BackupData> {
+  /** Everything stored on this device (also used by the sync). */
+  async readAll(): Promise<BackupData> {
     const stored = await this.db.settings.get('settings');
     const settings = stored ? (({ id: _id, ...rest }) => rest)(stored) : null;
     return {
@@ -159,6 +160,15 @@ export class BackupService {
     const incoming = parseBackup(json);
     const result =
       mode === 'merge' ? mergeBackup(await this.readAll(), incoming) : { ...incoming, settings: incoming.settings };
+    await this.writeAll(result);
+    return result;
+  }
+
+  /**
+   * Replaces all songs, prefs, notes, setlists and folders on this device (and
+   * the settings when given), then reloads the services so the screens update.
+   */
+  async writeAll(result: Omit<BackupData, 'settings'> & { settings?: BackupData['settings'] }): Promise<void> {
     const db = this.db;
     // One transaction: if anything fails, the old data stays as it was.
     await db.transaction('rw', [db.songs, db.songPrefs, db.annotations, db.setlists, db.folders, db.settings], async () => {
@@ -178,6 +188,5 @@ export class BackupService {
       this.folders.load(),
       this.settings.load(),
     ]);
-    return result;
   }
 }

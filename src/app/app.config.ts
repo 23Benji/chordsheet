@@ -16,6 +16,7 @@ import { FolderService } from './services/folder.service';
 import { SetlistService } from './services/setlist.service';
 import { SettingsService } from './services/settings.service';
 import { SongPrefsService } from './services/song-prefs.service';
+import { SyncService } from './services/sync.service';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -35,6 +36,8 @@ export const appConfig: ApplicationConfig = {
         inject(SetlistService).load(),
         inject(FolderService).load(),
         inject(BackupService).load(),
+        // Finishes a Google sign-in that just came back, then syncs in the background.
+        inject(SyncService).load(),
       ]),
     ),
     provideServiceWorker('ngsw-worker.js', {

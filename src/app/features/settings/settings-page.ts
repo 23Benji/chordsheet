@@ -11,6 +11,7 @@ import { FolderService } from '../../services/folder.service';
 import { ConflictPolicy, ImportService } from '../../services/import.service';
 import { LibraryService } from '../../services/library.service';
 import { SettingsService } from '../../services/settings.service';
+import { SyncService } from '../../services/sync.service';
 import { ToastService } from '../../services/toast.service';
 import { ConfirmDialog } from '../../ui/confirm-dialog';
 import { FolderPicker } from '../../ui/folder-picker';
@@ -38,6 +39,11 @@ export class SettingsPage implements OnInit {
   private readonly toast = inject(ToastService);
   private readonly importer = inject(ImportService);
   private readonly folders = inject(FolderService);
+  protected readonly sync = inject(SyncService);
+  protected readonly lastSync = computed(() => {
+    const at = this.sync.lastSyncAt();
+    return at ? daysAgo(at, Date.now()) : null;
+  });
   protected readonly ft = IT.folders;
   private readonly importDialog = viewChild.required<ElementRef<HTMLDialogElement>>('importDialog');
   protected readonly it = IT.importFiles;
@@ -124,6 +130,10 @@ export class SettingsPage implements OnInit {
   protected changeFont(delta: number): void {
     const next = Math.round((this.settings().fontScale + delta) * 10) / 10;
     this.set('fontScale', Math.min(FONT_MAX, Math.max(FONT_MIN, next)));
+  }
+
+  protected async syncOut(): Promise<void> {
+    if (await this.dialog().ask({ ...this.t.confirmSyncOut })) await this.sync.signOut();
   }
 
   protected openKeys(): void {

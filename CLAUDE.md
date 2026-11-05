@@ -11,7 +11,7 @@ Benji — first-year Computer Science student, knows Angular basics and Java. Ex
 - After each milestone: run `ng build` and the tests, fix everything, then commit with a clear message (`M1: library, song view, transpose`). Stop and summarise what to test manually.
 - Record any decision that deviates from or fills a gap in SPEC.md in `DECISIONS.md` (date, decision, why).
 - Ask before adding a dependency that is not listed in SPEC §2.
-- No backend, no analytics, no external runtime requests.
+- No backend, no analytics, no external runtime requests — the one exception is the optional Google Drive sync, which talks to Google only after the user signs in (see DECISIONS.md, 2026-11-05).
 - Keep components small and standalone; state in signal-based services (`LibraryService`, `SongPrefsService`, `AnnotationService`, `SetlistService`, `SettingsService`); pure logic (parsing, transposition, anchoring, import) in plain TypeScript files with unit tests.
 - Strings shown to the user live in `src/app/i18n/it.ts`.
 - Design tokens only via CSS custom properties defined in `src/styles/_tokens.scss` (SPEC §6). Never hard-code colours in components.

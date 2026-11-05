@@ -84,6 +84,52 @@
     </button>
   </div>
 
+  @if (sync.available) {
+    <h2 class="list-group-title">{{ t.groups.sync }}</h2>
+    <div class="list-group">
+      @if (sync.state() === 'off') {
+        <div class="list-row">
+          <span class="icon-tile sky"><app-icon name="cloud" /></span>
+          <span class="row-text">
+            <span class="row-label">{{ t.sync }}</span>
+            <span class="row-hint">{{ sync.signInError() ? t.syncSignInError : t.syncHint }}</span>
+          </span>
+        </div>
+        <button type="button" class="list-row clickable" (click)="sync.signIn()">
+          <span class="icon-tile sky"><app-icon name="logIn" /></span>
+          <span class="row-text"><span class="row-label accent">{{ t.syncSignIn }}</span></span>
+          <app-icon name="chevronRight" class="row-chevron" />
+        </button>
+      } @else {
+        <div class="list-row">
+          <span class="icon-tile sky" [class.coral]="sync.state() === 'expired'"><app-icon name="cloud" /></span>
+          <span class="row-text">
+            <span class="row-label">{{ t.syncAccount(sync.email()) }}</span>
+            <span class="row-hint" aria-live="polite">
+              @switch (sync.state()) {
+                @case ('syncing') { {{ t.syncRunning }} }
+                @case ('error') { {{ t.syncError }} }
+                @case ('expired') { {{ t.syncExpired }} }
+                @default { {{ t.syncIdle(lastSync()) }} }
+              }
+            </span>
+          </span>
+          @if (sync.state() === 'expired') {
+            <button type="button" class="btn btn-secondary" (click)="sync.signIn()">{{ t.syncAgain }}</button>
+          } @else {
+            <button type="button" class="btn icon-btn" [class.spinning]="sync.state() === 'syncing'" [disabled]="sync.state() === 'syncing'" (click)="sync.sync()" [attr.aria-label]="t.syncNow" [title]="t.syncNow">
+              <app-icon name="refresh" />
+            </button>
+          }
+        </div>
+        <button type="button" class="list-row clickable" (click)="syncOut()">
+          <span class="icon-tile"><app-icon name="logOut" /></span>
+          <span class="row-text"><span class="row-label">{{ t.syncOut }}</span><span class="row-hint">{{ t.syncOutHint }}</span></span>
+        </button>
+      }
+    </div>
+  }
+
   <h2 class="list-group-title">{{ t.groups.data }}</h2>
   <div class="list-group">
     <button type="button" class="list-row clickable" (click)="exportBackup()">
