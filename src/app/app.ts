@@ -10,12 +10,11 @@ import { LayoutService } from './services/layout.service';
 import { LibraryService } from './services/library.service';
 import { ToastService } from './services/toast.service';
 import { Icon } from './ui/icon';
-import { Haptic } from './ui/haptic';
 
 /** App shell: welcome screen while the library is empty, else sidebar + routed main area. */
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, RouterLink, LibrarySidebar, Welcome, Icon, Haptic],
+  imports: [RouterOutlet, RouterLink, LibrarySidebar, Welcome, Icon],
   templateUrl: './app.html',
   styleUrl: './app.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

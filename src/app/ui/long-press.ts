@@ -1,5 +1,4 @@
 import { DestroyRef, Directive, inject, output } from '@angular/core';
-import { HapticsService } from '../services/haptics.service';
 
 /** How long a finger must stay down, ms (iOS uses about half a second). */
 export const LONG_PRESS_MS = 500;
@@ -29,7 +28,6 @@ const MOVE_TOLERANCE = 10;
 })
 export class LongPress {
   readonly longPress = output<void>();
-  private readonly haptics = inject(HapticsService);
 
   private timer: ReturnType<typeof setTimeout> | undefined;
   private start: { x: number; y: number } | null = null;
@@ -95,7 +93,6 @@ export class LongPress {
   private fire(): void {
     this.cancel();
     this.firedAt = performance.now();
-    this.haptics.tick(); // Android vibrates; on iPhone this may stay silent (the finger is still down, not a tap)
     this.longPress.emit();
   }
 }

@@ -6,7 +6,6 @@ import { IT } from '../../i18n/it';
 import { LibraryService } from '../../services/library.service';
 import { SetlistService } from '../../services/setlist.service';
 import { Icon } from '../../ui/icon';
-import { Haptic } from '../../ui/haptic';
 
 type Period = 'all' | 'year' | 'quarter';
 
@@ -23,7 +22,7 @@ const TOP = 10;
  */
 @Component({
   selector: 'app-stats-page',
-  imports: [RouterLink, Icon, Haptic],
+  imports: [RouterLink, Icon],
   templateUrl: './stats-page.html',
   styleUrl: './stats-page.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

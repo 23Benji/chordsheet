@@ -366,13 +366,9 @@ From the research list (WCAG contrast, iOS home-screen app conventions, OnSong /
    - [x] Impostazioni → Esibizione → "Mezza pagina", on by default (off = full pages, as before)
    - [x] Measured on the longest song: laptop 642 px per turn = one column (off: 1284 px = a page); phone 396 px = half the 792 px screen (off: 673 px)
 
-## 1.35 — Vibrazione (Benji, 2026-11-06: "can we add some vibrations … and for Android as well") ✓
+## 1.35 — Screen stays on in performance mode (Benji, 2026-11-06) ✓
 
-- [x] `HapticsService.tick()` (+ tests): Android → `navigator.vibrate(10)`; iPhone (no vibrate) → click a hidden `<input type="checkbox" switch>` (iOS 18+ ticks the Taptic Engine for it, also in home-screen apps; unofficial, only during a tap); off in Impostazioni → Esibizione → Vibrazione (touch devices only), silent when the phone's system haptics are off
-- [x] Ticks: swipe passing the delete point and tapping Elimina, Annulla / Ricarica, long-press menu (Android; on iPhone maybe not — the finger is still down), every switch, theme / instrument / sharps-flats / chord-position choices, tuner instrument and strings, statistics period, page turns by tap or swipe in performance mode (not keys or pedals)
-- [x] Counted in the browser for both paths: one tick per action, none for arrow/pedal turns
-- [ ] Benji: feel it on the iPhone (if the long-press tick doesn't come, that's the iOS limit)
-- [x] 1.35.1 (Benji: "I don't feel that"): on iPhone always the switch trick (even if a vibrate() exists), the hidden switch drawn invisibly in the page instead of display: none
 - [x] 1.35.1 (Benji: "when in presentation the screen [shouldn't] shut off"): Safari grants the wake lock only inside a tap — now requested in the tap that opens performance mode (▷, Suona), re-taken at the next tap / key / pedal whenever it isn't held (refused, or dropped by iOS), and kept across songs of a setlist (released 1.5 s after leaving) — `ScreenService` + tests
+- Vibration on phones was tried (1.35.0–1.35.1) and removed in 1.35.2 — Benji: "not a thing to have"; on his iPhone it couldn't be felt anyway
 
 Ideas noted for later: service plan items in setlists (Preghiera, Lettura…), lyrics on the church projector, song history ("suonato 3 settimane fa"), key-jump warnings in setlists, tuner: keep the screen awake + steadier "Accordata", reopen the app on the last song, follow the iPhone text size (Dynamic Type), left-handed chord diagrams, reference recording per song, song version history.

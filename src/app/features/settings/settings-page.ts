@@ -17,7 +17,6 @@ import { ActionSheet } from '../../ui/action-sheet';
 import { ConfirmDialog } from '../../ui/confirm-dialog';
 import { FolderPicker } from '../../ui/folder-picker';
 import { Icon } from '../../ui/icon';
-import { Haptic } from '../../ui/haptic';
 import { KeymapDialog } from '../../ui/keymap-dialog';
 import { SidebarToggle } from '../../ui/sidebar-toggle';
 import { Switch } from '../../ui/switch';
@@ -29,7 +28,7 @@ const FONT_MAX = 1.6;
 /** Settings as grouped rows: icon · what it does · control on the right. */
 @Component({
   selector: 'app-settings-page',
-  imports: [RouterLink, Icon, ConfirmDialog, KeymapDialog, Switch, SidebarToggle, FolderPicker, ActionSheet, Haptic],
+  imports: [RouterLink, Icon, ConfirmDialog, KeymapDialog, Switch, SidebarToggle, FolderPicker, ActionSheet],
   templateUrl: './settings-page.html',
   styleUrl: './settings-page.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -58,8 +57,6 @@ export class SettingsPage implements OnInit {
   private readonly restoreDialog = viewChild.required<ElementRef<HTMLDialogElement>>('restoreDialog');
   protected readonly t = IT.settings;
   protected readonly tuner = IT.tuner;
-  /** Phones and tablets: the "Vibrazione" row (computers don't vibrate). */
-  protected readonly touch = window.matchMedia?.('(pointer: coarse)').matches ?? false;
   protected readonly backLabel = IT.song.backToLibrary;
   protected readonly version = APP_VERSION;
   protected readonly accidentalOptions = ['auto', 'sharps', 'flats'] as const;

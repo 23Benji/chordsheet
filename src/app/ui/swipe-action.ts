@@ -1,5 +1,4 @@
 import { DestroyRef, Directive, ElementRef, inject, input, output } from '@angular/core';
-import { HapticsService } from '../services/haptics.service';
 
 /** Width of the revealed "Elimina" button, px. */
 export const ACTION_WIDTH = 88;
@@ -40,9 +39,6 @@ export class SwipeAction {
 
   private static open: SwipeAction | null = null;
   private readonly el = inject<ElementRef<HTMLElement>>(ElementRef).nativeElement;
-  private readonly haptics = inject(HapticsService);
-  /** Dragged past the delete point (a tick when it's crossed, like iOS Mail). */
-  private pastDelete = false;
   private start: { x: number; y: number; offset: number } | null = null;
   /** Moving horizontally: the row follows the finger (else the gesture is a scroll or a tap). */
   protected dragging = false;
@@ -61,7 +57,6 @@ export class SwipeAction {
       if (performance.now() < this.swallowUntil && !onAction) return this.stop(event);
       if (onAction) {
         this.stop(event);
-        this.haptics.tick();
         this.close();
         this.swipeDelete.emit();
       } else if (this.offset !== 0) {
@@ -99,13 +94,9 @@ export class SwipeAction {
     }
     if (event.cancelable) event.preventDefault(); // ours: no page scroll / bounce
     this.setOffset(Math.min(0, Math.max(-this.el.offsetWidth, this.start.offset + dx)));
-    const past = -this.offset > this.el.offsetWidth * FULL_SWIPE;
-    if (past && !this.pastDelete) this.haptics.tick();
-    this.pastDelete = past;
   }
 
   protected onEnd(): void {
-    this.pastDelete = false;
     if (this.dragging) {
       this.swallowUntil = performance.now() + 400;
       if (-this.offset > this.el.offsetWidth * FULL_SWIPE) {
