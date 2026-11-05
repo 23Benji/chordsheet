@@ -14,18 +14,22 @@ const SLOP = 8;
  * row: deleted at once. Vertical movement stays scrolling. Opening one row
  * closes the one open before.
  *
- * The host needs a child `.swipe-delete` button (the red action); the
- * offset is the CSS variable --swipe-x, styled in styles.scss.
+ * The host needs a child `.swipe-delete` (the red action); the offset is
+ * the CSS variable --swipe-x (styles/_swipe-action.scss).
+ *
+ * Touch events, not pointer events: on iPhone they are the dependable ones
+ * (pointer events from a finger that starts on a link were unreliable), and
+ * a non-passive touchmove can claim a horizontal move with preventDefault so
+ * the page never scrolls or bounces sideways meanwhile.
  */
 @Directive({
   selector: '[appSwipeAction]',
   host: {
     class: 'swipe-host',
     '[class.swiping]': 'dragging',
-    '(pointerdown)': 'onDown($event)',
-    '(pointermove)': 'onMove($event)',
-    '(pointerup)': 'onUp()',
-    '(pointercancel)': 'onCancel()',
+    '(touchstart)': 'onStart($event)',
+    '(touchend)': 'onEnd()',
+    '(touchcancel)': 'onCancel()',
   },
 })
 export class SwipeAction {
@@ -43,6 +47,10 @@ export class SwipeAction {
   private swallowUntil = -Infinity;
 
   constructor() {
+    // touchmove must be explicitly non-passive to call preventDefault
+    // (browsers may make touch listeners passive by default), so it is added by hand.
+    const onTouchMove = (event: TouchEvent) => this.onMove(event);
+    this.el.addEventListener('touchmove', onTouchMove, { passive: false });
     // Capture on the row: runs before the click handlers inside it.
     const onClick = (event: Event) => {
       const onAction = (event.target as Element).closest('.swipe-delete');
@@ -58,33 +66,37 @@ export class SwipeAction {
     };
     this.el.addEventListener('click', onClick, { capture: true });
     inject(DestroyRef).onDestroy(() => {
+      this.el.removeEventListener('touchmove', onTouchMove);
       this.el.removeEventListener('click', onClick, { capture: true });
       if (SwipeAction.open === this) SwipeAction.open = null;
     });
   }
 
-  protected onDown(event: PointerEvent): void {
-    if (event.pointerType === 'mouse' || !event.isPrimary) return;
+  protected onStart(event: TouchEvent): void {
+    if (event.touches.length !== 1) return void (this.start = null);
+    const target = event.target as Element;
     const ignore = this.swipeIgnore();
-    if (ignore && (event.target as Element).closest(ignore)) return;
-    if ((event.target as Element).closest('.swipe-delete')) return;
+    if ((ignore && target.closest(ignore)) || target.closest('.swipe-delete')) return;
     if (SwipeAction.open && SwipeAction.open !== this) SwipeAction.open.close();
-    this.start = { x: event.clientX, y: event.clientY, offset: this.offset };
+    const t = event.touches[0];
+    this.start = { x: t.clientX, y: t.clientY, offset: this.offset };
   }
 
-  protected onMove(event: PointerEvent): void {
-    if (!this.start) return;
-    const dx = event.clientX - this.start.x;
-    const dy = event.clientY - this.start.y;
+  protected onMove(event: TouchEvent): void {
+    if (!this.start || event.touches.length !== 1) return;
+    const t = event.touches[0];
+    const dx = t.clientX - this.start.x;
+    const dy = t.clientY - this.start.y;
     if (!this.dragging) {
       if (Math.abs(dy) > SLOP && Math.abs(dy) > Math.abs(dx)) return void (this.start = null); // scrolling
       if (Math.abs(dx) < SLOP) return;
       this.dragging = true;
     }
+    if (event.cancelable) event.preventDefault(); // ours: no page scroll / bounce
     this.setOffset(Math.min(0, Math.max(-this.el.offsetWidth, this.start.offset + dx)));
   }
 
-  protected onUp(): void {
+  protected onEnd(): void {
     if (this.dragging) {
       this.swallowUntil = performance.now() + 400;
       if (-this.offset > this.el.offsetWidth * FULL_SWIPE) {

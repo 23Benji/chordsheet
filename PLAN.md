@@ -342,6 +342,7 @@ From the research list (WCAG contrast, iOS home-screen app conventions, OnSong /
 2. **iPhone status bar follows the theme** (it is fixed to black: wrong in Chiaro / Bianco / Carta)
    - [x] iOS only offers black, white-with-dark-text, or see-through with white text (unreadable on light themes): black for Scuro / Nero, white for Chiaro / Bianco / Carta (`statusBarStyle` + test), set on every theme change and, because iOS reads it early, also by a tiny script in index.html from a localStorage copy before the app starts
    - [ ] Benji: on the iPhone, Chiaro → close the app → reopen: the top strip is white with a dark clock
+   - [x] 1.34.1 (Benji: launch screen "more on the right and too big"): headless Chrome's ~500 px minimum window cut the phone images (icon at 57–67 % of the width); phones are now drawn at 2× with zoom, all 27 images measured centred; icon 88 pt (phones) / 120 pt (iPads); new file names (iOS keeps the old ones until the app is added again)
 3. **Launch screen**: the app's own start image instead of a plain flash (iOS `apple-touch-startup-image`, per iPhone size)
    - [x] `scripts/splash/make-splash.mjs` (Chrome headless, like scripts/icon — no new dependency) renders `splash.html` (dark background, icon, "Chordsheet" in Caladea) for 11 iPhone and 8 iPad sizes (iPads also landscape) → 27 PNGs in `public/splash/` (3.2 MB, not in the offline cache: iOS fetches only its own) + the `<link>` tags in index.html
    - [x] Dark only: iOS can't know the theme chosen inside the app; dark is the default. iOS may keep the launch image from when the app was added to the home screen (undocumented)
@@ -358,6 +359,7 @@ From the research list (WCAG contrast, iOS home-screen app conventions, OnSong /
    - [x] Setlist cards (Elimina, Annulla existed) and songs in a setlist (Togli — now with Annulla too, back in the same place)
    - [x] Styles in a mixin (`styles/_swipe-action.scss`) included only by the two lazy setlist pages: the start-up CSS stays under budget
    - [x] Tested with simulated fingers: reveal → Elimina → Annulla; full swipe → removed → Annulla restores the order; a plain tap still opens the song's options
+   - [x] 1.34.1 (Benji: "the swipe doesn't seem to work" on the iPhone): touch events instead of pointer events (dependable on iOS Safari, also when the finger starts on a link), with a non-passive touchmove that claims horizontal moves; also on library songs (Elimina, with Annulla). Start-up budget warning 520 → 530 kB
 7. **Half-page turn** (forScore's best-loved feature) in performance mode: turning shows the next part in the top half while the bottom half still shows what you're reading, so you can always read ahead. Mainly for laptop/iPad, also on the phone
    - [x] `core/paging.ts` (+ tests): two columns on screen → a turn moves one column (the right column moves to the left; the last view shows the last two columns); one column (phone) → half a screen instead of 85 %
    - [x] `Pager` input `pagerHalf`; performance mode and the song view's two-column layout; auto-scroll in columns turns twice as often (same reading speed)

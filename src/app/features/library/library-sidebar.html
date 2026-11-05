@@ -144,11 +144,15 @@
         [routerLink]="['/canto', song.id]"
         appLongPress
         (longPress)="songMenu(song)"
+        appSwipeAction
+        (swipeDelete)="swipeDelete(song)"
         [class.current]="isCurrent(song)"
         [class.active]="query() !== '' && i === activeIndex()"
         [attr.aria-current]="isCurrent(song) ? 'page' : null"
         (click)="closeOnNarrowScreen()"
       >
+        <!-- Revealed by swiping left (phones). A span: no button inside a link. -->
+        <span class="swipe-delete" aria-hidden="true"><app-icon name="trash" /> {{ ft.menuDelete }}</span>
         <ng-container *ngTemplateOutlet="rowContent; context: { $implicit: song }" />
       </a>
     }

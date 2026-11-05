@@ -33,6 +33,7 @@ import { FabMenu } from '../../ui/fab-menu';
 import { FolderNameDialog } from '../../ui/folder-name-dialog';
 import { Icon } from '../../ui/icon';
 import { LongPress } from '../../ui/long-press';
+import { SwipeAction } from '../../ui/swipe-action';
 import { ActionSheet, SheetAction } from '../../ui/action-sheet';
 
 type LibraryFilter = 'all' | 'notes';
@@ -40,7 +41,7 @@ type LibrarySort = 'number' | 'title';
 
 @Component({
   selector: 'app-library-sidebar',
-  imports: [RouterLink, NgTemplateOutlet, SelectionBar, Icon, HintBanner, FabMenu, FolderNameDialog, ActionSheet, LongPress],
+  imports: [RouterLink, NgTemplateOutlet, SelectionBar, Icon, HintBanner, FabMenu, FolderNameDialog, ActionSheet, LongPress, SwipeAction],
   templateUrl: './library-sidebar.html',
   styleUrl: './library-sidebar.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -312,6 +313,12 @@ export class LibrarySidebar {
       // Not selecting: don't leave this song ticked for the next time.
       if (!this.selecting()) this.selected.set(new Map());
     }
+  }
+
+  /** Swiped to the left and "Elimina" (or a full swipe): deleted, with Annulla. */
+  protected async swipeDelete(song: Song): Promise<void> {
+    this.selected.set(new Map([[entryKey(song), song]]));
+    await this.deleteSelected();
   }
 
   /** Ids of the selected songs and all their versions. */
