@@ -1,5 +1,6 @@
 import {
   ApplicationConfig,
+  ErrorHandler,
   inject,
   isDevMode,
   provideAppInitializer,
@@ -17,10 +18,14 @@ import { SetlistService } from './services/setlist.service';
 import { SettingsService } from './services/settings.service';
 import { SongPrefsService } from './services/song-prefs.service';
 import { SyncService } from './services/sync.service';
+import { AppErrorHandler } from './services/app-error-handler';
 
 export const appConfig: ApplicationConfig = {
   providers: [
+    // Uncaught errors and unhandled promise rejections reach the ErrorHandler…
     provideBrowserGlobalErrorListeners(),
+    // …which tells the user and offers "Ricarica" instead of only logging.
+    { provide: ErrorHandler, useClass: AppErrorHandler },
     // withComponentInputBinding: route params (":id") arrive as component inputs.
     // PreloadAllModules: every lazy part (song view, editor …) is downloaded
     // right after start-up, so it works even if the connection drops.

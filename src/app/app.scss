@@ -72,7 +72,11 @@
   bottom: max(24px, env(safe-area-inset-bottom));
   left: 50%;
   z-index: 20;
-  max-width: min(520px, 90vw);
+  // max-content: as wide as its text needs. (Positioned at left: 50%, the
+  // box would otherwise shrink to half the screen and wrap into many lines.)
+  width: max-content;
+  max-width: min(520px, calc(100vw - 2 * var(--page-x)));
+  box-sizing: border-box;
   padding: var(--space-3) var(--space-5);
   border-radius: var(--radius-m);
   background: var(--surface);

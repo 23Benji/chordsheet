@@ -209,6 +209,13 @@ export const IT = {
     exportCho: 'Esporta .cho',
   },
 
+  errors: {
+    generic: 'Qualcosa non ha funzionato. I tuoi canti sono al sicuro.',
+    newVersion: 'È uscita una nuova versione di Chordsheet.',
+    reload: 'Ricarica',
+    startTitle: 'Chordsheet non si è aperto',
+    startText: 'Non è stato possibile leggere i dati salvati su questo dispositivo. Di solito basta ricaricare. Se succede di nuovo, controlla che il telefono abbia spazio libero e che Safari non sia in navigazione privata.',
+  },
   shell: {
     /** The button in the message after a delete. */
     undo: 'Annulla',

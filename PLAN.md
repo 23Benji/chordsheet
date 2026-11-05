@@ -346,7 +346,9 @@ From the research list (WCAG contrast, iOS home-screen app conventions, OnSong /
    - [x] `scripts/splash/make-splash.mjs` (Chrome headless, like scripts/icon — no new dependency) renders `splash.html` (dark background, icon, "Chordsheet" in Caladea) for 11 iPhone and 8 iPad sizes (iPads also landscape) → 27 PNGs in `public/splash/` (3.2 MB, not in the offline cache: iOS fetches only its own) + the `<link>` tags in index.html
    - [x] Dark only: iOS can't know the theme chosen inside the app; dark is the default. iOS may keep the launch image from when the app was added to the home screen (undocumented)
 4. **Friendly error screen**: if something unexpected breaks, "Qualcosa non ha funzionato · Ricarica" instead of a frozen app (data stays safe)
-   - [ ] 
+   - [x] `AppErrorHandler` replaces Angular's (which only logs): uncaught errors and unhandled rejections → message + Ricarica, at most every 30 s; "È uscita una nuova versione" when an old page asks for a file that no longer exists; harmless browser events (closed share sheet, late share, ResizeObserver) only logged (`core/errors.ts` + tests)
+   - [x] The app can't start (IndexedDB blocked): a plain page "Chordsheet non si è aperto" with what to check and Ricarica, instead of a blank screen
+   - [x] Tested in the browser (real error → message; AbortError → nothing; blocked IndexedDB → start page). Toasts now use the screen width on the phone (they were squeezed to half and wrapped into many lines)
 5. **Long-press a song** for quick actions (add to setlist, folder, share, delete), like iOS context menus — library rows, setlist rows
    - [ ] 
 6. **Swipe left to delete** on rows (with Annulla), the standard iPhone gesture — setlists list, songs in a setlist
