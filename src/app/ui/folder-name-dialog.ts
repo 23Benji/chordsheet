@@ -52,22 +52,22 @@ import { FolderService } from '../services/folder.service';
       background: var(--scrim);
     }
     .body {
-      padding: 22px;
+      padding: var(--space-6);
     }
     h2 {
-      margin-bottom: 14px;
+      margin-bottom: var(--space-3);
       font-size: 22px;
     }
     .field {
       display: flex;
       flex-direction: column;
-      gap: 6px;
+      gap: var(--space-2);
       color: var(--text-muted);
       font-size: 13px;
     }
     input {
       height: 44px;
-      padding: 0 12px;
+      padding: 0 var(--space-3);
       border: 1px solid transparent;
       border-radius: var(--radius-s);
       background: var(--surface);
@@ -78,15 +78,15 @@ import { FolderService } from '../services/folder.service';
       border-color: var(--accent);
     }
     .error {
-      margin: 8px 0 0;
+      margin: var(--space-2) 0 0;
       color: var(--coral);
       font-size: 14px;
     }
     .actions {
       display: flex;
       justify-content: flex-end;
-      gap: 8px;
-      margin-top: 18px;
+      gap: var(--space-2);
+      margin-top: var(--space-5);
     }
   `,
   changeDetection: ChangeDetectionStrategy.OnPush,

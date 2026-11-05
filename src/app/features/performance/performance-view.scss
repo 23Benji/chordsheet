@@ -17,8 +17,8 @@
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 8px 14px;
-  padding: calc(max(8px, env(safe-area-inset-top)) + var(--top-gap)) max(16px, env(safe-area-inset-right)) 8px
+  gap: var(--space-2) var(--space-3);
+  padding: calc(max(var(--space-2), env(safe-area-inset-top)) + var(--top-gap)) max(var(--space-4), env(safe-area-inset-right)) var(--space-2)
     max(16px, env(safe-area-inset-left));
   background: var(--bg-elev-1);
   box-shadow: var(--shadow);
@@ -57,14 +57,14 @@
 .controls {
   display: flex;
   flex-wrap: wrap;
-  gap: 8px;
+  gap: var(--space-2);
 }
 
 .group {
   display: flex;
   align-items: center;
   gap: 2px;
-  padding: 0 4px;
+  padding: 0 var(--space-1);
   border-radius: var(--radius-m);
   background: var(--surface);
 }
@@ -88,7 +88,7 @@
 
 .small {
   min-height: var(--tap-small);
-  padding: 0 10px;
+  padding: 0 var(--space-3);
   font-size: 14px;
 }
 
@@ -103,7 +103,7 @@
     flex-wrap: nowrap;
     justify-content: space-between;
     width: 100%;
-    gap: 6px;
+    gap: var(--space-2);
   }
 
   .group {
@@ -142,7 +142,7 @@
   touch-action: pan-y;
   -webkit-touch-callout: none;
   user-select: none;
-  padding: calc(max(20px, env(safe-area-inset-top)) + var(--top-gap)) max(28px, env(safe-area-inset-right)) 36px
+  padding: calc(max(var(--space-5), env(safe-area-inset-top)) + var(--top-gap)) max(var(--page-x), env(safe-area-inset-right)) var(--space-8)
     max(28px, env(safe-area-inset-left));
 }
 

@@ -15,6 +15,7 @@ Benji — first-year Computer Science student, knows Angular basics and Java. Ex
 - Keep components small and standalone; state in signal-based services (`LibraryService`, `SongPrefsService`, `AnnotationService`, `SetlistService`, `SettingsService`); pure logic (parsing, transposition, anchoring, import) in plain TypeScript files with unit tests.
 - Strings shown to the user live in `src/app/i18n/it.ts`.
 - Design tokens only via CSS custom properties defined in `src/styles/_tokens.scss` (SPEC §6). Never hard-code colours in components.
+- Spacing on the 8-point grid: padding / margin / gap use `--space-1…12` (4 · 8 · 12 · 16 · 20 · 24 · 32 · 40 · 48 px); page side margins use `--page-x` (16 phone · 24 tablet · 32 computer); icons `--icon-s/m/l/xl` (16 · 20 · 24 · 32). 1–2 px only for hairlines and optical nudges.
 
 ## Data
 - Songs: the public app ships **no songs** (they're imported from a songbook file, ChordPro files or a backup). A local, git-ignored `songs/` folder enables "Importa l'innario incluso" in local builds (`npm run songs:index`).

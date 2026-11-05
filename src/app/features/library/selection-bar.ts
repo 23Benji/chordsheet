@@ -30,7 +30,7 @@ import { Icon } from '../../ui/icon';
   styles: `
     .bar {
       display: flex;
-      padding: 6px 8px max(6px, env(safe-area-inset-bottom));
+      padding: var(--space-2) var(--space-2) max(var(--space-2), env(safe-area-inset-bottom));
       border-top: 1px solid var(--border);
       background: var(--bg-elev-1);
     }
@@ -40,10 +40,10 @@ import { Icon } from '../../ui/icon';
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 3px;
+      gap: var(--space-1);
       min-width: 0;
       min-height: 48px;
-      padding: 6px 2px;
+      padding: var(--space-2) 2px;
       border: none;
       border-radius: var(--radius-m);
       background: none;
@@ -80,7 +80,7 @@ import { Icon } from '../../ui/icon';
     }
     @media (max-width: 600px) {
       .bar {
-        padding-bottom: 6px;
+        padding-bottom: var(--space-2);
       }
     }
   `,

@@ -8,8 +8,8 @@
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 8px 14px;
-  padding: calc(max(12px, env(safe-area-inset-top)) + var(--top-gap)) 20px 12px;
+  gap: var(--space-2) var(--space-3);
+  padding: calc(max(var(--space-3), env(safe-area-inset-top)) + var(--top-gap)) var(--page-x) var(--space-3);
   background: var(--bg-elev-1);
 
   h1 {
@@ -20,7 +20,7 @@
 .dirty {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
+  gap: var(--space-2);
   color: var(--text-muted);
   font-size: 14px;
 }
@@ -36,7 +36,7 @@
   display: flex;
   margin-inline: auto;
   gap: 2px;
-  padding: 3px;
+  padding: var(--space-1);
   border-radius: var(--radius-m);
   background: var(--surface);
 }
@@ -46,7 +46,7 @@
   flex: 1 1 0;
   min-width: 7.5em;
   min-height: var(--tap-small);
-  padding: 0 12px;
+  padding: 0 var(--space-3);
   border: none;
   border-radius: var(--radius-s);
   background: transparent;
@@ -63,20 +63,20 @@
 .bar-actions {
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: var(--space-1);
   margin-left: auto;
 }
 
 .error {
   margin: 0;
-  padding: 10px 20px;
+  padding: var(--space-3) var(--page-x);
   background: var(--highlight-coral);
   color: var(--coral);
   font-weight: 700;
 
   &.inline {
-    margin-bottom: 12px;
-    padding: 8px 12px;
+    margin-bottom: var(--space-3);
+    padding: var(--space-2) var(--space-3);
     border-radius: var(--radius-m);
     font-size: 14px;
   }
@@ -94,7 +94,7 @@
 .preview-pane {
   min-height: 0;
   overflow-y: auto;
-  padding: 16px 20px 40px;
+  padding: var(--space-4) var(--page-x) var(--space-10);
 }
 
 .preview-pane {
@@ -103,7 +103,7 @@
 }
 
 .preview-label {
-  margin: 0 0 6px;
+  margin: 0 0 var(--space-2);
   color: var(--text-muted);
   font-size: 12px;
   font-weight: 700;
@@ -112,7 +112,7 @@
 }
 
 .preview-title {
-  margin-bottom: 14px;
+  margin-bottom: var(--space-3);
   font-size: 24px;
 }
 
@@ -120,20 +120,20 @@
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 6px;
-  margin-bottom: 14px;
+  gap: var(--space-2);
+  margin-bottom: var(--space-3);
 }
 
 .group {
   display: flex;
   align-items: center;
-  padding: 0 4px 0 12px;
+  padding: 0 var(--space-1) 0 var(--space-3);
   border-radius: var(--radius-m);
   background: var(--surface);
 }
 
 .group-label {
-  margin-right: 4px;
+  margin-right: var(--space-1);
   color: var(--text-muted);
   font-size: 14px;
 }
@@ -151,20 +151,20 @@
 .meta {
   display: flex;
   flex-wrap: wrap;
-  gap: 10px;
-  margin-bottom: 16px;
+  gap: var(--space-2);
+  margin-bottom: var(--space-4);
 }
 
 .field {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: var(--space-1);
   color: var(--text-muted);
   font-size: 13px;
 
   input {
     height: 40px;
-    padding: 0 10px;
+    padding: 0 var(--space-3);
     border: 1px solid transparent;
     border-radius: var(--radius-s);
     background: var(--surface);
@@ -193,8 +193,8 @@
 .folders-field {
   display: flex;
   flex-direction: column;
-  gap: 6px;
-  margin-bottom: 16px;
+  gap: var(--space-2);
+  margin-bottom: var(--space-4);
 }
 
 .field-label {
@@ -231,7 +231,7 @@
   // One row: ‹ · Visuale | ChordPro | Anteprima · ↶ ↷ · Salva
   .bar {
     flex-wrap: nowrap;
-    gap: 8px;
+    gap: var(--space-2);
   }
 
   .bar-title,
@@ -251,7 +251,7 @@
   .tab {
     flex: 1 1 0;
     min-width: 0;
-    padding: 0 6px;
+    padding: 0 var(--space-2);
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
@@ -292,7 +292,7 @@
 
 .paste {
   width: min(720px, 94vw);
-  padding: 24px;
+  padding: var(--space-6);
   border: none;
   border-radius: var(--radius-l);
   background: var(--bg-elev-1);
@@ -309,7 +309,7 @@
 
   textarea {
     width: 100%;
-    padding: 12px;
+    padding: var(--space-3);
     border: 1px solid var(--border);
     border-radius: var(--radius-m);
     background: var(--surface);
@@ -322,21 +322,14 @@
 .paste-actions {
   display: flex;
   justify-content: flex-end;
-  gap: 8px;
-  margin-top: 14px;
+  gap: var(--space-2);
+  margin-top: var(--space-3);
 }
 
-// Phones: same 16px side margin as the other screens.
 @media (max-width: 600px) {
-  .bar,
-  .edit-pane,
-  .preview-pane {
-    padding-inline: 16px;
-  }
-
   .bar {
-    padding-inline: 8px 16px;
-    gap: 6px;
+    padding-inline: var(--space-2) var(--space-4);
+    gap: var(--space-2);
   }
 
   // Undo / redo move to the tools row; the paste button gets a short label.
@@ -369,7 +362,7 @@
 
   // Three segments must fit between ‹ and Salva.
   .tab {
-    padding: 0 4px;
+    padding: 0 var(--space-1);
     font-size: 14px;
   }
 

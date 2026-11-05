@@ -78,9 +78,9 @@ a {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
+  gap: var(--space-2);
   min-height: var(--tap);
-  padding: 0 16px;
+  padding: 0 var(--space-4);
   border: none;
   border-radius: var(--radius-m);
   background: transparent;
@@ -112,7 +112,7 @@ a {
   }
 
   app-icon {
-    --icon-size: 18px;
+    --icon-size: var(--icon-m);
   }
 }
 
@@ -160,7 +160,7 @@ a {
   }
 
   app-icon {
-    --icon-size: 20px;
+    --icon-size: var(--icon-m);
   }
 }
 
@@ -375,9 +375,9 @@ a {
   display: inline-flex;
   flex: none;
   align-items: center;
-  gap: 6px;
+  gap: var(--space-2);
   min-height: var(--tap-small);
-  padding: 0 12px;
+  padding: 0 var(--space-3);
   border: 1px solid var(--border);
   border-radius: 999px;
   background: transparent;
@@ -401,11 +401,11 @@ a {
   > span {
     display: inline-flex;
     align-items: center;
-    gap: 6px;
+    gap: var(--space-2);
   }
 
   app-icon {
-    --icon-size: 16px;
+    --icon-size: var(--icon-s);
     color: var(--text-muted);
   }
 
@@ -439,18 +439,18 @@ a {
   max-width: min(340px, calc(100vw - 16px));
   max-height: 70vh;
   overflow-y: auto;
-  padding: 14px;
+  padding: var(--space-4);
   border-radius: var(--radius-m);
   background: var(--bg-elev-1);
   color: var(--text);
   box-shadow: var(--shadow), 0 0 0 1px var(--border);
 
   &.menu {
-    padding: 6px;
+    padding: var(--space-2);
   }
 
   .panel-title {
-    margin: 0 0 10px;
+    margin: 0 0 var(--space-2);
     color: var(--text-muted);
     font-size: 12px;
     font-weight: 700;
@@ -462,7 +462,7 @@ a {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 12px;
+    gap: var(--space-3);
     min-height: var(--tap);
 
     & + .panel-row {
@@ -479,10 +479,10 @@ a {
 .menu-item {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: var(--space-3);
   width: 100%;
   min-height: var(--tap);
-  padding: 0 12px;
+  padding: 0 var(--space-3);
   border: none;
   border-radius: var(--radius-s);
   background: none;
@@ -498,7 +498,7 @@ a {
   }
 
   app-icon {
-    --icon-size: 18px;
+    --icon-size: var(--icon-m);
     color: var(--text-muted);
   }
 
@@ -515,7 +515,7 @@ a {
 
 .menu-separator {
   height: 1px;
-  margin: 6px 4px;
+  margin: var(--space-2) var(--space-1);
   background: var(--border);
 }
 
@@ -539,7 +539,7 @@ a {
 .bottom-sheet {
   max-height: 60vh;
   overflow-y: auto;
-  padding: 8px 20px max(16px, env(safe-area-inset-bottom));
+  padding: var(--space-2) var(--space-5) max(var(--space-4), env(safe-area-inset-bottom));
   border-radius: var(--radius-l) var(--radius-l) 0 0;
   background: var(--bg-elev-1);
   box-shadow: var(--shadow), 0 -1px 0 var(--border);
@@ -549,7 +549,7 @@ a {
     display: block;
     width: 40px;
     height: 4px;
-    margin: 0 auto 8px;
+    margin: 0 auto var(--space-2);
     border-radius: 2px;
     background: var(--border);
   }
@@ -558,7 +558,7 @@ a {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 12px;
+    gap: var(--space-3);
 
     h2 {
       overflow: hidden;
@@ -573,8 +573,8 @@ a {
     display: flex;
     align-items: center;
     justify-content: flex-end;
-    gap: 8px;
-    margin-top: 14px;
+    gap: var(--space-2);
+    margin-top: var(--space-3);
   }
 }
 
@@ -587,7 +587,7 @@ a {
 }
 
 .list-group-title {
-  margin: 24px 4px 8px;
+  margin: var(--space-6) var(--space-1) var(--space-2);
   color: var(--text-muted);
   font-family: var(--font-body);
   font-size: 13px;
@@ -600,10 +600,10 @@ a {
   position: relative; // keeps hidden file inputs inside the row
   display: flex;
   align-items: center;
-  gap: 14px;
+  gap: var(--space-3);
   width: 100%;
   min-height: 64px;
-  padding: 10px 16px;
+  padding: var(--space-3) var(--space-4);
   border: none;
   background: none;
   color: var(--text);
@@ -616,7 +616,7 @@ a {
     position: absolute;
     top: 0;
     right: 0;
-    left: 66px; // 16 padding + 36 icon + 14 gap
+    left: calc(var(--space-4) + 36px + var(--space-3)); // row padding + icon + gap: where the text starts
     height: 1px;
     background: var(--border);
     pointer-events: none;
@@ -650,7 +650,7 @@ a {
   }
 
   .row-chevron {
-    --icon-size: 18px;
+    --icon-size: var(--icon-m);
     color: var(--text-muted);
   }
 }
@@ -688,8 +688,8 @@ a {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 12px;
-  padding: 48px 24px;
+  gap: var(--space-3);
+  padding: var(--space-12) var(--space-6);
   color: var(--text-muted);
   text-align: center;
 
@@ -702,7 +702,7 @@ a {
     border-radius: 50%;
     background: var(--surface);
     color: var(--accent);
-    --icon-size: 32px;
+    --icon-size: var(--icon-xl);
   }
 
   h2 {
@@ -725,7 +725,7 @@ a {
 
   select {
     min-height: var(--tap-small);
-    padding: 0 34px 0 12px;
+    padding: 0 var(--space-8) 0 var(--space-3);
     border: 1px solid transparent;
     border-radius: var(--radius-s);
     background: var(--surface);
@@ -742,7 +742,7 @@ a {
   }
 
   app-icon {
-    --icon-size: 16px;
+    --icon-size: var(--icon-s);
     position: absolute;
     right: 10px;
     color: var(--text-muted);
@@ -771,8 +771,8 @@ a {
   gap: 2px;
 
   .chip {
-    gap: 6px;
-    padding: 0 12px;
+    gap: var(--space-2);
+    padding: 0 var(--space-3);
     border-color: transparent;
     background: none;
     color: var(--text-muted);
@@ -818,7 +818,7 @@ a {
       flex: 1;
       flex-direction: column;
       justify-content: center;
-      gap: 3px;
+      gap: var(--space-1);
       width: 100%;
       min-width: 0;
       height: 52px;
@@ -837,7 +837,7 @@ a {
       }
 
       app-icon {
-        --icon-size: 22px;
+        --icon-size: var(--icon-l);
         color: var(--text);
       }
 

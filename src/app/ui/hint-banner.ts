@@ -51,18 +51,18 @@ type Hint = 'install' | 'backup' | 'persist';
       display: grid;
       grid-template-columns: auto 1fr auto;
       align-items: start;
-      gap: 6px 10px;
-      padding: 8px 4px 10px 12px;
+      gap: var(--space-2) var(--space-2);
+      padding: var(--space-2) var(--space-1) var(--space-3) var(--space-3);
       border-radius: var(--radius-m);
       background: var(--highlight-amber);
     }
     p {
-      margin: 6px 0 0;
+      margin: var(--space-2) 0 0;
       font-size: 13px;
       line-height: 1.35;
     }
     .lead {
-      margin-top: 6px;
+      margin-top: var(--space-2);
     }
     .small {
       grid-column: 2;

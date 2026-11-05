@@ -9,7 +9,7 @@
   // switch stay close together (full-width rows are hard to scan).
   max-width: 880px;
   margin: 0 auto;
-  padding: calc(max(24px, env(safe-area-inset-top)) + var(--top-gap)) 24px 56px;
+  padding: calc(max(var(--space-6), env(safe-area-inset-top)) + var(--top-gap)) var(--page-x) 56px;
 
   h1 {
     font-size: 32px;
@@ -19,7 +19,7 @@
 .title-row {
   display: flex;
   align-items: center;
-  gap: 14px;
+  gap: var(--space-3);
 }
 
 .back {
@@ -34,14 +34,14 @@
   display: inline-flex;
   flex: none;
   gap: 2px;
-  padding: 3px;
+  padding: var(--space-1);
   border-radius: var(--radius-m);
   background: var(--surface);
 
   button {
     min-width: 48px;
     min-height: calc(var(--tap) - 6px);
-    padding: 0 12px;
+    padding: 0 var(--space-3);
     border: none;
     border-radius: var(--radius-s);
     background: transparent;
@@ -66,12 +66,12 @@ label.list-row {
 // (16 padding + 36 icon + 14 gap = after the icon), so it reads as one block.
 .list-row.stacked {
   flex-wrap: wrap;
-  row-gap: 8px;
+  row-gap: var(--space-2);
 
   > .themes,
   > .row-extra {
     flex: 0 0 calc(100% - 50px);
-    margin: 0 0 4px 50px;
+    margin: 0 0 var(--space-1) var(--space-12);
   }
 }
 
@@ -87,14 +87,14 @@ label.list-row {
 .themes {
   display: grid;
   grid-template-columns: repeat(5, minmax(0, 72px));
-  gap: 10px;
+  gap: var(--space-2);
 }
 
 .theme {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 6px;
+  gap: var(--space-2);
   padding: 0;
   border: none;
   background: none;
@@ -119,7 +119,7 @@ label.list-row {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 4px;
+  gap: var(--space-1);
   width: 100%;
   aspect-ratio: 1;
   border: 1px solid var(--border);
@@ -148,7 +148,7 @@ label.list-row {
 }
 
 .about {
-  padding: 24px;
+  padding: var(--space-6);
   text-align: center;
 
   .app-icon {
@@ -158,13 +158,13 @@ label.list-row {
   }
 
   h3 {
-    margin: 8px 0 4px;
+    margin: var(--space-2) 0 var(--space-1);
     font-family: var(--font-heading);
     font-size: 24px;
   }
 
   p {
-    margin: 6px auto;
+    margin: var(--space-2) auto;
     max-width: 480px;
   }
 }
@@ -190,23 +190,23 @@ label.list-row {
 .dialog-body {
   display: flex;
   flex-direction: column;
-  gap: 10px;
-  padding: 24px;
+  gap: var(--space-2);
+  padding: var(--space-6);
 
   h2 {
     font-size: 22px;
   }
 
   p {
-    margin: 0 0 6px;
+    margin: 0 0 var(--space-2);
   }
 }
 
 .option {
   display: flex;
   align-items: flex-start;
-  gap: 14px;
-  padding: 14px;
+  gap: var(--space-3);
+  padding: var(--space-4);
   border: 1px solid var(--border);
   border-radius: var(--radius-m);
   background: none;
@@ -221,7 +221,7 @@ label.list-row {
   .row-text {
     display: flex;
     flex-direction: column;
-    gap: 4px;
+    gap: var(--space-1);
   }
 
   .row-label {
@@ -239,15 +239,15 @@ label.list-row {
 .dialog-actions {
   display: flex;
   justify-content: flex-end;
-  gap: 8px;
-  margin-top: 6px;
+  gap: var(--space-2);
+  margin-top: var(--space-2);
 }
 
 .folders-field {
   display: flex;
   flex-direction: column;
-  gap: 6px;
-  margin-bottom: 6px;
+  gap: var(--space-2);
+  margin-bottom: var(--space-2);
 }
 
 .field-label {
@@ -256,15 +256,14 @@ label.list-row {
 }
 
 .conflict-title {
-  margin-top: 8px;
+  margin-top: var(--space-2);
   font-size: 17px;
 }
 
 @media (max-width: 600px) {
   // Same title size and height as Libreria / Scalette.
   .page {
-    padding-top: calc(max(20px, env(safe-area-inset-top)) + var(--top-gap));
-    padding-inline: 16px;
+    padding-top: calc(max(var(--space-5), env(safe-area-inset-top)) + var(--top-gap));
 
     h1 {
       font-size: 30px;
@@ -280,7 +279,7 @@ label.list-row {
   // drop onto their own line under it (aligned with the text, after the icon).
   .list-row:not(.stacked):has(.segmented, .stepper) {
     flex-wrap: wrap;
-    row-gap: 8px; // the control sits right under its text
+    row-gap: var(--space-2); // the control sits right under its text
 
     .row-text {
       flex: 1 1 calc(100% - 60px);
@@ -288,13 +287,13 @@ label.list-row {
 
     .segmented,
     .stepper {
-      margin-left: 50px;
+      margin-left: var(--space-12);
     }
   }
 
   .themes {
     grid-template-columns: repeat(5, minmax(0, 1fr));
-    gap: 8px;
+    gap: var(--space-2);
   }
 }
 

@@ -95,8 +95,8 @@ import { Icon } from './icon';
       flex: none;
       align-items: center;
       justify-content: space-between;
-      gap: 12px;
-      padding: 14px 12px 14px 20px;
+      gap: var(--space-3);
+      padding: var(--space-4) var(--space-3) var(--space-4) var(--space-5);
       border-bottom: 1px solid var(--border);
       background: var(--bg-elev-1);
     }
@@ -106,7 +106,7 @@ import { Icon } from './icon';
     }
     .done {
       min-height: var(--tap);
-      padding: 0 12px;
+      padding: 0 var(--space-3);
       border: none;
       border-radius: var(--radius-s);
       background: none;
@@ -119,12 +119,12 @@ import { Icon } from './icon';
     .content {
       flex: 1;
       min-height: 0;
-      padding: 4px 16px 24px;
+      padding: var(--space-1) var(--space-4) var(--space-6);
       overflow-y: auto;
       overscroll-behavior: contain;
     }
     .help {
-      margin: 12px 4px 0;
+      margin: var(--space-3) var(--space-1) 0;
       color: var(--text-muted);
       font-size: 14px;
       line-height: 1.4;
@@ -132,10 +132,10 @@ import { Icon } from './icon';
     .row {
       display: flex;
       align-items: center;
-      gap: 12px;
+      gap: var(--space-3);
       width: 100%;
       min-height: 60px;
-      padding: 10px 10px 10px 16px;
+      padding: var(--space-3) var(--space-3) var(--space-3) var(--space-4);
       border: none;
       background: none;
       color: var(--text);
@@ -153,7 +153,7 @@ import { Icon } from './icon';
       display: flex;
       flex: 1;
       flex-direction: column;
-      gap: 6px;
+      gap: var(--space-2);
       min-width: 0;
     }
     .action {
@@ -168,7 +168,7 @@ import { Icon } from './icon';
     .keys {
       display: flex;
       flex-wrap: wrap;
-      gap: 6px;
+      gap: var(--space-2);
     }
     /* A key cap: rounded, a slightly thicker bottom edge. */
     .key {
@@ -181,7 +181,7 @@ import { Icon } from './icon';
       white-space: nowrap;
     }
     kbd {
-      padding: 3px 2px 3px 10px;
+      padding: var(--space-1) 2px var(--space-1) var(--space-3);
       font-family: var(--font-body);
       font-size: 14px;
       font-weight: 700;
@@ -196,7 +196,7 @@ import { Icon } from './icon';
       background: none;
       color: var(--text-muted);
       cursor: pointer;
-      --icon-size: 14px;
+      --icon-size: var(--icon-s);
 
       &:hover {
         color: var(--coral);
@@ -218,7 +218,7 @@ import { Icon } from './icon';
       background: var(--highlight-amber);
       color: var(--accent);
       cursor: pointer;
-      --icon-size: 20px;
+      --icon-size: var(--icon-m);
     }
     .small {
       flex: none;
@@ -226,12 +226,12 @@ import { Icon } from './icon';
       font-size: 14px;
     }
     .warning {
-      margin: 12px 4px 0;
+      margin: var(--space-3) var(--space-1) 0;
       color: var(--coral);
       font-size: 14px;
     }
     .reset-group {
-      margin-top: 24px;
+      margin-top: var(--space-6);
     }
     .reset {
       justify-content: center;
@@ -252,10 +252,10 @@ import { Icon } from './icon';
         border-radius: 0;
       }
       .bar {
-        padding-top: calc(10px + env(safe-area-inset-top) + var(--top-gap));
+        padding-top: calc(var(--space-3) + env(safe-area-inset-top) + var(--top-gap));
       }
       .content {
-        padding-bottom: calc(24px + env(safe-area-inset-bottom));
+        padding-bottom: calc(var(--space-6) + env(safe-area-inset-bottom));
       }
     }
   `,

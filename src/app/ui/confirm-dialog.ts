@@ -42,7 +42,7 @@ export interface ConfirmOptions {
       box-shadow: var(--shadow);
     }
     .body {
-      padding: 24px;
+      padding: var(--space-6);
     }
     dialog::backdrop {
       background: var(--scrim);
@@ -57,8 +57,8 @@ export interface ConfirmOptions {
     .actions {
       display: flex;
       justify-content: flex-end;
-      gap: 8px;
-      margin-top: 20px;
+      gap: var(--space-2);
+      margin-top: var(--space-5);
     }
     .danger {
       background: var(--coral);

@@ -20,7 +20,7 @@
 .diagram-pop {
   position: fixed;
   z-index: 20;
-  padding: 10px 12px;
+  padding: var(--space-3) var(--space-3);
   border-radius: var(--radius-m);
   background: var(--bg-elev-1);
   box-shadow: var(--shadow);
@@ -30,16 +30,16 @@
 .memo-line {
   display: flex;
   align-items: baseline;
-  gap: 8px;
+  gap: var(--space-2);
   max-width: 900px;
-  margin: 10px 0 0;
+  margin: var(--space-2) 0 0;
   color: var(--text-muted);
   font-size: 14px;
   line-height: 1.4;
   white-space: pre-line;
 
   app-icon {
-    --icon-size: 16px;
+    --icon-size: var(--icon-s);
     align-self: center;
     color: var(--accent);
   }
@@ -52,7 +52,7 @@
 
 .badge {
   min-width: 18px;
-  padding: 1px 6px;
+  padding: 1px var(--space-2);
   border-radius: 999px;
   background: var(--coral);
   color: var(--accent-ink);
@@ -64,13 +64,13 @@
 .panel-block {
   display: flex;
   flex-direction: column;
-  gap: 6px;
-  padding: 10px 0 4px;
+  gap: var(--space-2);
+  padding: var(--space-3) 0 var(--space-1);
   border-top: 1px solid var(--border);
 
   textarea {
     width: 100%;
-    padding: 8px 10px;
+    padding: var(--space-2) var(--space-3);
     border: 1px solid var(--border);
     border-radius: var(--radius-s);
     background: var(--surface);
@@ -86,7 +86,7 @@
 
 .panel-hint {
   max-width: 280px;
-  margin: 6px 0 0;
+  margin: var(--space-2) 0 0;
   color: var(--text-muted);
   font-size: 13px;
   line-height: 1.4;
@@ -95,9 +95,9 @@
 .banner {
   display: flex;
   align-items: center;
-  gap: 10px;
-  margin: 10px 0 0;
-  padding: 6px 12px;
+  gap: var(--space-2);
+  margin: var(--space-2) 0 0;
+  padding: var(--space-2) var(--space-3);
   border: none;
   border-radius: var(--radius-m);
   background: var(--highlight-sky);
@@ -117,7 +117,7 @@
 }
 
 .header {
-  padding: calc(max(12px, env(safe-area-inset-top)) + var(--top-gap)) 28px 10px;
+  padding: calc(max(var(--space-3), env(safe-area-inset-top)) + var(--top-gap)) var(--page-x) var(--space-3);
   background: var(--bg-elev-1);
   box-shadow: 0 1px 0 var(--border);
 }
@@ -126,7 +126,7 @@
 .app-bar {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: var(--space-3);
 }
 
 .titles {
@@ -145,7 +145,7 @@
 .key-line {
   display: flex;
   flex-wrap: wrap;
-  gap: 0 6px;
+  gap: 0 var(--space-2);
   margin: 2px 0 0;
   color: var(--text);
   font-size: 14px;
@@ -174,7 +174,7 @@
 // Esibizione: tinted, not a filled block — calm next to the title (the
 // iPhone shows the same accent, as a plain icon).
 .perform {
-  margin-right: 6px;
+  margin-right: var(--space-2);
   border-color: transparent;
   background: var(--highlight-amber);
   color: var(--accent);
@@ -192,9 +192,10 @@
 // Controls: one row of chips, scrolls sideways on narrow screens.
 .controls {
   display: flex;
-  gap: 8px;
-  margin: 10px -28px 0;
-  padding: 2px 28px;
+  gap: var(--space-2);
+  // Bleeds to the screen edges (the chips scroll under the page margin).
+  margin: var(--space-2) calc(-1 * var(--page-x)) 0;
+  padding: 2px var(--page-x);
   overflow-x: auto;
   scrollbar-width: none;
 
@@ -211,17 +212,17 @@
 .segmented {
   display: inline-flex;
   gap: 2px;
-  padding: 3px;
+  padding: var(--space-1);
   border-radius: var(--radius-m);
   background: var(--surface);
 
   button {
     display: inline-flex;
     align-items: center;
-    gap: 4px;
+    gap: var(--space-1);
     min-width: 44px;
     min-height: calc(var(--tap-small) - 6px);
-    padding: 0 10px;
+    padding: 0 var(--space-3);
     border: none;
     border-radius: var(--radius-s);
     background: transparent;
@@ -247,9 +248,9 @@
   .panel-row {
     display: grid;
     grid-template-columns: minmax(0, 1fr) var(--control-w) 36px;
-    column-gap: 8px;
+    column-gap: var(--space-2);
     min-height: 0;
-    padding: 10px 0;
+    padding: var(--space-3) 0;
 
     &:first-child {
       padding-top: 0;
@@ -297,22 +298,13 @@
 
 .small-btn {
   min-height: var(--tap-small);
-  padding: 0 10px;
+  padding: 0 var(--space-3);
   font-size: 14px;
 }
 
 @media (max-width: 600px) {
   .back {
     margin-left: -10px;
-  }
-
-  .header {
-    padding-inline: 16px;
-  }
-
-  .controls {
-    margin-inline: -16px;
-    padding-inline: 16px;
   }
 
   .titles h1 {
@@ -322,7 +314,7 @@
   // Calm bar: back · title · ▶ · ⋯. The number is in the line under the
   // title; Modifica, Scaletta and Cartelle are in ⋯.
   .app-bar {
-    gap: 4px;
+    gap: var(--space-1);
   }
 
   .perform-label,
@@ -340,7 +332,7 @@
     color: var(--accent);
 
     app-icon {
-      --icon-size: 24px;
+      --icon-size: var(--icon-l);
     }
   }
 
@@ -355,7 +347,7 @@
     z-index: 4;
     gap: 0;
     margin: 0;
-    padding: 4px 6px env(safe-area-inset-bottom);
+    padding: var(--space-1) var(--space-2) env(safe-area-inset-bottom);
     overflow: visible;
     background: var(--bg-elev-1);
     box-shadow: 0 -1px 0 var(--border);
@@ -391,7 +383,7 @@
 
 .sheet {
   max-width: 1100px;
-  padding: 24px 32px max(64px, env(safe-area-inset-bottom));
+  padding: var(--space-6) var(--page-x) max(64px, env(safe-area-inset-bottom));
 }
 
 // Two columns with a fixed height; overflow becomes more columns to the right
@@ -421,7 +413,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 12px;
+  gap: var(--space-3);
 }
 
 .page-label {
@@ -432,12 +424,12 @@
 
 .pager-buttons {
   display: flex;
-  gap: 6px;
+  gap: var(--space-2);
 }
 
 .next {
   min-width: var(--tap);
-  padding: 0 10px;
+  padding: 0 var(--space-3);
 }
 
 .not-found {
@@ -446,16 +438,7 @@
   align-items: center;
   justify-content: center;
   height: 100%;
-  gap: 12px;
+  gap: var(--space-3);
   color: var(--text-muted);
 }
 
-@media (max-width: 599px) {
-  .header {
-    padding-inline: 16px;
-  }
-
-  .sheet {
-    padding-inline: 16px;
-  }
-}

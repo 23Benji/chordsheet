@@ -34,7 +34,7 @@ import { IT } from '../../i18n/it';
     textarea {
       grid-area: 1 / 1;
       margin: 0;
-      padding: 18px 20px;
+      padding: var(--space-5) var(--space-5);
       border: none;
       font: 15px/1.6 var(--font-mono);
       letter-spacing: 0;

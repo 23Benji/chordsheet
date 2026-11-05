@@ -49,8 +49,8 @@ export type { IconName } from './icons';
     :host {
       display: inline-flex;
       flex: none;
-      width: var(--icon-size, 20px);
-      height: var(--icon-size, 20px);
+      width: var(--icon-size, var(--icon-m));
+      height: var(--icon-size, var(--icon-m));
     }
     svg {
       width: 100%;

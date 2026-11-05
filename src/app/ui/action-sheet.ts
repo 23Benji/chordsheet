@@ -59,7 +59,7 @@ export interface SheetAction {
     dialog {
       width: min(360px, calc(100vw - 32px));
       max-height: 80dvh;
-      padding: 8px;
+      padding: var(--space-2);
       border: none;
       border-radius: var(--radius-l);
       background: transparent;
@@ -72,13 +72,13 @@ export interface SheetAction {
     .sheet {
       max-height: calc(80dvh - 80px);
       overflow-y: auto;
-      padding: 6px;
+      padding: var(--space-2);
       border-radius: var(--radius-l);
       background: var(--bg-elev-1);
       box-shadow: var(--shadow);
     }
     .sheet-title {
-      margin: 6px 12px 8px;
+      margin: var(--space-2) var(--space-3) var(--space-2);
       color: var(--text-muted);
       font-size: 13px;
       font-weight: 700;
@@ -105,7 +105,7 @@ export interface SheetAction {
     }
     .cancel {
       width: 100%;
-      margin-top: 8px;
+      margin-top: var(--space-2);
       border-radius: var(--radius-l);
       background: var(--bg-elev-1);
       color: var(--accent);
@@ -116,7 +116,7 @@ export interface SheetAction {
         width: 100vw;
         max-width: 100vw;
         margin: auto 0 0;
-        padding: 8px 8px max(8px, env(safe-area-inset-bottom));
+        padding: var(--space-2) var(--space-2) max(var(--space-2), env(safe-area-inset-bottom));
       }
     }
   `,

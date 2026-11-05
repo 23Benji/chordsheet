@@ -31,7 +31,7 @@ import { SidebarToggle } from '../../ui/sidebar-toggle';
       align-items: center;
       justify-content: center;
       height: 100%;
-      padding: 32px;
+      padding: var(--space-8);
       background: var(--bg) center / cover no-repeat;
       text-align: center;
     }

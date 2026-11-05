@@ -62,7 +62,7 @@ interface Key {
     svg {
       display: block;
       height: auto;
-      margin: 4px auto 0;
+      margin: var(--space-1) auto 0;
     }
     .white {
       fill: var(--key-white);

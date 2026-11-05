@@ -27,7 +27,7 @@
   }
 
   app-icon {
-    --icon-size: 26px;
+    --icon-size: var(--icon-l);
   }
 }
 

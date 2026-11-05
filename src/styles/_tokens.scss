@@ -167,6 +167,41 @@
   --sky: #a6cdf2;
 }
 
+// ── Spacing, page margins, icons (same for every theme) ──────────────────────
+// An 8-point grid (4 for fine steps), as in Apple's and Google's guidelines:
+// every padding, margin and gap uses one of these steps, so the rhythm is the
+// same on every screen. Side margins grow with the screen.
+:root {
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-10: 40px;
+  --space-12: 48px;
+
+  --page-x: 32px; // computers
+
+  --icon-s: 16px; // inside chips, small buttons
+  --icon-m: 20px; // default (buttons, rows)
+  --icon-l: 24px; // big buttons, the floating "+"
+  --icon-xl: 32px; // empty states
+}
+
+@media (max-width: 1023px) {
+  :root {
+    --page-x: 24px; // tablets, small windows
+  }
+}
+
+@media (max-width: 600px) {
+  :root {
+    --page-x: 16px; // phones (iOS standard margin)
+  }
+}
+
 // Touch screens: bigger targets (SPEC: 44×44 on touch).
 @media (pointer: coarse) {
   :root {

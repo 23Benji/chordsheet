@@ -38,7 +38,7 @@ import { Icon } from './icon';
     .picker {
       display: flex;
       flex-wrap: wrap;
-      gap: 8px;
+      gap: var(--space-2);
     }
     .chip {
       max-width: 100%;
@@ -48,7 +48,7 @@ import { Icon } from './icon';
       color: var(--accent);
     }
     .hint {
-      margin: 8px 0 0;
+      margin: var(--space-2) 0 0;
       color: var(--text-muted);
       font-size: 13px;
     }

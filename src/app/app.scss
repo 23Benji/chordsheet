@@ -73,7 +73,7 @@
   left: 50%;
   z-index: 20;
   max-width: min(520px, 90vw);
-  padding: 12px 20px;
+  padding: var(--space-3) var(--space-5);
   border-radius: var(--radius-m);
   background: var(--surface);
   color: var(--text);
@@ -85,7 +85,7 @@
 .toast {
   display: flex;
   align-items: center;
-  gap: 14px;
+  gap: var(--space-3);
 }
 
 .toast-action {
