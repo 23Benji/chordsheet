@@ -312,7 +312,8 @@ Benji: "I don't think more features are wise to add" — small improvements to w
    - [x] Song view (scroll: stays at the same place in the song; pages) and performance mode; a pinch is never a swipe / page turn
    - [x] Tested with two simulated fingers (Chrome DevTools touch): 22 → 44 → 22 px, page zoom stays 1
 2. **Search forgives small typos**: "alleluja" finds "Alleluia", a missing / extra / swapped letter still finds the song
-   - [ ] 
+   - [x] `core/search.ts` (+ tests): spelling variants always (j/y = i, k = c, silent h, double letters), ranked after exact matches; real typos (Damerau-Levenshtein: 1 letter off from 4 letters, 2 from 7; the last word also against word beginnings while typing) only when nothing else matched
+   - [x] Real songbook (166 songs): "glria" → Gloria a Dio, "el shadai" → El Shaddai, "benedeto" → Benedetto il nome, "alleluja" → 7 songs; every query < 2.1 ms
 3. **Recent songs**: tapping the empty search shows the last 5 songs opened
    - [ ] 
 4. **"Prossimo" with key and capo** in performance mode ("Prossimo: Tu sei Re · E, capo 2")
