@@ -33,6 +33,11 @@ export const routes: Routes = [
     loadComponent: () => import('./features/setlists/setlist-page').then((m) => m.SetlistPage),
   },
   {
+    // A setlist received as a link or QR code (the data is after "#").
+    path: 'scaletta-condivisa',
+    loadComponent: () => import('./features/setlists/shared-setlist-page').then((m) => m.SharedSetlistPage),
+  },
+  {
     path: 'impostazioni',
     loadComponent: () => import('./features/settings/settings-page').then((m) => m.SettingsPage),
   },

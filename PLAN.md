@@ -289,6 +289,10 @@ In this order, one at a time (build + tests + screenshots + push after each):
    - [x] Tonalità panel: "Capo consigliato · Capo 3 · forme in G" + Usa (guitar only, follows transposition); screenshots 390 + 1280
    - [x] After "Usa" the tip rests 30 days on that song (going back to the original key doesn't bring it back)
 4. **Share a setlist as a QR code / link**: the setlist travels inside the link (no server); opening it on another device imports it, matching songs by number
+   - [x] `core/setlist-link.ts` (+ tests): compact JSON → deflate → base64url after `#` (never sent to the server); explicit 0 transposition kept; `linkFragment()` finds a link in pasted text
+   - [x] "Condividi" (setlist and list page) → sheet with QR code (`qrcode-generator`, loaded on demand), Invia link, Copia link, Invia come file
+   - [x] `/scaletta-condivisa#…`: preview (found / not in library) → Aggiungi alle mie scalette; welcome hint on an empty device; iPhone Safari hint (links don't open the home-screen app) + Importa scaletta → Incolla un link
+   - [x] Two-device test with Playwright; the QR in the screenshot decoded by macOS (CIDetector) = the link
 5. **Accordatore** (tuner), experimental: microphone + pitch detection, offline; try it and keep it only if it is accurate enough
 
 Ideas noted for later: service plan items in setlists (Preghiera, Lettura…), lyrics on the church projector, song history ("suonato 3 settimane fa"), key-jump warnings in setlists, reference recording per song, song version history.

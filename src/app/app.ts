@@ -54,7 +54,7 @@ export class App {
   /** Which bottom-bar tab is active. */
   protected readonly section = computed(() => {
     const url = this.url();
-    if (url.startsWith('/scalette')) return 'setlists';
+    if (url.startsWith('/scalette') || url.startsWith('/scaletta-condivisa')) return 'setlists';
     if (url.startsWith('/impostazioni')) return 'settings';
     return 'library';
   });

@@ -13,9 +13,9 @@ import {
 } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { collapseRepeats, mapSheetChords, parseChordPro } from '../../core/chordpro';
-import { shareBuiltFile, shareOrDownload } from '../../core/export';
+import { shareBuiltFile } from '../../core/export';
 import { SetlistItem, Song, preferSharpsFor } from '../../core/models';
-import { effectiveTranspose, exportSetlist, formatSetlistDate, moveItem, setlistFileName } from '../../core/setlists';
+import { effectiveTranspose, formatSetlistDate, moveItem, setlistFileName } from '../../core/setlists';
 import { numberLabel } from '../../core/song-meta';
 import { clampTranspose, keyView } from '../../core/transpose';
 import { IT } from '../../i18n/it';
@@ -30,6 +30,7 @@ import { ConfirmDialog } from '../../ui/confirm-dialog';
 import { Icon } from '../../ui/icon';
 import { SidebarToggle } from '../../ui/sidebar-toggle';
 import { AddSongsSheet } from './add-songs-sheet';
+import { ShareSetlistSheet } from './share-setlist-sheet';
 
 interface Row {
   item: SetlistItem;
@@ -50,7 +51,7 @@ interface Row {
  */
 @Component({
   selector: 'app-setlist-page',
-  imports: [RouterLink, Icon, ConfirmDialog, ActionSheet, CdkDropList, CdkDrag, CdkDragHandle, SidebarToggle, AddSongsSheet],
+  imports: [RouterLink, Icon, ConfirmDialog, ActionSheet, CdkDropList, CdkDrag, CdkDragHandle, SidebarToggle, AddSongsSheet, ShareSetlistSheet],
   templateUrl: './setlist-page.html',
   styleUrl: './setlist-page.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -69,6 +70,7 @@ export class SetlistPage {
   private readonly dialog = viewChild.required(ConfirmDialog);
   private readonly menu = viewChild.required(ActionSheet);
   private readonly addSheet = viewChild.required(AddSongsSheet);
+  private readonly shareSheet = viewChild.required(ShareSetlistSheet);
   private readonly itemDialog = viewChild.required<ElementRef<HTMLDialogElement>>('itemDialog');
   private readonly nameField = viewChild<ElementRef<HTMLTextAreaElement>>('name');
   protected readonly t = IT.setlists;
@@ -340,11 +342,10 @@ export class SetlistPage {
     void this.router.navigate(['/scalette', copy.id]);
   }
 
+  /** QR code + link (and the file as before). */
   protected share(): void {
     const setlist = this.setlist();
-    if (!setlist) return;
-    const json = JSON.stringify(exportSetlist(setlist, this.library.byId()), null, 2);
-    void shareOrDownload(setlistFileName(setlist), json);
+    if (setlist) void this.shareSheet().open(setlist);
   }
 
   protected async deleteSetlist(): Promise<void> {

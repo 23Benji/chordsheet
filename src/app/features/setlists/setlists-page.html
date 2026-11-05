@@ -8,10 +8,8 @@
       </a>
     </div>
     <div class="head-actions">
-      <label class="btn btn-secondary">
-        <app-icon name="fileUp" /> {{ t.import }}
-        <input #file type="file" accept=".json,application/json" class="visually-hidden" (change)="importFile(file)" />
-      </label>
+      <button type="button" class="btn btn-secondary" (click)="chooseImport(file)"><app-icon name="fileUp" /> {{ t.import }}</button>
+      <input #file type="file" accept=".json,application/json" class="visually-hidden" (change)="importFile(file)" />
       <button type="button" class="btn btn-primary" (click)="creating.set(true)"><app-icon name="plus" /> {{ t.new }}</button>
     </div>
   </header>
@@ -78,4 +76,6 @@
   </ul>
 </div>
 
+<app-share-setlist-sheet />
+<app-action-sheet />
 <app-confirm-dialog />

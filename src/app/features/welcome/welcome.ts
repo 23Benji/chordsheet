@@ -1,6 +1,7 @@
 import { ChangeDetectionStrategy, Component, OnInit, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { currentPlatform, songImportAccept } from '../../core/platform';
+import { SHARED_SETLIST_PATH } from '../../core/setlist-link';
 import { IT } from '../../i18n/it';
 import { ImportService } from '../../services/import.service';
 import { LayoutService } from '../../services/layout.service';
@@ -29,6 +30,7 @@ export class Welcome implements OnInit {
   protected readonly t = IT.welcome;
   protected readonly accept = songImportAccept(currentPlatform(), IT.importFiles.accept);
   protected readonly appName = IT.appName;
+  protected readonly sharedSetlist = location.pathname.endsWith(`/${SHARED_SETLIST_PATH}`);
 
   /** Songs shipped with this build (none in the public version). */
   protected readonly bundled = signal(false);

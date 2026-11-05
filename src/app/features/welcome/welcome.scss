@@ -56,6 +56,11 @@
   margin: 56px 0 var(--space-5);
   color: var(--text-muted);
   font-size: 18px;
+
+  &.shared {
+    margin-top: 0;
+    color: var(--accent);
+  }
 }
 
 .actions {

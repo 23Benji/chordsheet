@@ -10,6 +10,10 @@
     <p class="reference">{{ t.reference }}</p>
 
     <p class="intro">{{ t.intro }}</p>
+    <!-- Opened from a shared setlist link: the setlist appears after the import (same address). -->
+    @if (sharedSetlist) {
+      <p class="intro shared">{{ t.sharedSetlist }}</p>
+    }
 
     @if (progress(); as p) {
       <p class="progress" role="status">{{ t.importing(p.done, p.total) }}</p>

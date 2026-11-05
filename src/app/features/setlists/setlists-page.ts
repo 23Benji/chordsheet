@@ -1,8 +1,7 @@
 import { ChangeDetectionStrategy, Component, ElementRef, effect, inject, signal, viewChild } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
-import { shareOrDownload } from '../../core/export';
 import { Setlist } from '../../core/models';
-import { exportSetlist, formatSetlistDate, importSetlist, setlistFileName } from '../../core/setlists';
+import { formatSetlistDate, importSetlist } from '../../core/setlists';
 import { IT } from '../../i18n/it';
 import { LibraryService } from '../../services/library.service';
 import { SetlistService } from '../../services/setlist.service';
@@ -10,11 +9,14 @@ import { ToastService } from '../../services/toast.service';
 import { ConfirmDialog } from '../../ui/confirm-dialog';
 import { Icon } from '../../ui/icon';
 import { SidebarToggle } from '../../ui/sidebar-toggle';
+import { ActionSheet } from '../../ui/action-sheet';
+import { ShareSetlistSheet } from './share-setlist-sheet';
+import { SHARED_SETLIST_PATH, linkFragment } from '../../core/setlist-link';
 
 /** All setlists: create, import, and quick actions. */
 @Component({
   selector: 'app-setlists-page',
-  imports: [RouterLink, Icon, ConfirmDialog, SidebarToggle],
+  imports: [RouterLink, Icon, ConfirmDialog, SidebarToggle, ShareSetlistSheet, ActionSheet],
   templateUrl: './setlists-page.html',
   styleUrl: './setlists-page.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -25,6 +27,8 @@ export class SetlistsPage {
   private readonly router = inject(Router);
   private readonly toast = inject(ToastService);
   private readonly dialog = viewChild.required(ConfirmDialog);
+  private readonly shareSheet = viewChild.required(ShareSetlistSheet);
+  private readonly menu = viewChild.required(ActionSheet);
   protected readonly t = IT.setlists;
   protected readonly settingsLabel = IT.settings.link;
   protected readonly formatDate = formatSetlistDate;
@@ -64,12 +68,44 @@ export class SetlistsPage {
   }
 
   protected share(setlist: Setlist): void {
-    const json = JSON.stringify(exportSetlist(setlist, this.library.byId()), null, 2);
-    void shareOrDownload(setlistFileName(setlist), json);
+    void this.shareSheet().open(setlist);
   }
 
   protected async remove(setlist: Setlist): Promise<void> {
     if (await this.dialog().ask({ ...this.t.confirmDelete, danger: true })) await this.service.remove(setlist.id);
+  }
+
+  /**
+   * "Importa scaletta": a file, or a link copied from a message. (On the
+   * iPhone a link opens in Safari, not in the home-screen app — so the link
+   * is copied there and pasted here.)
+   */
+  protected async chooseImport(fileInput: HTMLInputElement): Promise<void> {
+    const choice = await this.menu().choose(
+      this.t.import,
+      [
+        { id: 'link', label: this.t.importLink, icon: 'paste' },
+        { id: 'file', label: this.t.importFileOption, icon: 'fileUp' },
+      ],
+      this.t.cancel,
+    );
+    if (choice === 'file') fileInput.click();
+    else if (choice === 'link') await this.pasteLink();
+  }
+
+  private async pasteLink(): Promise<void> {
+    let text = '';
+    try {
+      text = await navigator.clipboard.readText();
+    } catch {
+      // Permission refused or no clipboard access.
+    }
+    const fragment = linkFragment(text);
+    if (!fragment) {
+      this.toast.show(this.t.importLinkMissing, 6000);
+      return;
+    }
+    void this.router.navigate(['/', SHARED_SETLIST_PATH], { fragment });
   }
 
   protected async importFile(input: HTMLInputElement): Promise<void> {

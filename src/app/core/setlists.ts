@@ -88,7 +88,11 @@ export function importSetlist(json: string, songs: readonly Song[], now = Date.n
     throw new Error('not-json');
   }
   if (data?.format !== SETLIST_FORMAT || !Array.isArray(data.items)) throw new Error('not-a-setlist');
+  return importSharedSetlist(data, songs, now);
+}
 
+/** A shared setlist (from a file or a link) → a new setlist of this library, matched by number, then title. */
+export function importSharedSetlist(data: SharedSetlist, songs: readonly Song[], now = Date.now()): ImportResult {
   const setlist = newSetlist(String(data.name || 'Scaletta'), data.date, now);
   const missing: string[] = [];
   for (const shared of data.items) {

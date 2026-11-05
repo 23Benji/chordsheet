@@ -167,6 +167,14 @@
   --sky: #a6cdf2;
 }
 
+// ── QR codes (same for every theme) ───────────────────────────────────────────
+// Phone cameras read QR codes reliably only as dark squares on a light
+// background, whatever the app's theme.
+:root {
+  --qr-dark: #000;
+  --qr-light: #fff;
+}
+
 // ── Spacing, page margins, icons (same for every theme) ──────────────────────
 // An 8-point grid (4 for fine steps), as in Apple's and Google's guidelines:
 // every padding, margin and gap uses one of these steps, so the rhythm is the
