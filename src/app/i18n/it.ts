@@ -489,6 +489,21 @@ export const IT = {
     bassOthers: 'quinta e ottava',
   },
 
+  tuner: {
+    title: 'Accordatore',
+    back: 'Indietro',
+    intro: 'Accorda la chitarra con il microfono del telefono: suona una corda alla volta.',
+    start: 'Inizia ad ascoltare',
+    play: 'Suona una corda',
+    inTune: 'Accordata',
+    tooLow: 'troppo bassa',
+    tooHigh: 'troppo alta',
+    strings: 'Corde (accordatura standard)',
+    denied: 'Il microfono non è disponibile. Su iPhone: Impostazioni → Safari (o Chordsheet) → Microfono → Consenti, poi riprova.',
+    unsupported: 'Questo browser non permette di usare il microfono.',
+    privacy: 'Il suono viene analizzato solo sul telefono: niente viene registrato o inviato.',
+    menu: 'Accordatore',
+  },
   shareSetlist: {
     title: 'Condividi la scaletta',
     qrLabel: 'Codice QR della scaletta',

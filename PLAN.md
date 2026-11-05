@@ -294,5 +294,9 @@ In this order, one at a time (build + tests + screenshots + push after each):
    - [x] `/scaletta-condivisa#…`: preview (found / not in library) → Aggiungi alle mie scalette; welcome hint on an empty device; iPhone Safari hint (links don't open the home-screen app) + Importa scaletta → Incolla un link
    - [x] Two-device test with Playwright; the QR in the screenshot decoded by macOS (CIDetector) = the link
 5. **Accordatore** (tuner), experimental: microphone + pitch detection, offline; try it and keep it only if it is accurate enough
+   - [x] `core/pitch.ts` (+ tests): YIN pitch detection with parabolic interpolation, note/cents, nearest open string, median smoother — every open string within 1 cent on pure tones, overtone-heavy tones and Karplus-Strong plucks, with noise
+   - [x] `/accordatore`: gauge (±50 cent, green ±5), note + octave, cents, Hz, string row; mic with echo cancelling / noise suppression / auto gain off; entries in the song ⋯ menu and the setlist page
+   - [x] End-to-end through the app's audio chain with a synthetic plucked-string "microphone": A2 +10.4 → "+10 cent", E2 −1.1 → "Accordata", B3 −28.0 → "−28 cent"
+   - [ ] Benji: try it with the real guitar on the iPhone (keep it only if it is accurate enough)
 
 Ideas noted for later: service plan items in setlists (Preghiera, Lettura…), lyrics on the church projector, song history ("suonato 3 settimane fa"), key-jump warnings in setlists, reference recording per song, song version history.

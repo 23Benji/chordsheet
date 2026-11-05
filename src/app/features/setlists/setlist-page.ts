@@ -74,6 +74,7 @@ export class SetlistPage {
   private readonly itemDialog = viewChild.required<ElementRef<HTMLDialogElement>>('itemDialog');
   private readonly nameField = viewChild<ElementRef<HTMLTextAreaElement>>('name');
   protected readonly t = IT.setlists;
+  protected readonly IT = IT;
   protected readonly numberLabel = numberLabel;
   protected readonly formatDate = formatSetlistDate;
 
@@ -256,6 +257,7 @@ export class SetlistPage {
       this.setlist()?.name ?? '',
       [
         { id: 'pdf', label: this.t.pdf, icon: 'print' },
+        { id: 'tuner', label: IT.tuner.menu, icon: 'guitar' },
         { id: 'duplicate', label: this.t.duplicate, icon: 'copy' },
         { id: 'share', label: this.t.share, icon: 'share' },
         { id: 'delete', label: this.t.delete, icon: 'trash', danger: true, divider: true },
@@ -263,9 +265,15 @@ export class SetlistPage {
       this.t.cancel,
     );
     if (choice === 'pdf') await this.printBooklet();
+    else if (choice === 'tuner') this.openTuner();
     else if (choice === 'duplicate') await this.duplicate();
     else if (choice === 'share') this.share();
     else if (choice === 'delete') await this.deleteSetlist();
+  }
+
+  /** Tune before playing; the tuner's back arrow returns here. */
+  protected openTuner(): void {
+    void this.router.navigate(['/accordatore'], { state: { canGoBack: true } });
   }
 
   // ── Booklet (PDF of the whole setlist) ───────────────────────────────────

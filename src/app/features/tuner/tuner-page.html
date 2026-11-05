@@ -1,0 +1,70 @@
+<div class="page">
+  <nav class="top">
+    <button type="button" class="btn icon-btn back" (click)="back()" [attr.aria-label]="t.back" [title]="t.back">
+      <app-icon name="chevronLeft" />
+    </button>
+    <h1>{{ t.title }}</h1>
+  </nav>
+
+  <!-- Gauge: an arc from −50 to +50 cents, the green zone in the middle, the needle. -->
+  <div class="tuner" [class.in-tune]="inTune()" [class.silent]="!reading()">
+    <svg class="gauge" viewBox="-110 -110 220 125" aria-hidden="true">
+      <path class="arc" d="M -95.3 -55 A 110 110 0 0 1 95.3 -55" transform="translate(0 0)" />
+      <path class="zone" d="M -11.5 -109.4 A 110 110 0 0 1 11.5 -109.4" />
+      @for (tick of [-50, -25, 0, 25, 50]; track tick) {
+        <line class="tick" [class.major]="tick === 0" x1="0" y1="-98" x2="0" y2="-88" [attr.transform]="'rotate(' + tick * 1.2 + ')'" />
+      }
+      <g class="needle" [style.transform]="'rotate(' + angle() + 'deg)'">
+        <line x1="0" y1="0" x2="0" y2="-92" />
+      </g>
+      <circle class="hub" r="6" />
+    </svg>
+
+    <div class="readout" aria-live="polite">
+      @if (reading(); as r) {
+        <p class="note">{{ r.name }}<span class="octave">{{ r.octave }}</span></p>
+        <p class="cents">
+          @if (inTune()) {
+            <app-icon name="check" /> {{ t.inTune }}
+          } @else {
+            {{ centsLabel(r.cents) }} cent · {{ r.cents < 0 ? t.tooLow : t.tooHigh }}
+          }
+        </p>
+        <p class="hz">{{ frequency()!.toFixed(1) }} Hz</p>
+      } @else if (state() === 'listening') {
+        <p class="note muted">–</p>
+        <p class="cents">{{ t.play }}</p>
+      }
+    </div>
+  </div>
+
+  @if (state() === 'listening') {
+    <!-- Standard tuning: the string you are closest to lights up. -->
+    <ol class="strings" [attr.aria-label]="t.strings">
+      @for (s of strings; track s.string) {
+        <li [class.on]="string()?.string === s.string" [class.ok]="string()?.string === s.string && inTune()">
+          <span class="string-name">{{ s.name }}</span>
+          <span class="string-number">{{ s.string }}ª</span>
+        </li>
+      }
+    </ol>
+  } @else {
+    <div class="start">
+      @switch (state()) {
+        @case ('denied') {
+          <p class="error">{{ t.denied }}</p>
+        }
+        @case ('unsupported') {
+          <p class="error">{{ t.unsupported }}</p>
+        }
+        @default {
+          <p>{{ t.intro }}</p>
+        }
+      }
+      @if (state() !== 'unsupported') {
+        <button type="button" class="btn btn-primary big" (click)="start()"><app-icon name="volume" /> {{ t.start }}</button>
+      }
+      <p class="privacy">{{ t.privacy }}</p>
+    </div>
+  }
+</div>

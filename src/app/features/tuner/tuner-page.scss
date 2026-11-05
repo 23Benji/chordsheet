@@ -1,0 +1,203 @@
+:host {
+  display: block;
+  height: 100%;
+  overflow-y: auto;
+}
+
+.page {
+  max-width: 560px;
+  margin: 0 auto;
+  padding: calc(max(var(--space-4), env(safe-area-inset-top)) + var(--top-gap)) var(--page-x) var(--space-12);
+}
+
+.top {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  margin-left: calc(-1 * var(--space-2));
+
+  h1 {
+    font-size: 26px;
+  }
+}
+
+// ── Gauge ─────────────────────────────────────────────────────────────────────
+
+.tuner {
+  --state: var(--coral);
+  margin-top: var(--space-8);
+  text-align: center;
+
+  &.in-tune {
+    --state: var(--sage);
+  }
+
+  &.silent {
+    --state: var(--text-muted);
+  }
+}
+
+.gauge {
+  display: block;
+  width: 100%;
+  max-width: 420px;
+  margin: 0 auto;
+  overflow: visible;
+}
+
+.arc {
+  fill: none;
+  stroke: var(--surface);
+  stroke-width: 10;
+  stroke-linecap: round;
+}
+
+.zone {
+  fill: none;
+  stroke: var(--sage);
+  stroke-width: 10;
+  opacity: 0.7;
+}
+
+.tick {
+  stroke: var(--text-muted);
+  stroke-width: 1.5;
+
+  &.major {
+    stroke: var(--text);
+    stroke-width: 2.5;
+  }
+}
+
+// The needle turns around the hub; a short transition makes it glide, not jump.
+.needle {
+  transition: transform 0.12s ease-out;
+
+  line {
+    stroke: var(--state);
+    stroke-width: 4;
+    stroke-linecap: round;
+  }
+}
+
+.hub {
+  fill: var(--state);
+}
+
+.readout {
+  min-height: 150px;
+  margin-top: var(--space-4);
+}
+
+.note {
+  margin: 0;
+  color: var(--state);
+  font-family: var(--font-heading);
+  font-size: 88px;
+  font-weight: 700;
+  line-height: 1;
+
+  &.muted {
+    color: var(--text-muted);
+  }
+}
+
+.octave {
+  margin-left: var(--space-1);
+  font-size: 32px;
+  vertical-align: super;
+  opacity: 0.7;
+}
+
+.cents {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  margin: var(--space-2) 0 0;
+  color: var(--text);
+  font-size: 18px;
+  font-weight: 700;
+
+  .in-tune & {
+    color: var(--sage);
+  }
+}
+
+.hz {
+  margin: var(--space-1) 0 0;
+  color: var(--text-muted);
+  font-size: 14px;
+  font-variant-numeric: tabular-nums;
+}
+
+// ── Strings ───────────────────────────────────────────────────────────────────
+
+.strings {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: var(--space-2);
+  margin: var(--space-6) 0 0;
+  padding: 0;
+  list-style: none;
+
+  li {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: var(--space-2) 0;
+    border-radius: var(--radius-m);
+    background: var(--bg-elev-1);
+    color: var(--text-muted);
+    transition: background-color 0.15s, color 0.15s;
+
+    &.on {
+      background: var(--surface);
+      color: var(--accent);
+    }
+
+    &.ok {
+      background: var(--highlight-sage);
+      color: var(--sage);
+    }
+  }
+}
+
+.string-name {
+  font-size: 22px;
+  font-weight: 700;
+}
+
+.string-number {
+  font-size: 12px;
+}
+
+// ── Start / errors ────────────────────────────────────────────────────────────
+
+.start {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-4);
+  margin-top: var(--space-6);
+  text-align: center;
+
+  p {
+    max-width: 360px;
+    margin: 0;
+    color: var(--text-muted);
+  }
+
+  .big {
+    min-height: 52px;
+    padding: 0 var(--space-8);
+    font-size: 17px;
+  }
+}
+
+.error {
+  color: var(--coral) !important;
+}
+
+.privacy {
+  font-size: 13px;
+}

@@ -20,6 +20,7 @@ import { Popover } from '../../ui/popover';
       <!-- iPhone: no room for the Cartelle button in the bar, so it is here. -->
       <button type="button" class="menu-item phone-only" role="menuitem" (click)="setlist.emit()"><app-icon name="listAdd" /> {{ IT.setlists.addToSetlist }}…</button>
       <button type="button" class="menu-item phone-only" role="menuitem" (click)="folders.emit()"><app-icon name="folder" /> {{ IT.folders.songMenu }}…</button>
+      <a class="menu-item" role="menuitem" routerLink="/accordatore" [state]="{ canGoBack: true }"><app-icon name="guitar" /> {{ IT.tuner.menu }}</a>
       <div class="menu-separator"></div>
       <button type="button" class="menu-item" role="menuitem" (click)="exportCho(false)"><app-icon name="download" /> {{ t.cho }}</button>
       <button type="button" class="menu-item" role="menuitem" (click)="exportCho(true)"><app-icon name="note" /> {{ t.choNotes }}</button>
