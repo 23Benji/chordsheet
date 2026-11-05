@@ -2,7 +2,9 @@
 <!--
   Launch screen artwork, rendered once per iPhone/iPad size by make-splash.mjs:
   the app's dark background, the icon, the name in the app's heading font.
-  ?w=&h= are the CSS size of the screen.
+  ?w=&h= are the CSS size of the screen, ?k= how much larger the window is
+  (Chrome won't make a window narrower than ~500 px, so phones are drawn at
+  2× with zoom: the layout is still exactly w × h).
 -->
 <html>
   <head>
@@ -16,17 +18,20 @@
       html,
       body {
         margin: 0;
-        height: 100%;
         background: #14100d; /* --bg of the dark theme */
+        overflow: hidden;
       }
       body {
         display: flex;
         flex-direction: column;
         align-items: center;
         justify-content: center;
-        gap: 20px;
+        gap: var(--gap);
+        /* Size set by the script: exactly the screen, in CSS px. */
+        width: var(--w);
+        height: var(--h);
         /* Optical centre: a little above the middle. */
-        padding-bottom: 6vh;
+        padding-bottom: var(--lift);
         box-sizing: border-box;
       }
       img {
@@ -45,10 +50,19 @@
     <img src="../icon/icon.svg" alt="" />
     <p>Chordsheet</p>
     <script>
-      const w = Number(new URLSearchParams(location.search).get('w')) || 390;
+      const q = new URLSearchParams(location.search);
+      const w = Number(q.get('w')) || 390;
+      const h = Number(q.get('h')) || 844;
+      const k = Number(q.get('k')) || 1;
       const big = w >= 700;
-      document.body.style.setProperty('--icon', big ? '168px' : '120px');
-      document.body.style.setProperty('--name', big ? '40px' : '30px');
+      const s = document.body.style;
+      s.setProperty('--w', `${w}px`);
+      s.setProperty('--h', `${h}px`);
+      s.setProperty('--lift', `${Math.round(h * 0.06)}px`);
+      s.setProperty('--icon', big ? '120px' : '88px');
+      s.setProperty('--name', big ? '30px' : '24px');
+      s.setProperty('--gap', big ? '18px' : '14px');
+      document.documentElement.style.zoom = String(k);
     </script>
   </body>
 </html>

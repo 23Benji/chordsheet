@@ -48,16 +48,23 @@ const shots = [
     { w: h, h: w, r, orientation: 'landscape', device: [w, h] },
   ]),
 ];
+/** Bump to make iOS (and caches) fetch new images instead of the old ones. */
+const VERSION = 2;
 for (const { w, h, r, orientation, device = [w, h] } of shots) {
-  const file = `splash/launch-${w * r}x${h * r}.png`;
+  const file = `splash/launch-v${VERSION}-${w * r}x${h * r}.png`;
+  // Chrome won't make a window narrower than ~500 px: a phone (390 px) would
+  // be laid out wider and cut off on the right. So narrow screens are drawn
+  // in a window k times larger with the page zoomed k× and the pixel ratio
+  // divided by k — the same w × h layout, the same pixels.
+  const k = w < 600 ? 2 : 1;
   execFileSync(CHROME, [
     '--headless=new',
     '--disable-gpu',
     '--hide-scrollbars',
-    `--force-device-scale-factor=${r}`,
-    `--window-size=${w},${h}`,
+    `--force-device-scale-factor=${r / k}`,
+    `--window-size=${w * k},${h * k}`,
     `--screenshot=${root}public/${file}`,
-    `file://${page}?w=${w}&h=${h}`,
+    `file://${page}?w=${w}&h=${h}&k=${k}`,
   ], { stdio: 'ignore' });
   links.push(
     `    <link rel="apple-touch-startup-image" media="(device-width: ${device[0]}px) and (device-height: ${device[1]}px) and (-webkit-device-pixel-ratio: ${r}) and (orientation: ${orientation})" href="${file}" />`,
