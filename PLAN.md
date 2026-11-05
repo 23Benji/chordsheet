@@ -303,4 +303,25 @@ In this order, one at a time (build + tests + screenshots + push after each):
    - [x] Bass (E1 A1 D2 G2, 8192-sample window) with a Chitarra / Basso switch, remembered
    - [x] Also reachable from Impostazioni → Esibizione → Accordatore (discreet, always there)
 
-Ideas noted for later: service plan items in setlists (Preghiera, Lettura…), lyrics on the church projector, song history ("suonato 3 settimane fa"), key-jump warnings in setlists, reference recording per song, song version history.
+## 1.33 — Small upgrades + statistics (Benji, 2026-11-05)
+
+Benji: "I don't think more features are wise to add" — small improvements to what is there, plus one thing for his Sundays. One at a time, carefully; **one version for the whole batch** (commit each item, push once at the end).
+
+1. **Pinch to zoom** the song text (two fingers, like a photo), instead of going through the text-size control
+   - [x] `ui/pinch.ts`: CSS scale while the fingers move (smooth, no re-layout), real text size on release (5 % steps, 60–200 %, saved per song like A−/A+); the browser's page zoom is blocked there
+   - [x] Song view (scroll: stays at the same place in the song; pages) and performance mode; a pinch is never a swipe / page turn
+   - [x] Tested with two simulated fingers (Chrome DevTools touch): 22 → 44 → 22 px, page zoom stays 1
+2. **Search forgives small typos**: "alleluja" finds "Alleluia", a missing / extra / swapped letter still finds the song
+   - [ ] 
+3. **Recent songs**: tapping the empty search shows the last 5 songs opened
+   - [ ] 
+4. **"Prossimo" with key and capo** in performance mode ("Prossimo: Tu sei Re · E, capo 2")
+   - [ ] 
+5. **"Annulla" instead of "Sei sicuro?"**: delete at once, with an undo button in the message for a few seconds
+   - [ ] 
+6. **"Automatico" theme**: follows the iPhone's light/dark mode
+   - [ ] 
+7. **Statistiche** from the setlists (Benji makes a new scaletta every Sunday): which songs are sung most, which parts of the songbook (1–50, 51–100, 100+…), which numbers — with charts. Not a new button: an option inside Scalette ("Statistiche" in its ⋯ menu). "Maybe not everyone will use it", so it stays out of the way.
+   - [ ] 
+
+Ideas noted for later: service plan items in setlists (Preghiera, Lettura…), lyrics on the church projector, song history ("suonato 3 settimane fa"), key-jump warnings in setlists, tuner: keep the screen awake + steadier "Accordata", reopen the app on the last song, reference recording per song, song version history.

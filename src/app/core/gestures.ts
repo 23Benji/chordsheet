@@ -11,3 +11,23 @@ export function detectSwipe(dx: number, dy: number, ms: number): Swipe {
   if (ms > MAX_TIME || Math.abs(dx) < MIN_DISTANCE || Math.abs(dx) < Math.abs(dy) * RATIO) return null;
   return dx < 0 ? 'left' : 'right';
 }
+
+// Pinch to zoom the song text.
+
+export const FONT_SCALE_MIN = 0.6;
+export const FONT_SCALE_MAX = 2;
+
+/** Distance between two fingers, px. */
+export function fingerDistance(a: { clientX: number; clientY: number }, b: { clientX: number; clientY: number }): number {
+  return Math.hypot(a.clientX - b.clientX, a.clientY - b.clientY);
+}
+
+/**
+ * The text size after a pinch: the current scale times how much the fingers
+ * spread (ratio), kept within the limits and rounded to 5 % steps (so the
+ * A−/A+ buttons, which move by 10 %, stay on round numbers).
+ */
+export function pinchFontScale(current: number, ratio: number, min = FONT_SCALE_MIN, max = FONT_SCALE_MAX): number {
+  const next = Math.round(current * ratio * 20) / 20;
+  return Math.min(max, Math.max(min, next));
+}

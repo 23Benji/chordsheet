@@ -1,4 +1,6 @@
 import {
+  afterNextRender,
+  Injector,
   ChangeDetectionStrategy,
   Component,
   DestroyRef,
@@ -34,6 +36,8 @@ import { ToastService } from '../../services/toast.service';
 import { Icon } from '../../ui/icon';
 import { Pager } from '../../ui/pager';
 import { Swipe } from '../../ui/swipe';
+import { Pinch } from '../../ui/pinch';
+import { FONT_SCALE_MAX, FONT_SCALE_MIN, pinchFontScale } from '../../core/gestures';
 import { Popover } from '../../ui/popover';
 import { Switch } from '../../ui/switch';
 import { BassDiagram } from '../../ui/bass-diagram';
@@ -48,15 +52,15 @@ import { IntroPanel } from './intro-panel';
 import { sectionLabel } from './section-label';
 import { SongSheet } from './song-sheet';
 
-const FONT_MIN = 0.6;
-const FONT_MAX = 2;
+const FONT_MIN = FONT_SCALE_MIN;
+const FONT_MAX = FONT_SCALE_MAX;
 const BASE_LYRICS_PX = 22;
 /** From this width up the song is shown in two columns, flipped page by page. */
 const WIDE_QUERY = '(min-width: 900px)';
 
 @Component({
   selector: 'app-song-view',
-  imports: [RouterLink, Icon, CapoTip, SongSheet, AnnotationPanel, Pager, AddToSetlist, SongFolders, IntroPanel, ExportMenu, Metronome, ChordDiagram, PianoDiagram, BassDiagram, Swipe, Popover, Switch],
+  imports: [RouterLink, Icon, CapoTip, SongSheet, AnnotationPanel, Pager, AddToSetlist, SongFolders, IntroPanel, ExportMenu, Metronome, ChordDiagram, PianoDiagram, BassDiagram, Swipe, Pinch, Popover, Switch],
   templateUrl: './song-view.html',
   styleUrl: './song-view.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -72,6 +76,7 @@ export class SongView {
   private readonly settings = inject(SettingsService);
   private readonly annotationService = inject(AnnotationService);
   private readonly toast = inject(ToastService);
+  private readonly injector = inject(Injector);
   protected readonly layout = inject(LayoutService);
   protected readonly t = IT.song;
   protected readonly nt = IT.notes;
@@ -351,6 +356,17 @@ export class SongView {
   }
 
   protected readonly fontPercent = computed(() => Math.round(this.fontScale() * 100));
+
+  /** Two-finger pinch on the text: the new size, keeping the same place in the song. */
+  protected onPinch(ratio: number, scroller?: HTMLElement): void {
+    const fontScale = pinchFontScale(this.fontScale(), ratio);
+    if (fontScale === this.fontScale()) return;
+    const at = scroller && scroller.scrollHeight > scroller.clientHeight ? scroller.scrollTop / scroller.scrollHeight : null;
+    void this.prefsService.update(this.id(), { fontScale, capo: this.capo() });
+    // After Angular has re-drawn the text at the new size, scroll back to
+    // the same point (the lines are now taller or shorter).
+    if (scroller && at !== null) afterNextRender(() => (scroller.scrollTop = at * scroller.scrollHeight), { injector: this.injector });
+  }
 
   /** Per-song spelling after transposing: automatic (global setting), ♯ or ♭. */
   protected readonly accidentalOptions = [

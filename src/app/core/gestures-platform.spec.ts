@@ -1,4 +1,4 @@
-import { detectSwipe } from './gestures';
+import { detectSwipe, fingerDistance, pinchFontScale } from './gestures';
 import { isIos, isIosSafari, shouldShowInstallHint, songImportAccept } from './platform';
 
 const IPHONE = 'Mozilla/5.0 (iPhone; CPU iPhone OS 18_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.0 Mobile/15E148 Safari/604.1';
@@ -13,6 +13,15 @@ describe('gestures', () => {
     expect(detectSwipe(-30, 0, 100)).toBeNull(); // too short
     expect(detectSwipe(-80, 90, 200)).toBeNull(); // mostly vertical = scrolling
     expect(detectSwipe(-200, 0, 1500)).toBeNull(); // too slow = dragging
+  });
+
+  it('pinch: finger distance and the new text size', () => {
+    expect(fingerDistance({ clientX: 0, clientY: 0 }, { clientX: 30, clientY: 40 })).toBe(50);
+    expect(pinchFontScale(1, 1.5)).toBe(1.5);
+    expect(pinchFontScale(1, 1.13)).toBe(1.15); // 5 % steps
+    expect(pinchFontScale(1.2, 0.5)).toBe(0.6);
+    expect(pinchFontScale(1.5, 3)).toBe(2); // never above the maximum
+    expect(pinchFontScale(0.8, 0.2)).toBe(0.6); // nor below the minimum
   });
 });
 

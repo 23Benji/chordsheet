@@ -234,8 +234,18 @@
 
   @if (sheet(); as sheet) {
     @if (paged()) {
-      <div class="paged" [style.--lyrics-size.px]="lyricsPx()" appSwipe (swipeLeft)="pager.next()" (swipeRight)="pager.prev()">
-        <article class="pager" appPager="columns" [pagerWatch]="layoutKey()" #pager="pager">
+      <div
+        class="paged"
+        [style.--lyrics-size.px]="lyricsPx()"
+        appSwipe
+        (swipeLeft)="pager.next()"
+        (swipeRight)="pager.prev()"
+        [appPinch]="pagerEl"
+        [pinchMin]="fontMin / fontScale()"
+        [pinchMax]="fontMax / fontScale()"
+        (pinched)="onPinch($event)"
+      >
+        <article class="pager" appPager="columns" [pagerWatch]="layoutKey()" #pager="pager" #pagerEl>
           <app-song-sheet
             [sheet]="sheet"
             [annotations]="displayAnnotations()"
@@ -281,8 +291,16 @@
         </footer>
       </div>
     } @else {
-      <div class="scroll" #sheetScroll (scroll)="onSheetScroll(sheetScroll)">
-        <article class="sheet" [style.--lyrics-size.px]="lyricsPx()">
+      <div
+        class="scroll"
+        #sheetScroll
+        (scroll)="onSheetScroll(sheetScroll)"
+        [appPinch]="sheetEl"
+        [pinchMin]="fontMin / fontScale()"
+        [pinchMax]="fontMax / fontScale()"
+        (pinched)="onPinch($event, sheetScroll)"
+      >
+        <article class="sheet" [style.--lyrics-size.px]="lyricsPx()" #sheetEl>
           <app-song-sheet
             [sheet]="sheet"
             [annotations]="displayAnnotations()"

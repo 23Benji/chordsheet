@@ -2,6 +2,7 @@ import {
   ChangeDetectionStrategy,
   Component,
   DestroyRef,
+  ElementRef,
   computed,
   effect,
   inject,
@@ -37,6 +38,8 @@ import { Icon } from '../../ui/icon';
 import { KeymapDialog } from '../../ui/keymap-dialog';
 import { Pager, PagerMode } from '../../ui/pager';
 import { Swipe } from '../../ui/swipe';
+import { Pinch } from '../../ui/pinch';
+import { FONT_SCALE_MAX, FONT_SCALE_MIN, pinchFontScale } from '../../core/gestures';
 import { SongSheet } from '../song/song-sheet';
 
 /** Performance font = song font × this. */
@@ -51,7 +54,7 @@ const canGoBack = () => (history.state as { canGoBack?: boolean } | null)?.canGo
 
 @Component({
   selector: 'app-performance-view',
-  imports: [Icon, SongSheet, Pager, KeymapDialog, Swipe],
+  imports: [Icon, SongSheet, Pager, KeymapDialog, Swipe, Pinch],
   templateUrl: './performance-view.html',
   styleUrl: './performance-view.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -352,7 +355,17 @@ export class PerformanceView {
 
   protected changeFont(delta: number): void {
     const next = Math.round((this.fontScale() + delta) * 10) / 10;
-    void this.prefsService.update(this.id(), { fontScale: Math.min(2, Math.max(0.6, next)), capo: this.capo() });
+    void this.prefsService.update(this.id(), { fontScale: Math.min(FONT_SCALE_MAX, Math.max(FONT_SCALE_MIN, next)), capo: this.capo() });
+  }
+
+  /** The text that grows while pinching (inside an @if, so read from code). */
+  protected readonly pagerEl = viewChild('pagerEl', { read: ElementRef<HTMLElement> });
+  protected readonly pinchLimits = computed(() => ({ min: FONT_SCALE_MIN / this.fontScale(), max: FONT_SCALE_MAX / this.fontScale() }));
+
+  /** Two-finger pinch on the stage: the new text size (the pages re-flow). */
+  protected onPinch(ratio: number): void {
+    const fontScale = pinchFontScale(this.fontScale(), ratio);
+    if (fontScale !== this.fontScale()) void this.prefsService.update(this.id(), { fontScale, capo: this.capo() });
   }
 
   protected setColumns(columns: 1 | 2): void {
