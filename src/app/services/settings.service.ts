@@ -10,6 +10,7 @@ export const DEFAULT_SETTINGS: Settings = {
   keyboardMap: {},
   showNotes: true,
   accidentals: 'auto',
+  collapseRepeats: false,
 };
 
 /** Global app settings (the settings page arrives in M5). */

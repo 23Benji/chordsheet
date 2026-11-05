@@ -36,6 +36,9 @@
     @if (name) {
       <span class="tag">{{ name }}</span>
     }
+    @if (section.repeat) {
+      <span class="times" [attr.aria-label]="t.sections.timesLabel(section.repeat)">{{ t.sections.times(section.repeat) }}</span>
+    }
     @if (section.type === 'chorusRepeat') {
       <span class="repeat">({{ t.sections.repeat }})</span>
     }

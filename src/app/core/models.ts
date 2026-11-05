@@ -109,6 +109,8 @@ export interface Settings {
   showNotes: boolean;
   /** Default spelling after transposing (a song's own preferSharps wins). */
   accidentals?: 'auto' | 'sharps' | 'flats';
+  /** "Parti ripetute": identical sections in a row shown once with "×2" (default: all written out). */
+  collapseRepeats?: boolean;
 }
 
 /** preferSharps for keyView(): the song's own choice, else the global setting. */

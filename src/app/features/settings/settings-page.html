@@ -68,6 +68,11 @@
         }
       </span>
     </div>
+    <div class="list-row">
+      <span class="icon-tile sage"><app-icon name="repeat" /></span>
+      <span class="row-text"><span class="row-label">{{ t.collapseRepeats }}</span><span class="row-hint">{{ t.collapseRepeatsHint }}</span></span>
+      <app-switch [checked]="settings().collapseRepeats ?? false" [label]="t.collapseRepeats" (toggled)="set('collapseRepeats', $event)" />
+    </div>
   </div>
 
   <h2 class="list-group-title">{{ t.groups.performance }}</h2>

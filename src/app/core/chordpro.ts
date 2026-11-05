@@ -66,6 +66,8 @@ export interface SheetSection {
   /** Where an instrumental section sits: before, between or after the sung parts. */
   role: InstrumentalRole | null;
   lines: SheetLine[];
+  /** Set by collapseRepeats(): the section is played this many times in a row (shown "×2"). */
+  repeat?: number;
 }
 
 export interface Sheet {
@@ -394,5 +396,39 @@ export function mapSheetChords(sheet: Sheet, mapChord: (chord: string) => string
         }
       }),
     })),
+  };
+}
+
+/** What a section looks like on the page, without its line indexes. */
+function sectionKey(section: SheetSection): string {
+  const lines = section.lines.map(({ index: _index, ...line }) => line);
+  return JSON.stringify([section.type, section.label, section.role, lines]);
+}
+
+/**
+ * Setting "Parti ripetute": identical sections one after the other (same kind,
+ * label and lines — e.g. an intermezzo played twice) are shown once with a
+ * "×2" count. A copy that carries personal notes (`keep(lineIndex)` true for
+ * one of its lines) is left on its own, so no note ever disappears. Verses
+ * are renumbered afterwards (Strofa 1 ×2, then Strofa 2).
+ */
+export function collapseRepeats(sheet: Sheet, keep: (lineIndex: number) => boolean = () => false): Sheet {
+  const sections: SheetSection[] = [];
+  let lastKey: string | null = null;
+  for (const section of sheet.sections) {
+    const key = sectionKey(section);
+    const previous = sections[sections.length - 1];
+    if (previous && key === lastKey && !section.lines.some((l) => keep(l.index))) {
+      sections[sections.length - 1] = { ...previous, repeat: (previous.repeat ?? 1) + 1 };
+      continue;
+    }
+    sections.push(section);
+    lastKey = key;
+  }
+  if (sections.length === sheet.sections.length) return sheet;
+  let verse = 0;
+  return {
+    ...sheet,
+    sections: sections.map((s) => (s.number === null ? s : { ...s, number: ++verse })),
   };
 }

@@ -13,7 +13,7 @@ import {
 } from '@angular/core';
 import { Router } from '@angular/router';
 import { resolveAll } from '../../core/anchoring';
-import { mapSheetChords, parseChordPro } from '../../core/chordpro';
+import { collapseRepeats, mapSheetChords, parseChordPro } from '../../core/chordpro';
 import { introView } from '../../core/intro';
 import { actionFor, effectiveKeymap, KeyAction } from '../../core/keymap';
 import { Annotation, preferSharpsFor } from '../../core/models';
@@ -124,7 +124,12 @@ export class PerformanceView {
   protected readonly capoValue = this.capo;
   protected readonly sheet = computed(() => {
     const parsed = this.parsed();
-    return parsed ? mapSheetChords(parsed, this.keys().mapChord) : null;
+    if (!parsed) return null;
+    const sheet = mapSheetChords(parsed, this.keys().mapChord);
+    if (!this.settings.settings().collapseRepeats) return sheet;
+    // Setting "Parti ripetute una volta sola": a copy with personal notes stays visible.
+    const notes = this.notes();
+    return collapseRepeats(sheet, (line) => notes.has(line));
   });
   protected readonly notes = computed(() => {
     const parsed = this.parsed();

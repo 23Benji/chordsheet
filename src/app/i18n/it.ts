@@ -159,6 +159,8 @@ export const IT = {
       chorus: 'Ritornello',
       chorusRepeat: 'Ritornello',
       repeat: 'ripeti',
+      times: (n: number) => `×${n}`,
+      timesLabel: (n: number) => `Da ripetere ${n} volte`,
       bridge: 'Bridge',
       intro: 'Intro',
       interlude: 'Intermezzo musicale',
@@ -323,6 +325,9 @@ export const IT = {
     accidentals: 'Diesis o bemolle',
     accidentalsHint: 'Come scrivere gli accordi quando trasponi (es. A♯ o B♭)',
     accidentalOptions: { auto: 'Auto', sharps: '♯', flats: '♭' },
+
+    collapseRepeats: 'Parti ripetute una volta sola',
+    collapseRepeatsHint: 'Due o più parti uguali di seguito: mostrale una volta con ×2, invece di scriverle tutte',
 
     keys: 'Tasti e pedale',
     keysHint: 'Scegli quali tasti o pedali girano le pagine',

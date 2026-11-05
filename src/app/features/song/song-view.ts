@@ -12,7 +12,7 @@ import {
 } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { anchorFor, resolveAll } from '../../core/anchoring';
-import { mapSheetChords, parseChordPro } from '../../core/chordpro';
+import { collapseRepeats, mapSheetChords, parseChordPro } from '../../core/chordpro';
 import { introView } from '../../core/intro';
 import { Annotation, SongIntro, preferSharpsFor } from '../../core/models';
 import { actionFor, effectiveKeymap } from '../../core/keymap';
@@ -117,7 +117,12 @@ export class SongView {
 
   protected readonly sheet = computed(() => {
     const parsed = this.parsed();
-    return parsed ? mapSheetChords(parsed, this.keys().mapChord) : null;
+    if (!parsed) return null;
+    const sheet = mapSheetChords(parsed, this.keys().mapChord);
+    if (!this.settings.settings().collapseRepeats) return sheet;
+    // Setting "Parti ripetute una volta sola": a copy with personal notes stays visible.
+    const notes = this.displayAnnotations();
+    return collapseRepeats(sheet, (line) => notes.has(line));
   });
 
   // ── Personal layer ──────────────────────────────────────────────────────
@@ -444,7 +449,7 @@ export class SongView {
     const { songPdfFile } = await import('./song-pdf-render');
     return songPdfFile(
       sheet,
-      { mode, title: song.title, meta: meta.filter(Boolean), label: sectionLabel, repeat: `(${this.t.sections.repeat})` },
+      { mode, title: song.title, meta: meta.filter(Boolean), label: sectionLabel, repeat: `(${this.t.sections.repeat})`, times: this.t.sections.times },
       fileName,
     );
   }

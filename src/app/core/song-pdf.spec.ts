@@ -1,4 +1,4 @@
-import { parseChordPro } from './chordpro';
+import { collapseRepeats, parseChordPro } from './chordpro';
 import { PAGE, PdfOptions, PdfText, layoutSongPdf, pdfSafe, wrapWords } from './song-pdf';
 
 // Fake font metrics: every character is 2 mm wide (chords 1.6 mm).
@@ -79,5 +79,16 @@ describe('song PDF layout', () => {
   it('wraps greedily and keeps only characters the PDF fonts have', () => {
     expect(wrapWords([3, 3, 3, 9], (n) => n, 7)).toEqual([[3, 3], [3], [9]]);
     expect(pdfSafe('F♯ – B♭ “È” 🎵')).toBe('F# – Bb “È” ');
+  });
+});
+
+describe('song PDF: repeated sections', () => {
+  it('writes "×2" after the label of a section shown once', () => {
+    const sheet = collapseRepeats(parseChordPro(`${SONG}\n{start_of_chorus}\n[G]IO LODO [F]TE SI[G]GNOR\n{end_of_chorus}\n`));
+    const ops = layoutSongPdf(sheet, { ...options('chords'), times: (n) => `×${n}` }, measure).ops;
+    const tag = ops.find((o): o is PdfText => o.kind === 'text' && o.text === 'RITORNELLO')!;
+    const times = ops.find((o): o is PdfText => o.kind === 'text' && o.text === '×2')!;
+    expect(times.y).toBe(tag.y);
+    expect(times.x).toBeGreaterThan(tag.x);
   });
 });

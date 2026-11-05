@@ -1,5 +1,5 @@
 import { readdirSync, readFileSync } from 'node:fs';
-import { ChordsLine, CommentLine, LyricLine, mapSheetChords, parseChordPro } from './chordpro';
+import { ChordsLine, CommentLine, LyricLine, collapseRepeats, mapSheetChords, parseChordPro } from './chordpro';
 import { numberLabel, parseFileName, parseSongNumber, readNumeroMeta } from './song-meta';
 import { HAS_SONGS } from '../../testing/bundled-songs';
 
@@ -225,5 +225,47 @@ describe('# in song text', () => {
     const sheet = parseChordPro('{key: F#}\n# nota privata\n[A]la');
     expect(sheet.key).toBe('F#');
     expect(sheet.sections.flatMap((s) => s.lines).length).toBe(1);
+  });
+});
+
+describe('collapseRepeats', () => {
+  const chorus = '{start_of_chorus}\n[G]rit\n{end_of_chorus}';
+  const intermezzo = 'Intermezzo musicale: A D E';
+
+  it('shows identical sections in a row once, with a count', () => {
+    const sheet = collapseRepeats(parseChordPro(`${intermezzo}\n\n${intermezzo}\n\n[C]uno\n\n${chorus}\n\n${chorus}\n\n${chorus}`));
+    expect(sheet.sections.map((s) => [s.type, s.repeat ?? 1])).toEqual([
+      ['instrumental', 2],
+      ['verse', 1],
+      ['chorus', 3],
+    ]);
+  });
+
+  it('keeps sections that differ or are not next to each other', () => {
+    const parsed = parseChordPro(`${chorus}\n\n[C]uno\n\n${chorus}\n\n{start_of_chorus}\n[G]altro\n{end_of_chorus}`);
+    expect(collapseRepeats(parsed)).toBe(parsed);
+  });
+
+  it('renumbers verses after a repeated one', () => {
+    const sheet = collapseRepeats(parseChordPro('[C]uno\n\n[C]uno\n\n[C]due'));
+    expect(sheet.sections.map((s) => [s.number, s.repeat ?? 1])).toEqual([
+      [1, 2],
+      [2, 1],
+    ]);
+  });
+
+  it('leaves a copy with personal notes on its own', () => {
+    const parsed = parseChordPro(`${chorus}\n\n${chorus}\n\n${chorus}`);
+    const noted = parsed.sections[1].lines[0].index;
+    const sheet = collapseRepeats(parsed, (line) => line === noted);
+    expect(sheet.sections.map((s) => s.repeat ?? 1)).toEqual([1, 2]);
+    expect(sheet.sections[1].lines[0].index).toBe(noted);
+  });
+});
+
+describe.skipIf(!HAS_SONGS)('collapseRepeats on the bundled songs', () => {
+  it('shows the verse of "È il Signor" once, ×2', () => {
+    const sheet = collapseRepeats(parseChordPro(readFileSync('songs/088 - E il Signor.cho', 'utf8')));
+    expect(sheet.sections.map((s) => [s.type, s.number, s.repeat])).toEqual([['verse', 1, 2]]);
   });
 });

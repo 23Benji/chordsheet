@@ -63,6 +63,8 @@ export interface PdfOptions {
   label: (section: SheetSection) => string | null;
   /** "(ripeti)" after a chorus reminder. */
   repeat: string;
+  /** "×2" after a section shown once for several repeats (setting "Parti ripetute"). */
+  times?: (n: number) => string;
 }
 
 /** A4 portrait, same margins as the print stylesheet. */
@@ -126,7 +128,8 @@ export function layoutSongPdf(sheet: Sheet, options: PdfOptions, measure: Measur
     const name = options.label(section);
     if (name) {
       const tag = name.toUpperCase();
-      const extra = section.type === 'chorusRepeat' ? ` ${options.repeat}` : '';
+      const times = section.repeat && options.times ? options.times(section.repeat) : '';
+      const extra = [times, section.type === 'chorusRepeat' ? options.repeat : ''].filter(Boolean).join(' ');
       rows.push({
         height: lh('tag', 1.9),
         draw: (top, p, out) => {
@@ -134,7 +137,7 @@ export function layoutSongPdf(sheet: Sheet, options: PdfOptions, measure: Measur
           out.push({ kind: 'text', page: p, x: left, y: base, text: tag, font: 'tag', charSpace: 0.35 });
           if (extra) {
             const tagWidth = measure(tag, 'tag') + tag.length * 0.35;
-            out.push({ kind: 'text', page: p, x: left + tagWidth + 1.5, y: base, text: extra.trim(), font: 'comment' });
+            out.push({ kind: 'text', page: p, x: left + tagWidth + 1.5, y: base, text: extra, font: 'comment' });
           }
         },
       });
