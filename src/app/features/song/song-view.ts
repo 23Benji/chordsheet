@@ -22,6 +22,8 @@ import { currentPlatform, isIos } from '../../core/platform';
 import { numberLabel } from '../../core/song-meta';
 import { clampTranspose, keyUsesFlats, keyView, transposeChord } from '../../core/transpose';
 import { IT } from '../../i18n/it';
+import { sheetChords, suggestCapo } from '../../core/capo';
+import { CapoTip } from './capo-tip';
 import { AnnotationService } from '../../services/annotation.service';
 import { LayoutService } from '../../services/layout.service';
 import { LibraryService } from '../../services/library.service';
@@ -54,7 +56,7 @@ const WIDE_QUERY = '(min-width: 900px)';
 
 @Component({
   selector: 'app-song-view',
-  imports: [RouterLink, Icon, SongSheet, AnnotationPanel, Pager, AddToSetlist, SongFolders, IntroPanel, ExportMenu, Metronome, ChordDiagram, PianoDiagram, BassDiagram, Swipe, Popover, Switch],
+  imports: [RouterLink, Icon, CapoTip, SongSheet, AnnotationPanel, Pager, AddToSetlist, SongFolders, IntroPanel, ExportMenu, Metronome, ChordDiagram, PianoDiagram, BassDiagram, Swipe, Popover, Switch],
   templateUrl: './song-view.html',
   styleUrl: './song-view.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -312,6 +314,21 @@ export class SongView {
 
   protected resetTranspose(): void {
     void this.prefsService.update(this.id(), { transpose: 0, capo: this.capo() });
+  }
+
+  /**
+   * "Capo consigliato" (guitar only): the capo with the easiest shapes for
+   * the chords as they sound now (after transposing), when clearly easier.
+   */
+  protected readonly capoTip = computed(() => {
+    const parsed = this.parsed();
+    if (!parsed || this.instrument() !== 'guitar') return null;
+    const sounding = sheetChords(parsed).map((c) => transposeChord(c, this.transpose(), false));
+    return suggestCapo(sounding, this.capo(), this.keys().soundingKey);
+  });
+
+  protected useCapo(capo: number): void {
+    void this.prefsService.update(this.id(), { capo, transpose: this.transpose() });
   }
 
   protected changeCapo(delta: number): void {

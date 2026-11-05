@@ -155,6 +155,12 @@ export const IT = {
     capoDown: 'Capo giù',
     capoUp: 'Capo su',
     capoLabel: 'Capo',
+    capoTip: {
+      title: 'Capo consigliato',
+      text: (capo: number, shapes: string | null) =>
+        `${capo === 0 ? 'Senza capo' : `Capo ${capo}`}${shapes ? ` · forme in ${shapes}` : ''}`,
+      use: 'Usa',
+    },
     fontDown: 'Testo più piccolo',
     fontUp: 'Testo più grande',
     fontLabel: 'Dimensione testo',

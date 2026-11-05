@@ -114,6 +114,9 @@
           </span>
           <span></span>
         </div>
+        @if (capoTip(); as tip) {
+          <app-capo-tip [tip]="tip" (use)="useCapo($event)" />
+        }
         <div class="panel-row">
           <span class="panel-label">{{ t.accidentals }}</span>
           <span class="segmented" role="radiogroup" [attr.aria-label]="t.accidentals">
