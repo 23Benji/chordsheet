@@ -30,6 +30,14 @@ jobs:
       # so the published app offers "Importa canti da file".
       - run: npm run songs:index
       - run: npx ng test --watch=false
+      # Google sign-in for the sync: the client secret lives in the repository's
+      # Actions secrets (Settings → Secrets and variables → Actions), never in git.
+      - name: Insert the Google client secret
+        env:
+          GOOGLE_CLIENT_SECRET: ${{ secrets.GOOGLE_CLIENT_SECRET }}
+        run: >-
+          node -e "const fs = require('fs'); const f = 'src/app/services/sync-config.ts';
+          fs.writeFileSync(f, fs.readFileSync(f, 'utf8').replace('__GOOGLE_CLIENT_SECRET__', process.env.GOOGLE_CLIENT_SECRET || ''))"
       # The site lives at https://<user>.github.io/<repo>/, hence the base href.
       - run: npx ng build --base-href "/${{ github.event.repository.name }}/"
       # GitHub Pages serves 404.html for unknown paths: reuse the app so deep
