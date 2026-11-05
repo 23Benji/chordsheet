@@ -34,6 +34,7 @@ export const IT = {
     },
     /** iPhone: one pull-down next to the search for "which songs" (all, with notes, a folder). */
     searchPlaceholderShort: 'Cerca',
+    recent: 'Recenti',
     showTitle: 'Mostra',
     showLabel: (what: string) => `Mostra: ${what}`,
     allSongs: 'Tutti i canti',

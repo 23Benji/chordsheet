@@ -32,6 +32,7 @@ import { AnnotationService } from '../../services/annotation.service';
 import { LibraryService } from '../../services/library.service';
 import { ScreenService } from '../../services/screen.service';
 import { SetlistService } from '../../services/setlist.service';
+import { RecentService } from '../../services/recent.service';
 import { SettingsService } from '../../services/settings.service';
 import { SongPrefsService } from '../../services/song-prefs.service';
 import { Icon } from '../../ui/icon';
@@ -182,6 +183,14 @@ export class PerformanceView {
   private barTimer: ReturnType<typeof setTimeout> | undefined;
 
   constructor() {
+    // "Recenti" in the library: remember each song opened (untracked: only
+    // a change of song should re-run this, not what add() reads).
+    const recent = inject(RecentService);
+    effect(() => {
+      const id = this.song()?.id;
+      if (id) untracked(() => recent.add(id));
+    });
+
     const onLandscape = (e: MediaQueryListEvent) => this.landscape.set(e.matches);
     this.landscapeQuery.addEventListener('change', onLandscape);
     void this.screen.keepAwake();

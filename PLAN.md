@@ -315,7 +315,8 @@ Benji: "I don't think more features are wise to add" — small improvements to w
    - [x] `core/search.ts` (+ tests): spelling variants always (j/y = i, k = c, silent h, double letters), ranked after exact matches; real typos (Damerau-Levenshtein: 1 letter off from 4 letters, 2 from 7; the last word also against word beginnings while typing) only when nothing else matched
    - [x] Real songbook (166 songs): "glria" → Gloria a Dio, "el shadai" → El Shaddai, "benedeto" → Benedetto il nome, "alleluja" → 7 songs; every query < 2.1 ms
 3. **Recent songs**: tapping the empty search shows the last 5 songs opened
-   - [ ] 
+   - [x] `RecentService` (+ tests): last 5 songs opened on this device (localStorage, not synced — a convenience), recorded by the song view and performance mode
+   - [x] Library: "Recenti" above the list while the empty search has the focus (not while typing or selecting; the song open right now is left out); screenshots 390 + 1280
 4. **"Prossimo" with key and capo** in performance mode ("Prossimo: Tu sei Re · E, capo 2")
    - [ ] 
 5. **"Annulla" instead of "Sei sicuro?"**: delete at once, with an undo button in the message for a few seconds

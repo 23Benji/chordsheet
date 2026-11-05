@@ -226,6 +226,24 @@
   }
 }
 
+// "Recenti": the last songs opened, above the list while the empty search has the focus.
+.recent {
+  flex: none;
+  margin: 0 var(--space-2) var(--space-2);
+  padding: 0 0 var(--space-2);
+  border-bottom: 1px solid var(--border);
+}
+
+.recent-title {
+  margin: var(--space-1) var(--space-3) var(--space-1);
+  color: var(--text-muted);
+  font-family: var(--font-body);
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
 .list {
   flex: 1;
   overflow-y: auto;

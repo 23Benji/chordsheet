@@ -30,6 +30,7 @@ import { AnnotationService } from '../../services/annotation.service';
 import { LayoutService } from '../../services/layout.service';
 import { LibraryService } from '../../services/library.service';
 import { ScreenService } from '../../services/screen.service';
+import { RecentService } from '../../services/recent.service';
 import { SettingsService } from '../../services/settings.service';
 import { SongPrefsService } from '../../services/song-prefs.service';
 import { ToastService } from '../../services/toast.service';
@@ -404,6 +405,14 @@ export class SongView {
   private readonly keymap = computed(() => effectiveKeymap(this.settings.settings().keyboardMap));
 
   constructor() {
+    // "Recenti" in the library: remember each song opened (untracked: only
+    // a change of song should re-run this, not what add() reads).
+    const recent = inject(RecentService);
+    effect(() => {
+      const id = this.song()?.id;
+      if (id) untracked(() => recent.add(id));
+    });
+
     const onWideChange = (e: MediaQueryListEvent) => this.wide.set(e.matches);
     this.wideQuery.addEventListener('change', onWideChange);
     inject(DestroyRef).onDestroy(() => this.wideQuery.removeEventListener('change', onWideChange));

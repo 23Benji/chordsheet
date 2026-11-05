@@ -85,6 +85,8 @@
     [value]="query()"
     (input)="onQuery(search.value)"
     (keydown)="onSearchKeydown($event)"
+    (focus)="searchFocused.set(true)"
+    (blur)="onSearchBlur()"
   />
   <kbd class="kbd" aria-hidden="true" [title]="t.searchHint">/</kbd>
 </div>
@@ -106,6 +108,18 @@
       <button type="button" class="btn link" (click)="toggleAll()">{{ allSelected() ? ft.selectNone : ft.selectAll }}</button>
     }
   </div>
+}
+
+@if (showRecent()) {
+  <!-- Tapping the empty search: the last songs opened, for a quick way back. -->
+  <nav class="recent" [attr.aria-label]="t.recent">
+    <h2 class="recent-title">{{ t.recent }}</h2>
+    @for (song of recentSongs(); track song.id) {
+      <a class="row" [routerLink]="['/canto', song.id]" (click)="openRecent(search)">
+        <ng-container *ngTemplateOutlet="rowContent; context: { $implicit: song }" />
+      </a>
+    }
+  </nav>
 }
 
 <nav class="list" #list [attr.aria-label]="t.title">

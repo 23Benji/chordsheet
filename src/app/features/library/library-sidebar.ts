@@ -25,6 +25,7 @@ import { FolderService } from '../../services/folder.service';
 import { ToastService } from '../../services/toast.service';
 import { LayoutService } from '../../services/layout.service';
 import { LibraryService } from '../../services/library.service';
+import { RecentService } from '../../services/recent.service';
 import { SetlistService } from '../../services/setlist.service';
 import { SongPrefsService } from '../../services/song-prefs.service';
 import { ConfirmDialog } from '../../ui/confirm-dialog';
@@ -73,6 +74,20 @@ export class LibrarySidebar {
   private readonly sheet = viewChild.required(ActionSheet);
 
   protected readonly query = signal('');
+  /** The search box has the focus: with no query, "Recenti" shows above the list. */
+  protected readonly searchFocused = signal(false);
+  private readonly recent = inject(RecentService);
+  /** Last songs opened (that still exist), except the one open right now. */
+  protected readonly recentSongs = computed(() => {
+    const byId = this.library.byId();
+    return this.recent
+      .ids()
+      .map((id) => byId.get(id))
+      .filter((song): song is Song => song !== undefined && !this.isCurrent(song));
+  });
+  protected readonly showRecent = computed(
+    () => this.searchFocused() && !this.query().trim() && !this.selecting() && this.recentSongs().length > 0,
+  );
   protected readonly filter = signal<LibraryFilter>('all');
   protected readonly sort = signal<LibrarySort>('number');
   /** Row highlighted with the arrow keys while typing in the search box. */
@@ -479,6 +494,17 @@ export class LibrarySidebar {
       default:
         return () => true;
     }
+  }
+
+  protected onSearchBlur(): void {
+    // A moment's delay: tapping a recent song blurs the search first, and the
+    // tap must still land on the row before it disappears.
+    setTimeout(() => this.searchFocused.set(false), 250);
+  }
+
+  protected openRecent(input: HTMLInputElement): void {
+    input.blur();
+    this.closeOnNarrowScreen();
   }
 
   protected onQuery(value: string): void {
