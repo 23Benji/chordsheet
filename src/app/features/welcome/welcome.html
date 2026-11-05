@@ -29,6 +29,26 @@
         {{ t.orCreate }}
         <button type="button" class="link" (click)="writeFirstSong()">{{ t.createSong }}</button>
       </p>
+      <!-- A new device: sign in and the songs arrive from the user's Google Drive. -->
+      @if (sync.available) {
+        @switch (sync.state()) {
+          @case ('off') {
+            <p class="sync">
+              {{ t.syncPrompt }}
+              <button type="button" class="link" (click)="sync.signIn()">{{ t.syncSignIn }}</button>
+            </p>
+          }
+          @case ('syncing') {
+            <p class="progress" role="status">{{ t.syncing }}</p>
+          }
+          @case ('idle') {
+            <p class="sync">{{ t.syncEmpty }}</p>
+          }
+          @default {
+            <p class="error" role="alert">{{ t.syncFailed }}</p>
+          }
+        }
+      }
     }
     @if (error()) {
       <p class="error" role="alert">{{ t.importError }}</p>

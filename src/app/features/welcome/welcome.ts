@@ -5,6 +5,7 @@ import { IT } from '../../i18n/it';
 import { ImportService } from '../../services/import.service';
 import { LayoutService } from '../../services/layout.service';
 import { LibraryService } from '../../services/library.service';
+import { SyncService } from '../../services/sync.service';
 import { ToastService } from '../../services/toast.service';
 import { Icon } from '../../ui/icon';
 
@@ -24,6 +25,7 @@ export class Welcome implements OnInit {
   private readonly layout = inject(LayoutService);
   private readonly router = inject(Router);
   private readonly toast = inject(ToastService);
+  protected readonly sync = inject(SyncService);
   protected readonly t = IT.welcome;
   protected readonly accept = songImportAccept(currentPlatform(), IT.importFiles.accept);
   protected readonly appName = IT.appName;

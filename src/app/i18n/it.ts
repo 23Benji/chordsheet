@@ -14,6 +14,11 @@ export const IT = {
     importNothing: 'Nessun canto trovato nei file scelti.',
     importing: (done: number, total: number) => `Importazione… ${done} / ${total}`,
     importError: 'Non è stato possibile importare i canti. Riprova.',
+    syncPrompt: 'Hai già i canti su un altro dispositivo?',
+    syncSignIn: 'Accedi con Google',
+    syncing: 'Scarico i tuoi canti da Google Drive…',
+    syncEmpty: 'Nel tuo Google Drive non ci sono ancora canti: importali qui o su un altro dispositivo collegato.',
+    syncFailed: 'Non riesco a scaricare i canti da Google Drive. Controlla la connessione e riapri l’app.',
   },
 
   library: {
