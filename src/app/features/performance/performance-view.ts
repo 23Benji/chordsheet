@@ -148,6 +148,7 @@ export class PerformanceView {
   });
 
   protected readonly chordStyle = computed(() => this.settings.settings().chordStyle);
+  protected readonly lyricsOnly = computed(() => this.settings.settings().lyricsOnly ?? false);
   protected readonly intro = computed(() => introView(this.prefs().intro, this.keys().mapChord));
   private readonly fontScale = computed(() => this.prefs().fontScale ?? this.settings.settings().fontScale);
   protected readonly lyricsPx = computed(() => Math.round(BASE_LYRICS_PX * STAGE_SCALE * this.fontScale()));
@@ -161,7 +162,7 @@ export class PerformanceView {
   protected readonly mode = computed<PagerMode>(() =>
     this.landscape() && this.columns() === 2 ? 'columns' : 'vertical',
   );
-  protected readonly layoutKey = computed(() => [this.sheet(), this.lyricsPx(), this.notes(), this.mode(), this.intro()]);
+  protected readonly layoutKey = computed(() => [this.sheet(), this.lyricsPx(), this.notes(), this.mode(), this.intro(), this.lyricsOnly()]);
 
   // ── Auto-scroll ─────────────────────────────────────────────────────────────
 

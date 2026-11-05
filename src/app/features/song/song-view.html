@@ -33,6 +33,12 @@
           @if (sheet()?.subtitle; as subtitle) {
             <span class="muted">· {{ subtitle }}</span>
           }
+          <!-- Always visible while chords are hidden, so nobody wonders where they went. -->
+          @if (lyricsOnly()) {
+            <button type="button" class="btn lyrics-badge" (click)="setLyricsOnly(false)" [title]="t.showChords">
+              {{ st.lyricsOnly }} <app-icon name="close" />
+            </button>
+          }
         </p>
       </div>
       <div class="actions">
@@ -136,6 +142,10 @@
             </button>
           </span>
         </div>
+        <div class="panel-row">
+          <span class="panel-label">{{ st.lyricsOnly }}</span>
+          <app-switch [checked]="lyricsOnly()" [label]="st.lyricsOnly" (toggled)="setLyricsOnly($event)" />
+        </div>
         @if (wide()) {
           <div class="panel-row">
             <span class="panel-label">{{ t.columnsLabel }}</span>
@@ -231,6 +241,7 @@
             [intro]="intro()"
             [diagrams]="showDiagrams()"
             [chordStyle]="chordStyle()"
+            [lyricsOnly]="lyricsOnly()"
             (lineSelect)="onLineSelect($event)"
             (introEdit)="openIntro()"
             (chordHover)="onChordHover($event)"
@@ -277,6 +288,7 @@
             [intro]="intro()"
             [diagrams]="showDiagrams()"
             [chordStyle]="chordStyle()"
+            [lyricsOnly]="lyricsOnly()"
             (lineSelect)="onLineSelect($event)"
             (introEdit)="openIntro()"
             (chordHover)="onChordHover($event)"

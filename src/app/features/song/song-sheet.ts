@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, computed, input, output } from '@angular/core';
-import { Segment, Sheet } from '../../core/chordpro';
+import { Segment, Sheet, lyricsOnlySheet } from '../../core/chordpro';
 import { IntroView } from '../../core/intro';
 import { Annotation } from '../../core/models';
 import { IT } from '../../i18n/it';
@@ -42,6 +42,14 @@ export class SongSheet {
   readonly chordHover = output<{ chord: string; rect: DOMRect } | null>();
   /** 'inline': chords in square brackets inside the lyrics instead of above. */
   readonly chordStyle = input<'above' | 'inline'>('above');
+  /**
+   * "Solo testo" (for singers): no chords, no Intro card, no chord diagrams,
+   * no personal chords or tabs — only words, text notes and highlights.
+   */
+  readonly lyricsOnly = input(false);
+
+  /** What is drawn: the sheet as given, or its words only. */
+  protected readonly shown = computed(() => (this.lyricsOnly() ? lyricsOnlySheet(this.sheet()) : this.sheet()));
 
   protected readonly t = IT.song;
 
@@ -52,6 +60,7 @@ export class SongSheet {
    */
   protected readonly personalChords = computed(() => {
     const map = new Map<Segment, string>();
+    if (this.lyricsOnly()) return map;
     for (const section of this.sheet().sections) {
       for (const line of section.lines) {
         if (line.kind !== 'lyrics') continue;
@@ -99,7 +108,7 @@ export class SongSheet {
   }
 
   protected onMouseOver(event: MouseEvent): void {
-    if (!this.diagrams() || this.touch) return;
+    if (!this.diagrams() || this.lyricsOnly() || this.touch) return;
     const chord = this.chordAt(event.target);
     if (chord) this.chordHover.emit({ chord: chord.textContent?.trim() ?? '', rect: chord.getBoundingClientRect() });
   }
@@ -111,7 +120,7 @@ export class SongSheet {
 
   /** On touch screens a tap on a chord shows its diagram (and doesn't select the line). */
   protected onClick(event: MouseEvent): void {
-    if (!this.diagrams() || !this.touch) return;
+    if (!this.diagrams() || this.lyricsOnly() || !this.touch) return;
     const chord = this.chordAt(event.target);
     if (!chord) return;
     this.chordHover.emit({ chord: chord.textContent?.trim() ?? '', rect: chord.getBoundingClientRect() });

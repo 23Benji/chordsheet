@@ -280,6 +280,10 @@ In this order, one at a time (build + tests + screenshots + push after each):
    - [x] Second key in parentheses at the end of a line, e.g. `(Am Em Am Em)`: transpose it together with the song (song view, performance, PDF)
    - [x] Production build: install (manifest + service worker) and offline check, automated with Playwright (the old manual M1 check)
 2. **Solo testo** (lyrics only): one switch hides all chords — for singers, and to print a lyrics booklet from a setlist
+   - [x] `lyricsOnlySheet()` (+ tests): no chords, chord lines, second key or instrumental parts; line indexes kept for notes
+   - [x] Setting "Solo testo" (Impostazioni → Canti, per device) + switch in the song's Testo panel + "Solo testo ✕" badge under the title; performance mode follows it
+   - [x] Setlist "Stampa / PDF" → booklet: cover with the list, then each song (con accordi with the setlist's keys, or solo testo)
+   - [x] Screenshots 390 + 1280, booklet PDF rendered and checked; build + tests
 3. **Capo consigliato**: for the current key, suggest the capo that gives easy open shapes (e.g. Bb → capo 3, shapes in G)
 4. **Share a setlist as a QR code / link**: the setlist travels inside the link (no server); opening it on another device imports it, matching songs by number
 5. **Accordatore** (tuner), experimental: microphone + pitch detection, offline; try it and keep it only if it is accurate enough

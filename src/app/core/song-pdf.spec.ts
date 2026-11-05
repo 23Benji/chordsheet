@@ -1,5 +1,5 @@
 import { collapseRepeats, parseChordPro } from './chordpro';
-import { PAGE, PdfOptions, PdfText, layoutSongPdf, pdfSafe, wrapWords } from './song-pdf';
+import { PAGE, PdfOptions, PdfText, layoutBookletPdf, layoutSongPdf, pdfSafe, wrapWords } from './song-pdf';
 
 // Fake font metrics: every character is 2 mm wide (chords 1.6 mm).
 const measure = (text: string, role: string) => text.length * (role === 'chord' ? 1.6 : 2);
@@ -90,5 +90,22 @@ describe('song PDF: repeated sections', () => {
     const times = ops.find((o): o is PdfText => o.kind === 'text' && o.text === '×2')!;
     expect(times.y).toBe(tag.y);
     expect(times.x).toBeGreaterThan(tag.x);
+  });
+
+  it('setlist booklet: cover with the numbered list, then each song from a new page', () => {
+    const sheet = parseChordPro(SONG);
+    const layout = layoutBookletPdf(
+      { title: 'Domenica', subtitle: '8 novembre', items: ['1 · Io lodo Te', '2 · Celebriam'] },
+      [{ sheet, options: options('lyrics') }, { sheet, options: { ...options('lyrics'), title: 'Celebriam' } }],
+      measure,
+    );
+    const text = layout.ops.filter((o): o is PdfText => o.kind === 'text');
+    const onPage = (p: number) => text.filter((o) => o.page === p).map((o) => o.text);
+    expect(onPage(1)).toEqual(['Domenica', '8 novembre', '1.', '1 · Io lodo Te', '2.', '2 · Celebriam']);
+    expect(onPage(2)[0]).toBe('Io lodo Te');
+    expect(onPage(3)[0]).toBe('Celebriam');
+    expect(layout.pages).toBe(3);
+    // Lyrics only: no chord anywhere.
+    expect(text.some((o) => o.font === 'chord')).toBe(false);
   });
 });

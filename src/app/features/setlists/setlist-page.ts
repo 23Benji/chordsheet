@@ -12,15 +12,19 @@ import {
   viewChild,
 } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
-import { shareOrDownload } from '../../core/export';
-import { SetlistItem, Song } from '../../core/models';
+import { collapseRepeats, mapSheetChords, parseChordPro } from '../../core/chordpro';
+import { shareBuiltFile, shareOrDownload } from '../../core/export';
+import { SetlistItem, Song, preferSharpsFor } from '../../core/models';
 import { effectiveTranspose, exportSetlist, formatSetlistDate, moveItem, setlistFileName } from '../../core/setlists';
 import { numberLabel } from '../../core/song-meta';
 import { clampTranspose, keyView } from '../../core/transpose';
 import { IT } from '../../i18n/it';
 import { SetlistService } from '../../services/setlist.service';
 import { LibraryService } from '../../services/library.service';
+import { SettingsService } from '../../services/settings.service';
 import { SongPrefsService } from '../../services/song-prefs.service';
+import { ToastService } from '../../services/toast.service';
+import { sectionLabel } from '../song/section-label';
 import { ActionSheet } from '../../ui/action-sheet';
 import { ConfirmDialog } from '../../ui/confirm-dialog';
 import { Icon } from '../../ui/icon';
@@ -60,6 +64,8 @@ export class SetlistPage {
   private readonly library = inject(LibraryService);
   private readonly prefs = inject(SongPrefsService);
   private readonly router = inject(Router);
+  private readonly settings = inject(SettingsService);
+  private readonly toast = inject(ToastService);
   private readonly dialog = viewChild.required(ConfirmDialog);
   private readonly menu = viewChild.required(ActionSheet);
   private readonly addSheet = viewChild.required(AddSongsSheet);
@@ -247,15 +253,84 @@ export class SetlistPage {
     const choice = await this.menu().choose(
       this.setlist()?.name ?? '',
       [
+        { id: 'pdf', label: this.t.pdf, icon: 'print' },
         { id: 'duplicate', label: this.t.duplicate, icon: 'copy' },
         { id: 'share', label: this.t.share, icon: 'share' },
         { id: 'delete', label: this.t.delete, icon: 'trash', danger: true, divider: true },
       ],
       this.t.cancel,
     );
-    if (choice === 'duplicate') await this.duplicate();
+    if (choice === 'pdf') await this.printBooklet();
+    else if (choice === 'duplicate') await this.duplicate();
     else if (choice === 'share') this.share();
     else if (choice === 'delete') await this.deleteSetlist();
+  }
+
+  // ── Booklet (PDF of the whole setlist) ───────────────────────────────────
+
+  /** "Stampa / PDF": with chords (for the band) or words only (for the singers). */
+  protected async printBooklet(): Promise<void> {
+    if (!this.canPlay()) return;
+    const mode = await this.menu().choose(
+      this.t.pdf,
+      [
+        { id: 'chords', label: this.t.pdfChords, icon: 'music' },
+        { id: 'lyrics', label: this.t.pdfLyrics, icon: 'type' },
+      ],
+      this.t.cancel,
+    );
+    if (mode !== 'chords' && mode !== 'lyrics') return;
+    const et = IT.exportMenu;
+    try {
+      const file = await this.buildBooklet(mode);
+      if (!file) return;
+      await shareBuiltFile(
+        file,
+        (share) => this.toast.show(et.pdfReady, 0, { label: et.pdfShare, run: share }),
+        () => this.toast.show(et.pdfError),
+      );
+    } catch {
+      this.toast.show(et.pdfError);
+    }
+  }
+
+  /**
+   * Every song as it will be played: the setlist's transposition, the song's
+   * capo and spelling, "Parti ripetute" if on. The setlist note goes in the
+   * song's info line.
+   */
+  private async buildBooklet(mode: 'chords' | 'lyrics'): Promise<File | null> {
+    const setlist = this.setlist();
+    if (!setlist) return null;
+    const st = IT.song;
+    const settings = this.settings.settings();
+    const songs = [];
+    const items: string[] = [];
+    for (const row of this.rows()) {
+      const song = row.song;
+      if (!song) continue;
+      const parsed = parseChordPro(song.chordpro);
+      const prefs = this.prefs.get(song.id);
+      const capo = this.prefs.has(song.id) ? prefs.capo : (song.capo ?? 0);
+      const keys = keyView(song.key ?? parsed.key ?? null, row.transpose, capo, preferSharpsFor(prefs.preferSharps, settings.accidentals));
+      let sheet = mapSheetChords(parsed, keys.mapChord);
+      if (settings.collapseRepeats) sheet = collapseRepeats(sheet);
+      const label = numberLabel(song);
+      const meta = [label ? `N. ${label}` : '', sheet.subtitle ?? ''];
+      if (mode === 'chords') meta.push(keys.shapeKey ? `${st.key} ${keys.shapeKey}` : '', capo > 0 ? st.capo(capo) : '');
+      if (row.item.note) meta.push(row.item.note);
+      songs.push({
+        sheet,
+        options: { mode, title: song.title, meta: meta.filter(Boolean), label: sectionLabel, repeat: `(${st.sections.repeat})`, times: st.sections.times },
+      });
+      const key = mode === 'chords' && keys.shapeKey ? `   (${keys.shapeKey})` : '';
+      items.push(`${label ? `${label} · ` : ''}${song.title}${key}`);
+    }
+    const cover = { title: setlist.name, subtitle: [formatSetlistDate(setlist.date), this.t.count(items.length)].filter(Boolean).join(' · '), items };
+    const base = setlistFileName(setlist).replace(/\.json$/, '');
+    const fileName = `${base}${mode === 'lyrics' ? ` (${IT.exportMenu.pdfLyricsSuffix})` : ''}.pdf`;
+    const { bookletPdfFile } = await import('../song/song-pdf-render');
+    return bookletPdfFile(cover, songs, mode, fileName);
   }
 
   protected async duplicate(): Promise<void> {

@@ -1,16 +1,30 @@
 import { Sheet } from '../../core/chordpro';
-import { FontRole, PdfOptions, fonts, layoutSongPdf, pdfSafe } from '../../core/song-pdf';
+import { BookletCover, FontRole, Measure, PdfLayout, PdfMode, PdfOptions, fonts, layoutBookletPdf, layoutSongPdf, pdfSafe } from '../../core/song-pdf';
 
 /**
- * Draws the song as an A4 PDF with jsPDF and returns it as a file.
- * This module is only ever loaded with `import()` (when the iPhone/iPad
- * home-screen app prints), so jsPDF never weighs on the app's start-up.
+ * Draws a song (or a whole setlist) as an A4 PDF with jsPDF and returns it as
+ * a file. This module is only ever loaded with `import()`, so jsPDF never
+ * weighs on the app's start-up.
  */
-export async function songPdfFile(sheet: Sheet, options: PdfOptions, fileName: string): Promise<File> {
+export function songPdfFile(sheet: Sheet, options: PdfOptions, fileName: string): Promise<File> {
+  return drawPdf(options.mode, options.title, fileName, (measure) => layoutSongPdf(sheet, options, measure));
+}
+
+/** A setlist booklet: cover page with the list, then one song after the other. */
+export function bookletPdfFile(
+  cover: BookletCover,
+  songs: readonly { sheet: Sheet; options: PdfOptions }[],
+  mode: PdfMode,
+  fileName: string,
+): Promise<File> {
+  return drawPdf(mode, cover.title, fileName, (measure) => layoutBookletPdf(cover, songs, measure));
+}
+
+async function drawPdf(mode: PdfMode, title: string, fileName: string, layoutWith: (measure: Measure) => PdfLayout): Promise<File> {
   const { jsPDF } = await import('jspdf');
   const doc = new jsPDF({ unit: 'mm', format: 'a4', compress: true });
-  doc.setProperties({ title: options.title, creator: 'Chordsheet' });
-  const spec = fonts(options.mode);
+  doc.setProperties({ title, creator: 'Chordsheet' });
+  const spec = fonts(mode);
 
   const use = (role: FontRole) => {
     const f = spec[role];
@@ -23,7 +37,7 @@ export async function songPdfFile(sheet: Sheet, options: PdfOptions, fileName: s
     return doc.getTextWidth(pdfSafe(text));
   };
 
-  const layout = layoutSongPdf(sheet, options, measure);
+  const layout = layoutWith(measure);
   for (let p = 2; p <= layout.pages; p++) doc.addPage();
 
   for (const op of layout.ops) {

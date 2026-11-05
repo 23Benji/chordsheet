@@ -1,4 +1,4 @@
-@if (intro(); as intro) {
+@if (!lyricsOnly() && intro(); as intro) {
   <!-- Personal Intro card: how to start the song. -->
   <section
     class="section instrumental my-intro"
@@ -30,7 +30,7 @@
     }
   </section>
 }
-@for (section of sheet().sections; track section.index) {
+@for (section of shown().sections; track section.index) {
   <section class="section" [class]="section.type">
     @let name = label(section);
     @if (name) {
@@ -74,7 +74,7 @@
               }
             </div>
           } @else {
-            <div class="line" [class.no-chords]="!line.hasChords && !hasPersonalChord(notes)">
+            <div class="line" [class.no-chords]="!line.hasChords && (lyricsOnly() || !hasPersonalChord(notes))">
               <span class="lyrics">
                 @for (word of line.words; track $index) {
                   <span class="word">
@@ -103,7 +103,7 @@
           }
         }
         @for (tab of notes; track tab.id) {
-          @if (tab.type === 'tab') {
+          @if (tab.type === 'tab' && !lyricsOnly()) {
             <figure class="tab">
               @if (tab.title) {
                 <figcaption>{{ tab.title }}</figcaption>

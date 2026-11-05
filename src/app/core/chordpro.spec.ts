@@ -1,5 +1,5 @@
 import { readdirSync, readFileSync } from 'node:fs';
-import { ChordsLine, CommentLine, LyricLine, collapseRepeats, mapSecondKey, mapSheetChords, parseChordPro } from './chordpro';
+import { ChordsLine, CommentLine, LyricLine, collapseRepeats, lyricsOnlySheet, mapSecondKey, mapSheetChords, parseChordPro } from './chordpro';
 import { keyView } from './transpose';
 import { numberLabel, parseFileName, parseSongNumber, readNumeroMeta } from './song-meta';
 import { HAS_SONGS } from '../../testing/bundled-songs';
@@ -290,6 +290,42 @@ describe.skipIf(!HAS_SONGS)('collapseRepeats on the bundled songs', () => {
       const parsed = parseChordPro('Am G F E    (Dm C Bb A)');
       const line = mapSheetChords(parsed, (c) => c + '!').sections[0].lines[0] as ChordsLine;
       expect(line.secondKey).toBe('(Dm! C! Bb! A!)');
+    });
+  });
+
+  describe('lyricsOnlySheet ("Solo testo")', () => {
+    const song = [
+      '{start_of_verse: Intro}',
+      'C G Am F',
+      '{end_of_verse}',
+      '',
+      '[C]Quando guardo la tua san[F]tità    (D G)',
+      '[G]   [Am]',
+      '{comment: piano}',
+      '',
+      '{start_of_chorus}',
+      '[F]Io ti a[G]doro',
+      '{end_of_chorus}',
+    ].join('\n');
+
+    it('removes every chord, chord-only lines and the second key, keeping line indexes', () => {
+      const full = parseChordPro(song);
+      const sheet = lyricsOnlySheet(full);
+      const lines = sheet.sections.flatMap((s) => s.lines);
+      expect(lines.every((l) => l.kind !== 'chords')).toBe(true);
+      const lyrics = lines.filter((l): l is LyricLine => l.kind === 'lyrics');
+      expect(lyrics.map((l) => l.text)).toEqual(['Quando guardo la tua santità', 'Io ti adoro']);
+      expect(lyrics.every((l) => !l.hasChords && l.secondKey === null)).toBe(true);
+      expect(lyrics.flatMap((l) => l.words.flatMap((w) => w.segments)).every((seg) => seg.chord === null)).toBe(true);
+      // Same line numbers as in the full song (notes stay anchored).
+      const fullIndex = full.sections.flatMap((s) => s.lines).find((l) => l.kind === 'lyrics' && l.text.startsWith('Io'))!.index;
+      expect(lyrics[1].index).toBe(fullIndex);
+      expect(lines.some((l) => l.kind === 'comment' && l.text === 'piano')).toBe(true);
+    });
+
+    it('drops sections with nothing to sing (Intro), keeps the rest', () => {
+      const sheet = lyricsOnlySheet(parseChordPro(song));
+      expect(sheet.sections.map((s) => s.type)).toEqual(['verse', 'chorus']);
     });
   });
 });

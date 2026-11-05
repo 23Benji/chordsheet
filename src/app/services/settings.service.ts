@@ -11,6 +11,7 @@ export const DEFAULT_SETTINGS: Settings = {
   showNotes: true,
   accidentals: 'auto',
   collapseRepeats: false,
+  lyricsOnly: false,
   instrument: 'guitar',
 };
 

@@ -310,3 +310,54 @@ export function pdfSafe(text: string): string {
     .replace(/♭/g, 'b')
     .replace(/[^ -~ -ÿ‘’“”–—…•€]/g, '');
 }
+
+/** First page of a setlist booklet: name, date, numbered list of the songs. */
+export interface BookletCover {
+  title: string;
+  subtitle: string;
+  items: string[];
+}
+
+/**
+ * A setlist as one PDF: a cover page with the list, then every song laid out
+ * by layoutSongPdf() starting on a new page (page numbers shifted).
+ */
+export function layoutBookletPdf(
+  cover: BookletCover,
+  songs: readonly { sheet: Sheet; options: PdfOptions }[],
+  measure: Measure,
+): PdfLayout {
+  const mode = songs[0]?.options.mode ?? 'chords';
+  const f = fonts(mode);
+  const lh = (role: FontRole, factor: number) => f[role].size * PT * factor;
+  const ops: PdfOp[] = [];
+  let page = 1;
+  let y = PAGE.top + lh('title', 0.9);
+  ops.push({ kind: 'text', page, x: PAGE.left, y, text: cover.title, font: 'title' });
+  if (cover.subtitle) {
+    y += lh('meta', 1.6);
+    ops.push({ kind: 'text', page, x: PAGE.left, y, text: cover.subtitle, font: 'meta' });
+  }
+  y += 3;
+  ops.push({ kind: 'line', page, x1: PAGE.left, y1: y, x2: PAGE.width - PAGE.right, y2: y, width: 0.26 });
+  y += 4;
+  const row = lh('lyric', 1.6);
+  cover.items.forEach((item, i) => {
+    if (y + row > PAGE.height - PAGE.bottom) {
+      page++;
+      y = PAGE.top;
+    }
+    y += row;
+    const n = `${i + 1}.`;
+    ops.push({ kind: 'text', page, x: PAGE.left + 8, y, text: n, font: 'lyric', align: 'right' });
+    ops.push({ kind: 'text', page, x: PAGE.left + 11, y, text: item, font: 'lyric' });
+  });
+
+  let pages = page;
+  for (const song of songs) {
+    const layout = layoutSongPdf(song.sheet, song.options, measure);
+    for (const op of layout.ops) ops.push({ ...op, page: op.page + pages });
+    pages += layout.pages;
+  }
+  return { pages, ops };
+}

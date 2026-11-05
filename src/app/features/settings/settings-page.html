@@ -57,6 +57,11 @@
 
   <h2 class="list-group-title">{{ t.groups.songs }}</h2>
   <div class="list-group">
+    <div class="list-row">
+      <span class="icon-tile sage"><app-icon name="type" /></span>
+      <span class="row-text"><span class="row-label">{{ t.lyricsOnly }}</span><span class="row-hint">{{ t.lyricsOnlyHint }}</span></span>
+      <app-switch [checked]="settings().lyricsOnly ?? false" [label]="t.lyricsOnly" (toggled)="set('lyricsOnly', $event)" />
+    </div>
     <!-- The instrument belongs to the diagrams: same row, shown only when they are on. -->
     <div class="list-row stacked">
       <span class="icon-tile sage"><app-icon name="guitar" /></span>

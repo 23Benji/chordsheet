@@ -142,6 +142,7 @@ export const IT = {
   song: {
     notFound: 'Canto non trovato.',
     backToLibrary: 'Torna alla libreria',
+    showChords: 'Mostra gli accordi',
     key: 'Tonalità',
     original: (key: string) => `originale ${key}`,
     capo: (n: number) => `Capo ${n}`,
@@ -332,6 +333,8 @@ export const IT = {
 
     collapseRepeats: 'Parti ripetute una volta sola',
     collapseRepeatsHint: 'Due o più parti uguali di seguito: mostrale una volta con ×2, invece di scriverle tutte',
+    lyricsOnly: 'Solo testo',
+    lyricsOnlyHint: 'Nasconde accordi, intro e assoli: per chi canta',
 
     sync: 'Sincronizza i tuoi dispositivi',
     syncHint: 'Accedi con Google su computer, iPad e iPhone: canti, note e scalette restano uguali ovunque (e al sicuro nel tuo Drive)',
@@ -514,6 +517,9 @@ export const IT = {
     noResults: 'Nessun canto trovato.',
     done: 'Fine',
     moreActions: 'Altre azioni',
+    pdf: 'Stampa / PDF',
+    pdfChords: 'Con accordi',
+    pdfLyrics: 'Solo testo (coro)',
     addDate: 'Aggiungi una data',
     songOptions: 'Opzioni del canto',
     itemOptions: (title: string) => `Opzioni di ${title}`,

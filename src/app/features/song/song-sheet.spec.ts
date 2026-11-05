@@ -113,4 +113,23 @@ describe('SongSheet', () => {
     rows[1].click();
     expect(selected).toBe(1);
   });
+
+  it('"Solo testo": no chords, no second key, no instrumental parts, no tabs or personal chords', () => {
+    const fixture = TestBed.createComponent(SongSheet);
+    const sheet = parseChordPro('[A] [D]\n\n[C]QUANDO GUARDO[F] LA    (D G)\nC G Am\n\n{start_of_chorus}\n[G]IO LODO TE\n{end_of_chorus}');
+    const line = sheet.sections.flatMap((s) => s.lines).find((l) => l.kind === 'lyrics' && l.text.startsWith('QUANDO'))!;
+    const tab: Annotation = { id: 't', songId: 's', type: 'tab', text: 'e|--0--', anchor: anchorFor(sheet, line.index), createdAt: 0, updatedAt: 0 } as Annotation;
+    fixture.componentRef.setInput('sheet', sheet);
+    fixture.componentRef.setInput('annotations', new Map([[line.index, [tab]]]));
+    fixture.componentRef.setInput('lyricsOnly', true);
+    fixture.detectChanges();
+    const el = fixture.nativeElement as HTMLElement;
+    expect(el.querySelectorAll('.chord').length).toBe(0);
+    expect(el.querySelector('.second-key')).toBeNull();
+    expect(el.querySelector('.chord-line')).toBeNull();
+    expect(el.querySelector('.instrumental')).toBeNull();
+    expect(el.querySelector('.tab')).toBeNull();
+    expect(el.textContent).toContain('QUANDO GUARDO LA');
+    expect(el.querySelector('.chorus .tag')?.textContent).toBe('Ritornello');
+  });
 });

@@ -17,7 +17,7 @@ import { collapseRepeats, mapSheetChords, parseChordPro } from '../../core/chord
 import { introView } from '../../core/intro';
 import { Annotation, SongIntro, preferSharpsFor } from '../../core/models';
 import { actionFor, effectiveKeymap } from '../../core/keymap';
-import { choFileName } from '../../core/export';
+import { choFileName, shareBuiltFile } from '../../core/export';
 import { currentPlatform, isIos } from '../../core/platform';
 import { numberLabel } from '../../core/song-meta';
 import { clampTranspose, keyUsesFlats, keyView, transposeChord } from '../../core/transpose';
@@ -161,6 +161,13 @@ export class SongView {
 
   protected readonly showDiagrams = computed(() => this.settings.settings().showChordDiagrams);
   protected readonly chordStyle = computed(() => this.settings.settings().chordStyle);
+  /** "Solo testo": words only (a device setting; also in the Testo panel). */
+  protected readonly lyricsOnly = computed(() => this.settings.settings().lyricsOnly ?? false);
+  protected readonly st = IT.settings;
+
+  protected setLyricsOnly(on: boolean): void {
+    void this.settings.update({ lyricsOnly: on });
+  }
   protected readonly instrument = computed(() => this.settings.settings().instrument ?? 'guitar');
   protected readonly diagram = signal<{ chord: string; left: number; top: number } | null>(null);
 
@@ -480,22 +487,11 @@ export class SongView {
    */
   private async shareFile(file: File): Promise<void> {
     const et = IT.exportMenu;
-    if (!navigator.canShare?.({ files: [file] })) {
-      const { shareOrDownloadFile } = await import('../../core/export');
-      await shareOrDownloadFile(file);
-      return;
-    }
-    try {
-      await navigator.share({ files: [file], title: file.name });
-    } catch (e) {
-      const name = (e as Error).name;
-      if (name === 'AbortError') return; // the user closed the share sheet
-      if (name === 'NotAllowedError') {
-        this.toast.show(et.pdfReady, 0, { label: et.pdfShare, run: () => void navigator.share({ files: [file], title: file.name }).catch(() => undefined) });
-        return;
-      }
-      this.toast.show(et.pdfError);
-    }
+    await shareBuiltFile(
+      file,
+      (share) => this.toast.show(et.pdfReady, 0, { label: et.pdfShare, run: share }),
+      () => this.toast.show(et.pdfError),
+    );
   }
 
   // ── iPhone: toolbar slides away while reading (like Safari) ───────────────

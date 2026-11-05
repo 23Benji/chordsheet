@@ -120,6 +120,8 @@ export interface Settings {
   instrument?: Instrument;
   /** "Parti ripetute": identical sections in a row shown once with "×2" (default: all written out). */
   collapseRepeats?: boolean;
+  /** "Solo testo": songs without chords, for singers (per device, like every setting). */
+  lyricsOnly?: boolean;
 }
 
 /** preferSharps for keyView(): the song's own choice, else the global setting. */

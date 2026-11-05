@@ -412,6 +412,37 @@ export function mapSecondKey(group: string | null, mapChord: (chord: string) => 
   return group.replace(/[^\s,()-]+/g, (token) => (parseChord(token) ? mapChord(token) : token));
 }
 
+/**
+ * "Solo testo" (for singers): the same song without any chord. Chord-only
+ * lines and the second key go, lyric lines lose their chords, and sections
+ * left with nothing to sing (Intro, Intermezzo, chord-only parts) disappear.
+ * Line indexes stay the same, so personal notes still find their lines.
+ */
+export function lyricsOnlySheet(sheet: Sheet): Sheet {
+  const sections: SheetSection[] = [];
+  for (const section of sheet.sections) {
+    if (section.type === 'instrumental') continue;
+    const lines: SheetLine[] = [];
+    for (const line of section.lines) {
+      if (line.kind === 'chords') continue;
+      if (line.kind === 'comment') {
+        lines.push(line);
+        continue;
+      }
+      if (!line.text) continue; // only chords on this line
+      lines.push({
+        ...line,
+        hasChords: false,
+        secondKey: null,
+        words: line.words.map((word) => ({ segments: word.segments.map((s) => (s.chord ? { ...s, chord: null } : s)) })),
+      });
+    }
+    // A reminder like "Ritornello (ripeti)" has no lines of its own: keep it.
+    if (lines.some((l) => l.kind === 'lyrics') || section.type === 'chorusRepeat') sections.push({ ...section, lines });
+  }
+  return { ...sheet, sections };
+}
+
 /** What a section looks like on the page, without its line indexes. */
 function sectionKey(section: SheetSection): string {
   const lines = section.lines.map(({ index: _index, ...line }) => line);

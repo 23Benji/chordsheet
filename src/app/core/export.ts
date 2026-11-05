@@ -56,3 +56,23 @@ export async function shareOrDownload(fileName: string, text: string, type = 'ap
   downloadText(fileName, text);
   return true;
 }
+
+/**
+ * Share a file that took a moment to build (a PDF). iOS opens the share sheet
+ * only right after a tap; if that moment has passed (NotAllowedError),
+ * `retry` gets a function to call from a new tap (e.g. a toast button).
+ */
+export async function shareBuiltFile(file: File, retry: (share: () => void) => void, fail: () => void): Promise<void> {
+  if (!navigator.canShare?.({ files: [file] })) {
+    await shareOrDownloadFile(file);
+    return;
+  }
+  try {
+    await navigator.share({ files: [file], title: file.name });
+  } catch (e) {
+    const name = (e as Error).name;
+    if (name === 'AbortError') return; // the user closed the share sheet
+    if (name === 'NotAllowedError') retry(() => void navigator.share({ files: [file], title: file.name }).catch(() => undefined));
+    else fail();
+  }
+}
