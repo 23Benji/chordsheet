@@ -132,6 +132,8 @@ export interface Settings {
   accidentals?: 'auto' | 'sharps' | 'flats';
   /** Which chord diagrams to show: one instrument at a time (default guitar). */
   instrument?: Instrument;
+  /** A short tick under the finger on phones (default on). */
+  haptics?: boolean;
   /** Half-page turns in the paged views (default on): one column / half a screen per turn. */
   halfPageTurn?: boolean;
   /** Tuner: guitar or bass strings (default: bass if the diagrams are for bass, else guitar). */

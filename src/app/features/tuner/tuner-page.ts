@@ -18,6 +18,7 @@ import { noteName } from '../../core/transpose';
 import { IT } from '../../i18n/it';
 import { SettingsService } from '../../services/settings.service';
 import { Icon } from '../../ui/icon';
+import { Haptic } from '../../ui/haptic';
 
 /** Analyse ~16 times a second: smooth enough for the needle, light on the battery. */
 const EVERY_MS = 60;
@@ -34,7 +35,7 @@ type State = 'idle' | 'listening' | 'paused' | 'denied' | 'unsupported';
  */
 @Component({
   selector: 'app-tuner-page',
-  imports: [Icon],
+  imports: [Icon, Haptic],
   templateUrl: './tuner-page.html',
   styleUrl: './tuner-page.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

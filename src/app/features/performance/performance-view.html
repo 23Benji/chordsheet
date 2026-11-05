@@ -84,8 +84,8 @@
     class="stage"
     appSwipe
     #swipe="swipe"
-    (swipeLeft)="next()"
-    (swipeRight)="prev()"
+    (swipeLeft)="touchTurn(1)"
+    (swipeRight)="touchTurn(-1)"
     [appPinch]="pagerEl()?.nativeElement"
     [pinchMin]="pinchLimits().min"
     [pinchMax]="pinchLimits().max"

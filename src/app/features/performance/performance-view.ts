@@ -34,6 +34,7 @@ import { ScreenService } from '../../services/screen.service';
 import { SetlistService } from '../../services/setlist.service';
 import { RecentService } from '../../services/recent.service';
 import { SettingsService } from '../../services/settings.service';
+import { HapticsService } from '../../services/haptics.service';
 import { SongPrefsService } from '../../services/song-prefs.service';
 import { Icon } from '../../ui/icon';
 import { KeymapDialog } from '../../ui/keymap-dialog';
@@ -69,6 +70,7 @@ export class PerformanceView {
   private readonly library = inject(LibraryService);
   private readonly prefsService = inject(SongPrefsService);
   private readonly settings = inject(SettingsService);
+  private readonly haptics = inject(HapticsService);
   private readonly annotations = inject(AnnotationService);
   private readonly setlists = inject(SetlistService);
   private readonly router = inject(Router);
@@ -289,9 +291,16 @@ export class PerformanceView {
     if (afterSwipe) return; // the swipe already turned the page
     const rect = (event.currentTarget as HTMLElement).getBoundingClientRect();
     const x = (event.clientX - rect.left) / rect.width;
-    if (x > 2 / 3) this.next();
-    else if (x < 1 / 3) this.prev();
+    if (x > 2 / 3) this.touchTurn(1);
+    else if (x < 1 / 3) this.touchTurn(-1);
     else this.showBar();
+  }
+
+  /** A page turned by a tap or a swipe: with a small tick (keys and pedals: none). */
+  protected touchTurn(direction: 1 | -1): void {
+    this.haptics.tick();
+    if (direction === 1) this.next();
+    else this.prev();
   }
 
   protected onKeydown(event: KeyboardEvent): void {

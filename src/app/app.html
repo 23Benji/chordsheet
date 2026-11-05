@@ -24,7 +24,7 @@
   <div class="toast" role="status" (click)="toast.dismiss()">
     <span>{{ current.message }}</span>
     @if (current.action; as action) {
-      <button type="button" class="btn btn-primary toast-action" (click)="$event.stopPropagation(); toast.runAction()">
+      <button type="button" class="btn btn-primary toast-action" appHaptic (click)="$event.stopPropagation(); toast.runAction()">
         {{ action.label }}
       </button>
     }

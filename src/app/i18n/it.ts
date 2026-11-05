@@ -364,6 +364,8 @@ export const IT = {
       cancel: 'Annulla',
     },
 
+    haptics: 'Vibrazione',
+    hapticsHint: 'Un piccolo tocco quando scorri per eliminare, giri pagina o cambi un’impostazione',
     halfPage: 'Mezza pagina',
     halfPageHint: 'Girando pagina avanza di una colonna (o di mezzo schermo): quello che stavi leggendo resta in vista',
     keys: 'Tasti e pedale',

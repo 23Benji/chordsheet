@@ -15,7 +15,7 @@
 
     <div class="segmented" role="radiogroup" [attr.aria-label]="t.period">
       @for (p of periods; track p) {
-        <button type="button" role="radio" [class.selected]="period() === p" [attr.aria-checked]="period() === p" (click)="setPeriod(p)">
+        <button type="button" role="radio" appHaptic [class.selected]="period() === p" [attr.aria-checked]="period() === p" (click)="setPeriod(p)">
           {{ t.periods[p] }}
         </button>
       }

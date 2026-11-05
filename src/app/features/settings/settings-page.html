@@ -16,7 +16,7 @@
         @for (theme of themes; track theme) {
           <button
             type="button"
-            role="radio"
+            role="radio" appHaptic
             class="theme"
             [class.selected]="settings().theme === theme"
             [attr.aria-checked]="settings().theme === theme"
@@ -57,8 +57,8 @@
       <span class="icon-tile"><app-icon name="music" /></span>
       <span class="row-text"><span class="row-label">{{ t.chordStyle }}</span><span class="row-hint">{{ t.chordStyleHint }}</span></span>
       <span class="segmented" role="radiogroup" [attr.aria-label]="t.chordStyle">
-        <button type="button" role="radio" [class.selected]="settings().chordStyle === 'above'" [attr.aria-checked]="settings().chordStyle === 'above'" (click)="set('chordStyle', 'above')">{{ t.chordAbove }}</button>
-        <button type="button" role="radio" [class.selected]="settings().chordStyle === 'inline'" [attr.aria-checked]="settings().chordStyle === 'inline'" (click)="set('chordStyle', 'inline')">{{ t.chordInline }}</button>
+        <button type="button" role="radio" appHaptic [class.selected]="settings().chordStyle === 'above'" [attr.aria-checked]="settings().chordStyle === 'above'" (click)="set('chordStyle', 'above')">{{ t.chordAbove }}</button>
+        <button type="button" role="radio" appHaptic [class.selected]="settings().chordStyle === 'inline'" [attr.aria-checked]="settings().chordStyle === 'inline'" (click)="set('chordStyle', 'inline')">{{ t.chordInline }}</button>
       </span>
     </div>
   </div>
@@ -81,7 +81,7 @@
             @for (option of instruments; track option) {
               <button
                 type="button"
-                role="radio"
+                role="radio" appHaptic
                 [class.selected]="(settings().instrument ?? 'guitar') === option"
                 [attr.aria-checked]="(settings().instrument ?? 'guitar') === option"
                 (click)="set('instrument', option)"
@@ -105,7 +105,7 @@
         @for (option of accidentalOptions; track option) {
           <button
             type="button"
-            role="radio"
+            role="radio" appHaptic
             [class.selected]="(settings().accidentals ?? 'auto') === option"
             [attr.aria-checked]="(settings().accidentals ?? 'auto') === option"
             (click)="set('accidentals', option)"
@@ -124,6 +124,13 @@
 
   <h2 class="list-group-title">{{ t.groups.performance }}</h2>
   <div class="list-group">
+    @if (touch) {
+      <div class="list-row">
+        <span class="icon-tile sky"><app-icon name="volume" /></span>
+        <span class="row-text"><span class="row-label">{{ t.haptics }}</span><span class="row-hint">{{ t.hapticsHint }}</span></span>
+        <app-switch [checked]="settings().haptics ?? true" [label]="t.haptics" (toggled)="set('haptics', $event)" />
+      </div>
+    }
     <div class="list-row">
       <span class="icon-tile sky"><app-icon name="columns2" /></span>
       <span class="row-text"><span class="row-label">{{ t.halfPage }}</span><span class="row-hint">{{ t.halfPageHint }}</span></span>

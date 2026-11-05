@@ -1,10 +1,11 @@
-import { ChangeDetectionStrategy, Component, input, output } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, input, output } from '@angular/core';
+import { HapticsService } from '../services/haptics.service';
 
 /** On/off switch (role="switch"), for settings that are simply on or off. */
 @Component({
   selector: 'app-switch',
   template: `
-    <button type="button" role="switch" [attr.aria-checked]="checked()" [attr.aria-label]="label()" (click)="toggled.emit(!checked())">
+    <button type="button" role="switch" [attr.aria-checked]="checked()" [attr.aria-label]="label()" (click)="haptics.tick(); toggled.emit(!checked())">
       <span class="thumb"></span>
     </button>
   `,
@@ -44,6 +45,7 @@ import { ChangeDetectionStrategy, Component, input, output } from '@angular/core
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class Switch {
+  protected readonly haptics = inject(HapticsService);
   readonly checked = input.required<boolean>();
   readonly label = input.required<string>();
   readonly toggled = output<boolean>();

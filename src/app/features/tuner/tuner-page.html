@@ -10,7 +10,7 @@
     @for (option of instruments; track option) {
       <button
         type="button"
-        role="radio"
+        role="radio" appHaptic
         [class.selected]="instrument() === option"
         [attr.aria-checked]="instrument() === option"
         (click)="setInstrument(option)"
@@ -64,6 +64,7 @@
             [class.picked]="picked() === s.midi"
             [attr.aria-pressed]="picked() === s.midi"
             [attr.aria-label]="t.pickAria(s.name, s.string)"
+            appHaptic
             (click)="pick(s.midi)"
           >
             <span class="string-name">{{ s.name }}</span>
