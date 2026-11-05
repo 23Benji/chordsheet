@@ -22,13 +22,12 @@ import { collapseVersions, mainVersion } from '../../core/versions';
 import { IT } from '../../i18n/it';
 import { AnnotationService } from '../../services/annotation.service';
 import { FolderService } from '../../services/folder.service';
-import { ToastService } from '../../services/toast.service';
+import { ToastService, UNDO_MS } from '../../services/toast.service';
 import { LayoutService } from '../../services/layout.service';
 import { LibraryService } from '../../services/library.service';
 import { RecentService } from '../../services/recent.service';
 import { SetlistService } from '../../services/setlist.service';
 import { SongPrefsService } from '../../services/song-prefs.service';
-import { ConfirmDialog } from '../../ui/confirm-dialog';
 import { HintBanner } from '../../ui/hint-banner';
 import { FabMenu } from '../../ui/fab-menu';
 import { FolderNameDialog } from '../../ui/folder-name-dialog';
@@ -40,7 +39,7 @@ type LibrarySort = 'number' | 'title';
 
 @Component({
   selector: 'app-library-sidebar',
-  imports: [RouterLink, NgTemplateOutlet, SelectionBar, Icon, HintBanner, FabMenu, FolderNameDialog, ConfirmDialog, ActionSheet],
+  imports: [RouterLink, NgTemplateOutlet, SelectionBar, Icon, HintBanner, FabMenu, FolderNameDialog, ActionSheet],
   templateUrl: './library-sidebar.html',
   styleUrl: './library-sidebar.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -70,7 +69,6 @@ export class LibrarySidebar {
   private readonly scroller = viewChild.required<ElementRef<HTMLElement>>('scroller');
   private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
   private readonly nameDialog = viewChild.required(FolderNameDialog);
-  private readonly confirm = viewChild.required(ConfirmDialog);
   private readonly sheet = viewChild.required(ActionSheet);
 
   protected readonly query = signal('');
@@ -397,18 +395,20 @@ export class LibrarySidebar {
     await this.shareSongs(songs);
   }
 
-  /** "Elimina": after a confirmation, deletes the ticked songs and all their versions. */
+  /**
+   * "Elimina": deletes the ticked songs and all their versions at once, with
+   * "Annulla" in the message for a few seconds (instead of "Sei sicuro?"
+   * first: quicker, and a mistake can still be undone).
+   */
   protected async deleteSelected(): Promise<void> {
     const count = this.selected().size;
     const ids = this.selectedIds();
-    const ok = await this.confirm().ask({ ...this.ft.confirmDeleteSongs(count, ids.length - count), danger: true });
-    if (!ok) return;
     const openId = this.currentId();
-    await this.library.deleteSongs(ids);
+    const deleted = await this.library.deleteSongs(ids);
     this.stopSelecting();
     // The open song is gone: go back to the start page instead of "not found".
     if (openId && ids.includes(openId)) void this.router.navigate(['/']);
-    this.toast.show(this.ft.songsDeleted(count));
+    this.toast.show(this.ft.songsDeleted(count), UNDO_MS, { label: IT.shell.undo, run: () => void this.library.restoreSongs(deleted) });
   }
 
   // ── Folders ───────────────────────────────────────────────────────────────
@@ -421,9 +421,15 @@ export class LibrarySidebar {
   private async deleteFolder(): Promise<void> {
     const folder = this.folder();
     if (!folder) return;
-    if (await this.confirm().ask({ ...this.ft.confirmDelete(folder.name), danger: true })) {
-      await this.folderService.remove(folder.id);
-    }
+    const removed = await this.folderService.remove(folder.id);
+    if (!removed) return;
+    this.toast.show(this.ft.folderDeleted(folder.name), UNDO_MS, {
+      label: IT.shell.undo,
+      run: () => {
+        void this.folderService.restore(removed);
+        this.folderService.current.set(removed.id);
+      },
+    });
   }
 
   /** "Condividi i canti" for just this folder (songbook file, no personal data). */

@@ -31,7 +31,7 @@ import { AnnotationService } from '../../services/annotation.service';
 import { FolderService } from '../../services/folder.service';
 import { LayoutService } from '../../services/layout.service';
 import { LibraryService } from '../../services/library.service';
-import { ToastService } from '../../services/toast.service';
+import { ToastService, UNDO_MS } from '../../services/toast.service';
 import { ConfirmDialog } from '../../ui/confirm-dialog';
 import { FolderPicker } from '../../ui/folder-picker';
 import { Icon } from '../../ui/icon';
@@ -250,11 +250,10 @@ export class EditorPage implements OnInit, OnDestroy {
   protected async deleteSong(): Promise<void> {
     const song = this.song();
     if (!song) return;
-    const ok = await this.dialog().ask({ ...this.t.confirmDelete, danger: true });
-    if (!ok) return;
-    await this.library.deleteSong(song.id);
+    const deleted = await this.library.deleteSong(song.id);
     this.leaving = true;
     void this.router.navigate(['/']);
+    this.toast.show(this.t.deleted(song.title), UNDO_MS, { label: IT.shell.undo, run: () => void this.library.restoreSongs(deleted) });
   }
 
   // ── Save / leave ──────────────────────────────────────────────────────────

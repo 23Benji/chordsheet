@@ -5,8 +5,7 @@ import { formatSetlistDate, importSetlist } from '../../core/setlists';
 import { IT } from '../../i18n/it';
 import { LibraryService } from '../../services/library.service';
 import { SetlistService } from '../../services/setlist.service';
-import { ToastService } from '../../services/toast.service';
-import { ConfirmDialog } from '../../ui/confirm-dialog';
+import { ToastService, UNDO_MS } from '../../services/toast.service';
 import { Icon } from '../../ui/icon';
 import { SidebarToggle } from '../../ui/sidebar-toggle';
 import { ActionSheet } from '../../ui/action-sheet';
@@ -16,7 +15,7 @@ import { SHARED_SETLIST_PATH, linkFragment } from '../../core/setlist-link';
 /** All setlists: create, import, and quick actions. */
 @Component({
   selector: 'app-setlists-page',
-  imports: [RouterLink, Icon, ConfirmDialog, SidebarToggle, ShareSetlistSheet, ActionSheet],
+  imports: [RouterLink, Icon, SidebarToggle, ShareSetlistSheet, ActionSheet],
   templateUrl: './setlists-page.html',
   styleUrl: './setlists-page.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -26,7 +25,6 @@ export class SetlistsPage {
   private readonly library = inject(LibraryService);
   private readonly router = inject(Router);
   private readonly toast = inject(ToastService);
-  private readonly dialog = viewChild.required(ConfirmDialog);
   private readonly shareSheet = viewChild.required(ShareSetlistSheet);
   private readonly menu = viewChild.required(ActionSheet);
   protected readonly t = IT.setlists;
@@ -72,7 +70,8 @@ export class SetlistsPage {
   }
 
   protected async remove(setlist: Setlist): Promise<void> {
-    if (await this.dialog().ask({ ...this.t.confirmDelete, danger: true })) await this.service.remove(setlist.id);
+    const removed = await this.service.remove(setlist.id);
+    if (removed) this.toast.show(this.t.deleted(removed.name), UNDO_MS, { label: IT.shell.undo, run: () => void this.service.restore(removed) });
   }
 
   /**

@@ -23,10 +23,9 @@ import { SetlistService } from '../../services/setlist.service';
 import { LibraryService } from '../../services/library.service';
 import { SettingsService } from '../../services/settings.service';
 import { SongPrefsService } from '../../services/song-prefs.service';
-import { ToastService } from '../../services/toast.service';
+import { ToastService, UNDO_MS } from '../../services/toast.service';
 import { sectionLabel } from '../song/section-label';
 import { ActionSheet } from '../../ui/action-sheet';
-import { ConfirmDialog } from '../../ui/confirm-dialog';
 import { Icon } from '../../ui/icon';
 import { SidebarToggle } from '../../ui/sidebar-toggle';
 import { AddSongsSheet } from './add-songs-sheet';
@@ -51,7 +50,7 @@ interface Row {
  */
 @Component({
   selector: 'app-setlist-page',
-  imports: [RouterLink, Icon, ConfirmDialog, ActionSheet, CdkDropList, CdkDrag, CdkDragHandle, SidebarToggle, AddSongsSheet, ShareSetlistSheet],
+  imports: [RouterLink, Icon, ActionSheet, CdkDropList, CdkDrag, CdkDragHandle, SidebarToggle, AddSongsSheet, ShareSetlistSheet],
   templateUrl: './setlist-page.html',
   styleUrl: './setlist-page.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -67,7 +66,6 @@ export class SetlistPage {
   private readonly router = inject(Router);
   private readonly settings = inject(SettingsService);
   private readonly toast = inject(ToastService);
-  private readonly dialog = viewChild.required(ConfirmDialog);
   private readonly menu = viewChild.required(ActionSheet);
   private readonly addSheet = viewChild.required(AddSongsSheet);
   private readonly shareSheet = viewChild.required(ShareSetlistSheet);
@@ -358,8 +356,9 @@ export class SetlistPage {
 
   protected async deleteSetlist(): Promise<void> {
     const setlist = this.setlist();
-    if (!setlist || !(await this.dialog().ask({ ...this.t.confirmDelete, danger: true }))) return;
-    await this.service.remove(setlist.id);
+    if (!setlist) return;
+    const removed = await this.service.remove(setlist.id);
     void this.router.navigate(['/scalette']);
+    if (removed) this.toast.show(this.t.deleted(removed.name), UNDO_MS, { label: IT.shell.undo, run: () => void this.service.restore(removed) });
   }
 }

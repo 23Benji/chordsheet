@@ -79,12 +79,7 @@ export const IT = {
       cancel: 'Annulla',
       taken: 'C’è già una cartella con questo nome.',
     },
-    confirmDelete: (name: string) => ({
-      title: 'Eliminare la cartella?',
-      message: `La cartella “${name}” verrà eliminata. I canti restano nella libreria.`,
-      confirm: 'Elimina',
-      cancel: 'Annulla',
-    }),
+    folderDeleted: (name: string) => `Cartella “${name}” eliminata. I canti restano nella libreria.`,
     emptyFolder: 'Questa cartella è vuota. Tocca “Seleziona” per aggiungere canti, oppure apri un canto e usa il pulsante Cartelle.',
     // Song page
     songMenu: 'Cartelle',
@@ -113,15 +108,6 @@ export const IT = {
     newSetlistEllipsis: 'Nuova scaletta…',
     songsAddedToSetlist: (n: number, setlist: string) =>
       n === 1 ? `1 canto aggiunto a “${setlist}”.` : `${n} canti aggiunti a “${setlist}”.`,
-    confirmDeleteSongs: (n: number, extraVersions: number) => ({
-      title: n === 1 ? 'Eliminare 1 canto?' : `Eliminare ${n} canti?`,
-      message:
-        (n === 1 ? 'Il canto verrà tolto' : 'I canti verranno tolti') +
-        ' dalla libreria di questo dispositivo, insieme a impostazioni e note.' +
-        (extraVersions ? ` Vengono eliminate anche le altre versioni (${extraVersions} in più).` : ''),
-      confirm: 'Elimina',
-      cancel: 'Annulla',
-    }),
     songsDeleted: (n: number) => (n === 1 ? '1 canto eliminato.' : `${n} canti eliminati.`),
     addTo: 'Aggiungi a…',
     addToTitle: 'Aggiungi alla cartella',
@@ -224,6 +210,8 @@ export const IT = {
   },
 
   shell: {
+    /** The button in the message after a delete. */
+    undo: 'Annulla',
     nav: 'Navigazione',
     library: 'Libreria',
     setlists: 'Scalette',
@@ -596,12 +584,7 @@ export const IT = {
     missingSong: 'Canto eliminato',
     addToSetlist: 'Aggiungi a una scaletta',
     newWithSong: 'Nuova scaletta con questo canto',
-    confirmDelete: {
-      title: 'Eliminare la scaletta?',
-      message: 'La scaletta verrà eliminata. I canti restano nella libreria.',
-      confirm: 'Elimina',
-      cancel: 'Annulla',
-    },
+    deleted: (name: string) => `Scaletta “${name}” eliminata.`,
   },
 
   performance: {
@@ -755,12 +738,7 @@ export const IT = {
       confirm: 'Esci senza salvare',
       cancel: 'Continua a modificare',
     },
-    confirmDelete: {
-      title: 'Eliminare questo canto?',
-      message: 'Il canto verrà tolto dalla libreria di questo dispositivo, insieme alle sue impostazioni. I file originali dei canti non vengono toccati.',
-      confirm: 'Elimina',
-      cancel: 'Annulla',
-    },
+    deleted: (title: string) => `“${title}” eliminato.`,
     confirmRestore: {
       title: 'Ripristinare l’originale?',
       message: 'Il testo torna quello originale incluso. Puoi ancora annullare prima di salvare.',

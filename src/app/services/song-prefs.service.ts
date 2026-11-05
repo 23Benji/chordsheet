@@ -36,4 +36,14 @@ export class SongPrefsService {
     this.prefs.update((map) => new Map(map).set(songId, next));
     await this.db.songPrefs.put(next);
   }
+
+  /** Deleted songs restored ("Annulla"): back in memory (LibraryService writes the rows). */
+  remember(prefs: readonly SongPrefs[]): void {
+    if (!prefs.length) return;
+    this.prefs.update((map) => {
+      const next = new Map(map);
+      for (const p of prefs) next.set(p.songId, p);
+      return next;
+    });
+  }
 }

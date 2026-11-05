@@ -80,4 +80,9 @@ export class AnnotationService {
     const gone = new Set(songIds);
     this.annotations.update((list) => list.filter((a) => !gone.has(a.songId)));
   }
+
+  /** Deleted songs restored ("Annulla"): their annotations back in memory (rows written by LibraryService). */
+  remember(annotations: readonly Annotation[]): void {
+    if (annotations.length) this.annotations.update((list) => [...list, ...annotations]);
+  }
 }

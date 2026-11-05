@@ -1,5 +1,5 @@
 import { Injectable, computed, inject, signal } from '@angular/core';
-import { Song } from '../core/models';
+import { Annotation, Folder, Song, SongPrefs } from '../core/models';
 import { buildSearchEntry } from '../core/search';
 import { songFromChordPro, withChordPro } from '../core/song-import';
 import { SongbookEntry, nextFreeSuffix } from '../core/songbook-file';
@@ -8,17 +8,28 @@ import { groupVersions } from '../core/versions';
 import { DB } from '../data/db';
 import { AnnotationService } from './annotation.service';
 import { FolderService } from './folder.service';
+import { SongPrefsService } from './song-prefs.service';
 
 /**
  * Holds the song library in memory as a signal. Components read `songs()`
  * and Angular re-renders whatever depends on it whenever it changes —
  * no manual subscriptions needed (that's the main advantage over RxJS here).
  */
+/** What deleting songs removed: enough to put it all back ("Annulla"). */
+export interface DeletedSongs {
+  songs: Song[];
+  prefs: SongPrefs[];
+  annotations: Annotation[];
+  /** The folders those songs were in, as they were before. */
+  folders: Folder[];
+}
+
 @Injectable({ providedIn: 'root' })
 export class LibraryService {
   private readonly db = inject(DB);
   private readonly annotationService = inject(AnnotationService);
   private readonly folders = inject(FolderService);
+  private readonly prefsService = inject(SongPrefsService);
 
   private readonly _songs = signal<Song[]>([]);
   private readonly _loaded = signal(false);
@@ -132,26 +143,52 @@ export class LibraryService {
   }
 
   /** Deletes a song with its personal settings and notes. */
-  deleteSong(id: string): Promise<void> {
+  deleteSong(id: string): Promise<DeletedSongs> {
     return this.deleteSongs([id]);
   }
 
   /**
    * Deletes several songs with their personal settings and notes. Setlists
    * keep their rows (shown as "song not found"), as for a single delete.
+   * Returns everything that was removed, so "Annulla" can put it back.
    */
-  async deleteSongs(ids: readonly string[]): Promise<void> {
-    if (!ids.length) return;
+  async deleteSongs(ids: readonly string[]): Promise<DeletedSongs> {
+    const gone = new Set(ids);
+    const deleted: DeletedSongs = {
+      songs: this._songs().filter((s) => gone.has(s.id)),
+      prefs: [],
+      annotations: [],
+      folders: this.folders.folders().filter((f) => f.songIds.some((id) => gone.has(id))),
+    };
+    if (!ids.length) return deleted;
     // A Dexie transaction: either all the deletions happen, or none.
     await this.db.transaction('rw', [this.db.songs, this.db.songPrefs, this.db.annotations], async () => {
+      deleted.prefs = (await this.db.songPrefs.bulkGet([...ids])).filter((p): p is SongPrefs => !!p);
+      deleted.annotations = await this.db.annotations.where('songId').anyOf([...ids]).toArray();
       await this.db.songs.bulkDelete([...ids]);
       await this.db.songPrefs.bulkDelete([...ids]);
       await this.db.annotations.where('songId').anyOf([...ids]).delete();
     });
-    const gone = new Set(ids);
     this._songs.update((songs) => songs.filter((s) => !gone.has(s.id)));
     this.annotationService.forgetSongs(ids);
     await this.folders.forgetSongs(ids);
+    return deleted;
+  }
+
+  /** "Annulla": the deleted songs come back with their settings, notes and folders. */
+  async restoreSongs(deleted: DeletedSongs): Promise<void> {
+    await this.db.transaction('rw', [this.db.songs, this.db.songPrefs, this.db.annotations], async () => {
+      await this.db.songs.bulkPut(deleted.songs);
+      await this.db.songPrefs.bulkPut(deleted.prefs);
+      await this.db.annotations.bulkPut(deleted.annotations);
+    });
+    const back = new Set(deleted.songs.map((s) => s.id));
+    this._songs.update((songs) => [...songs.filter((s) => !back.has(s.id)), ...deleted.songs].sort(compareByNumber));
+    this.prefsService.remember(deleted.prefs);
+    this.annotationService.remember(deleted.annotations);
+    // Only folders that still exist (one deleted meanwhile stays deleted).
+    const folders = this.folders.byId();
+    await this.folders.restore(...deleted.folders.filter((f) => folders.has(f.id)));
   }
 
   /** The original text of a bundled song (same number + suffix), for "Ripristina originale". */

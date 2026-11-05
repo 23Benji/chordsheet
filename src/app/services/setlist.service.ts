@@ -58,8 +58,16 @@ export class SetlistService {
     return this.put(setlist);
   }
 
-  async remove(id: string): Promise<void> {
+  /** Deletes the setlist; returns it, so "Annulla" can bring it back. */
+  async remove(id: string): Promise<Setlist | undefined> {
+    const removed = this._setlists().find((s) => s.id === id);
     await this.db.setlists.delete(id);
     this._setlists.update((list) => list.filter((s) => s.id !== id));
+    return removed;
+  }
+
+  /** "Annulla" after a delete: the setlist exactly as it was. */
+  restore(setlist: Setlist): Promise<Setlist> {
+    return this.put(setlist);
   }
 }

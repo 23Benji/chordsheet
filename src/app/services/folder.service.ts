@@ -48,11 +48,18 @@ export class FolderService {
     return this.put({ ...folder, name: name.trim(), updatedAt: Date.now() });
   }
 
-  /** Deletes the folder only; its songs stay in the library. */
-  async remove(id: string): Promise<void> {
+  /** Deletes the folder only; its songs stay in the library. Returns it, for "Annulla". */
+  async remove(id: string): Promise<Folder | undefined> {
+    const removed = this.byId().get(id);
     if (this.current() === id) this.current.set(null);
     this._folders.update((list) => list.filter((f) => f.id !== id));
     await this.db.folders.delete(id);
+    return removed;
+  }
+
+  /** "Annulla" after a delete: the folders exactly as they were (their songs too). */
+  async restore(...folders: Folder[]): Promise<void> {
+    if (folders.length) await this.put(...folders);
   }
 
   async addSongs(folderIds: readonly string[], songIds: readonly string[]): Promise<void> {

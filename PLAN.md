@@ -320,7 +320,9 @@ Benji: "I don't think more features are wise to add" — small improvements to w
 4. **"Prossimo" with key and capo** in performance mode ("Prossimo: Tu sei Re · E, capo 2")
    - [x] Key you'll play in (the song's key + its setlist transposition − its capo) and the capo; just the title in Solo testo; test + screenshot
 5. **"Annulla" instead of "Sei sicuro?"**: delete at once, with an undo button in the message for a few seconds
-   - [ ] 
+   - [x] Deleting returns what was removed: songs (with prefs, notes and the folders they were in), a setlist, a folder; `restoreSongs` / `restore` put it back (memory + IndexedDB; sync merges snapshots, so a restored item simply comes back)
+   - [x] Library selection, folder, setlist (list and page) and editor "Elimina": no dialog; toast "… eliminato" + Annulla for 8 s (`UNDO_MS`). Other confirmations (leave without saving, restore a backup, sign out) stay
+   - [x] Tests (delete/restore with an in-memory DB, toast timing) + real app: setlist and 2 songs deleted and brought back, still there after reload
 6. **"Automatico" theme**: follows the iPhone's light/dark mode
    - [ ] 
 7. **Statistiche** from the setlists (Benji makes a new scaletta every Sunday): which songs are sung most, which parts of the songbook (1–50, 51–100, 100+…), which numbers — with charts. Not a new button: an option inside Scalette ("Statistiche" in its ⋯ menu). "Maybe not everyone will use it", so it stays out of the way.
