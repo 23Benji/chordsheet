@@ -124,6 +124,11 @@
 
   <h2 class="list-group-title">{{ t.groups.performance }}</h2>
   <div class="list-group">
+    <div class="list-row">
+      <span class="icon-tile sky"><app-icon name="columns2" /></span>
+      <span class="row-text"><span class="row-label">{{ t.halfPage }}</span><span class="row-hint">{{ t.halfPageHint }}</span></span>
+      <app-switch [checked]="settings().halfPageTurn ?? true" [label]="t.halfPage" (toggled)="set('halfPageTurn', $event)" />
+    </div>
     <button type="button" class="list-row clickable" (click)="openKeys()">
       <span class="icon-tile sky"><app-icon name="keyboard" /></span>
       <span class="row-text"><span class="row-label">{{ t.keys }}</span><span class="row-hint">{{ t.keysHint }}</span></span>

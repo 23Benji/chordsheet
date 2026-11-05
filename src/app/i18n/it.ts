@@ -364,6 +364,8 @@ export const IT = {
       cancel: 'Annulla',
     },
 
+    halfPage: 'Mezza pagina',
+    halfPageHint: 'Girando pagina avanza di una colonna (o di mezzo schermo): quello che stavi leggendo resta in vista',
     keys: 'Tasti e pedale',
     keysHint: 'Scegli quali tasti o pedali girano le pagine',
 

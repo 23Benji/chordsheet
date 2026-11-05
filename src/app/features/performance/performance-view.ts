@@ -170,6 +170,8 @@ export class PerformanceView {
 
   protected readonly chordStyle = computed(() => this.settings.settings().chordStyle);
   protected readonly lyricsOnly = computed(() => this.settings.settings().lyricsOnly ?? false);
+  /** Half-page turns (Impostazioni → Esibizione, on by default). */
+  protected readonly halfPage = computed(() => this.settings.settings().halfPageTurn ?? true);
   protected readonly intro = computed(() => introView(this.prefs().intro, this.keys().mapChord));
   private readonly fontScale = computed(() => this.prefs().fontScale ?? this.settings.settings().fontScale);
   protected readonly lyricsPx = computed(() => Math.round(BASE_LYRICS_PX * STAGE_SCALE * this.fontScale()));
@@ -356,7 +358,10 @@ export class PerformanceView {
     if (pager && this.mode() === 'vertical') {
       if (!pager.scrollBy((pager.height / seconds) * dt)) return this.stopAutoscroll();
     } else if (pager) {
-      const progress = this.progress() + dt / seconds;
+      // A half-page turn shows half as much new text: turn twice as often,
+      // so the reading speed stays the same.
+      const perTurn = this.halfPage() ? seconds / 2 : seconds;
+      const progress = this.progress() + dt / perTurn;
       if (progress >= 1) {
         if (pager.atEnd()) return this.stopAutoscroll();
         pager.next();

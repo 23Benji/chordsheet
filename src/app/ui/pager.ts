@@ -1,5 +1,9 @@
 import { Directive, ElementRef, afterRenderEffect, computed, effect, inject, input, signal } from '@angular/core';
 import {
+  HALF_PAGE_RATIO,
+  VERTICAL_PAGE_RATIO,
+  columnHalfCount,
+  columnHalfOffset,
   columnPageCount,
   columnPageOffset,
   verticalPageAt,
@@ -30,6 +34,8 @@ export class Pager {
   readonly mode = input<PagerMode>('columns', { alias: 'appPager' });
   /** Any value whose change means "the content changed, measure again". */
   readonly watch = input<unknown>(null, { alias: 'pagerWatch' });
+  /** Half-page turns: one column, or half a screen, per turn (see core/paging.ts). */
+  readonly half = input(false, { alias: 'pagerHalf' });
 
   readonly page = signal(0);
   readonly pageCount = signal(1);
@@ -41,6 +47,7 @@ export class Pager {
     afterRenderEffect(() => {
       this.watch();
       this.mode();
+      this.half();
       this.measure();
     });
     effect((onCleanup) => {
@@ -55,15 +62,27 @@ export class Pager {
     return parseFloat(getComputedStyle(this.el).columnGap) || 0;
   }
 
+  private get ratio(): number {
+    return this.half() ? HALF_PAGE_RATIO : VERTICAL_PAGE_RATIO;
+  }
+
+  /** Columns: where page (or half-page step) `page` starts. */
+  private columnOffset(page: number): number {
+    const { clientWidth } = this.el;
+    return this.half() ? columnHalfOffset(page, clientWidth, this.gap()) : columnPageOffset(page, clientWidth, this.gap());
+  }
+
   measure(): void {
     const el = this.el;
     const count =
       this.mode() === 'columns'
-        ? columnPageCount(el.scrollWidth, el.clientWidth, this.gap())
-        : verticalPageCount(el.scrollHeight, el.clientHeight);
+        ? this.half()
+          ? columnHalfCount(el.scrollWidth, el.clientWidth, this.gap())
+          : columnPageCount(el.scrollWidth, el.clientWidth, this.gap())
+        : verticalPageCount(el.scrollHeight, el.clientHeight, this.ratio);
     this.pageCount.set(count);
     if (this.page() >= count) this.page.set(count - 1);
-    if (this.mode() === 'columns') this.el.scrollTo({ left: columnPageOffset(this.page(), el.clientWidth, this.gap()) });
+    if (this.mode() === 'columns') this.el.scrollTo({ left: this.columnOffset(this.page()) });
   }
 
   goTo(page: number, smooth = true): void {
@@ -74,9 +93,9 @@ export class Pager {
     if (behavior === 'smooth') this.animatingUntil = performance.now() + 800;
     const el = this.el;
     if (this.mode() === 'columns') {
-      el.scrollTo({ left: columnPageOffset(target, el.clientWidth, this.gap()), behavior });
+      el.scrollTo({ left: this.columnOffset(target), behavior });
     } else {
-      el.scrollTo({ top: verticalPageOffset(target, el.scrollHeight, el.clientHeight), behavior });
+      el.scrollTo({ top: verticalPageOffset(target, el.scrollHeight, el.clientHeight, this.ratio), behavior });
     }
   }
 
@@ -127,11 +146,11 @@ export class Pager {
   protected onScroll(): void {
     if (this.mode() === 'columns') {
       if (performance.now() < this.animatingUntil) return; // our own smooth page turn
-      const expected = columnPageOffset(this.page(), this.el.clientWidth, this.gap());
+      const expected = this.columnOffset(this.page());
       if (Math.abs(this.el.scrollLeft - expected) > 1) this.el.scrollTo({ left: expected });
       return;
     }
     const el = this.el;
-    this.page.set(verticalPageAt(el.scrollTop, el.scrollHeight, el.clientHeight));
+    this.page.set(verticalPageAt(el.scrollTop, el.scrollHeight, el.clientHeight, this.ratio));
   }
 }

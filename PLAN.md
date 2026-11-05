@@ -332,7 +332,7 @@ Benji: "I don't think more features are wise to add" — small improvements to w
    - [x] Entry: a quiet row "Statistiche" under the setlists (only with ≥ 2 setlists), no header button
    - [x] One colour (the theme's accent, contrast ≥ 3:1 on every theme checked with the dataviz validator), numbers written on the marks, table under the columns; screenshots 390 + 1280, dark and light, with 24 sample Sundays
 
-## 1.34 — Polish from the "real apps vs vibe-coded apps" review (Benji, 2026-11-05)
+## 1.34 — Polish from the "real apps vs vibe-coded apps" review (Benji, 2026-11-05) ✓
 
 From the research list (WCAG contrast, iOS home-screen app conventions, OnSong / forScore / SongbookPro). One at a time; one version for the batch.
 
@@ -359,6 +359,9 @@ From the research list (WCAG contrast, iOS home-screen app conventions, OnSong /
    - [x] Styles in a mixin (`styles/_swipe-action.scss`) included only by the two lazy setlist pages: the start-up CSS stays under budget
    - [x] Tested with simulated fingers: reveal → Elimina → Annulla; full swipe → removed → Annulla restores the order; a plain tap still opens the song's options
 7. **Half-page turn** (forScore's best-loved feature) in performance mode: turning shows the next part in the top half while the bottom half still shows what you're reading, so you can always read ahead. Mainly for laptop/iPad, also on the phone
-   - [ ] 
+   - [x] `core/paging.ts` (+ tests): two columns on screen → a turn moves one column (the right column moves to the left; the last view shows the last two columns); one column (phone) → half a screen instead of 85 %
+   - [x] `Pager` input `pagerHalf`; performance mode and the song view's two-column layout; auto-scroll in columns turns twice as often (same reading speed)
+   - [x] Impostazioni → Esibizione → "Mezza pagina", on by default (off = full pages, as before)
+   - [x] Measured on the longest song: laptop 642 px per turn = one column (off: 1284 px = a page); phone 396 px = half the 792 px screen (off: 673 px)
 
 Ideas noted for later: service plan items in setlists (Preghiera, Lettura…), lyrics on the church projector, song history ("suonato 3 settimane fa"), key-jump warnings in setlists, tuner: keep the screen awake + steadier "Accordata", reopen the app on the last song, follow the iPhone text size (Dynamic Type), left-handed chord diagrams, reference recording per song, song version history.

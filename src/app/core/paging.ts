@@ -7,6 +7,15 @@
 
 /** Fraction of the screen height one vertical page advances. */
 export const VERTICAL_PAGE_RATIO = 0.85;
+/**
+ * Half-page turn (forScore's "half page"): you always keep seeing where you
+ * are. Vertical: a turn moves half a screen (the bottom half comes up).
+ * Columns: a turn moves one column (the right column, the one you are
+ * reading, moves to the left and the next one appears on the right).
+ */
+export const HALF_PAGE_RATIO = 0.5;
+/** Columns on screen in the paged layouts (CSS column-count: 2). */
+export const COLUMNS_PER_VIEW = 2;
 
 export function columnPageCount(scrollWidth: number, clientWidth: number, gap: number): number {
   const stride = clientWidth + gap;
@@ -19,22 +28,34 @@ export function columnPageOffset(page: number, clientWidth: number, gap: number)
   return page * (clientWidth + gap);
 }
 
-export function verticalPageCount(scrollHeight: number, clientHeight: number): number {
+/** Half-page turns over columns: positions from "columns 1–2" to "the last two columns". */
+export function columnHalfCount(scrollWidth: number, clientWidth: number, gap: number, perView = COLUMNS_PER_VIEW): number {
+  const stride = (clientWidth + gap) / perView;
+  if (stride <= 0) return 1;
+  const columns = Math.max(1, Math.round((scrollWidth + gap) / stride));
+  return Math.max(1, columns - perView + 1);
+}
+
+export function columnHalfOffset(step: number, clientWidth: number, gap: number, perView = COLUMNS_PER_VIEW): number {
+  return (step * (clientWidth + gap)) / perView;
+}
+
+export function verticalPageCount(scrollHeight: number, clientHeight: number, ratio = VERTICAL_PAGE_RATIO): number {
   const overflow = scrollHeight - clientHeight;
-  const stride = clientHeight * VERTICAL_PAGE_RATIO;
+  const stride = clientHeight * ratio;
   if (overflow <= 1 || stride <= 0) return 1;
   return 1 + Math.ceil(overflow / stride - 0.01);
 }
 
-export function verticalPageOffset(page: number, scrollHeight: number, clientHeight: number): number {
-  return Math.min(page * clientHeight * VERTICAL_PAGE_RATIO, Math.max(0, scrollHeight - clientHeight));
+export function verticalPageOffset(page: number, scrollHeight: number, clientHeight: number, ratio = VERTICAL_PAGE_RATIO): number {
+  return Math.min(page * clientHeight * ratio, Math.max(0, scrollHeight - clientHeight));
 }
 
 /** Which vertical page a manual scroll position belongs to. */
-export function verticalPageAt(scrollTop: number, scrollHeight: number, clientHeight: number): number {
-  const count = verticalPageCount(scrollHeight, clientHeight);
+export function verticalPageAt(scrollTop: number, scrollHeight: number, clientHeight: number, ratio = VERTICAL_PAGE_RATIO): number {
+  const count = verticalPageCount(scrollHeight, clientHeight, ratio);
   if (scrollTop >= scrollHeight - clientHeight - 1) return count - 1;
-  return Math.min(count - 1, Math.round(scrollTop / (clientHeight * VERTICAL_PAGE_RATIO)));
+  return Math.min(count - 1, Math.round(scrollTop / (clientHeight * ratio)));
 }
 
 // ── Auto-scroll ──────────────────────────────────────────────────────────

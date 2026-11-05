@@ -245,7 +245,7 @@
         [pinchMax]="fontMax / fontScale()"
         (pinched)="onPinch($event)"
       >
-        <article class="pager" appPager="columns" [pagerWatch]="layoutKey()" #pager="pager" #pagerEl>
+        <article class="pager" appPager="columns" [pagerWatch]="layoutKey()" [pagerHalf]="halfPage()" #pager="pager" #pagerEl>
           <app-song-sheet
             [sheet]="sheet"
             [annotations]="displayAnnotations()"

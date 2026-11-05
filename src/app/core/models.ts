@@ -132,6 +132,8 @@ export interface Settings {
   accidentals?: 'auto' | 'sharps' | 'flats';
   /** Which chord diagrams to show: one instrument at a time (default guitar). */
   instrument?: Instrument;
+  /** Half-page turns in the paged views (default on): one column / half a screen per turn. */
+  halfPageTurn?: boolean;
   /** Tuner: guitar or bass strings (default: bass if the diagrams are for bass, else guitar). */
   tunerInstrument?: 'guitar' | 'bass';
   /** "Parti ripetute": identical sections in a row shown once with "×2" (default: all written out). */

@@ -113,6 +113,8 @@ export class SongView {
   protected readonly capo = computed(() =>
     this.prefsService.has(this.id()) ? this.prefs().capo : (this.song()?.capo ?? 0),
   );
+  /** Half-page turns in the two-column layout (Impostazioni → Esibizione, on by default). */
+  protected readonly halfPage = computed(() => this.settings.settings().halfPageTurn ?? true);
   protected readonly fontScale = computed(
     () => this.prefs().fontScale ?? this.settings.settings().fontScale,
   );
