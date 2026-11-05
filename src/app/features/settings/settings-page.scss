@@ -59,11 +59,90 @@ label.list-row {
   cursor: pointer;
 }
 
-// A choice that belongs to the row above (e.g. the instrument of the chord
-// diagrams): no icon, text aligned with the label above (16 + 36 icon + 14 gap).
-.list-row.sub-row {
-  min-height: 52px;
-  padding-left: 66px;
+// A row whose control needs the full width (theme tiles, instrument): the
+// control goes on its own line *inside the same row*, aligned with the text
+// (16 padding + 36 icon + 14 gap = after the icon), so it reads as one block.
+.list-row.stacked {
+  flex-wrap: wrap;
+  row-gap: 8px;
+
+  > .themes,
+  > .row-extra {
+    flex: 0 0 calc(100% - 50px);
+    margin: 0 0 4px 50px;
+  }
+}
+
+.segmented.wide {
+  display: flex;
+  max-width: 360px;
+
+  button {
+    flex: 1;
+  }
+}
+
+.themes {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 72px));
+  gap: 10px;
+}
+
+.theme {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 0;
+  border: none;
+  background: none;
+  color: var(--text-muted);
+  font: inherit;
+  font-size: 12px;
+  cursor: pointer;
+
+  &.selected {
+    color: var(--text);
+    font-weight: 700;
+
+    .swatch {
+      outline: 2.5px solid var(--accent);
+      outline-offset: 2px;
+    }
+  }
+}
+
+.swatch {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  width: 100%;
+  aspect-ratio: 1;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-m);
+  background: var(--bg);
+  color: var(--text);
+}
+
+.aa {
+  font-family: var(--font-heading);
+  font-size: 20px;
+  font-weight: 700;
+  line-height: 1;
+}
+
+// A tiny "chord" in the theme's accent colour.
+.chord-bar {
+  width: 18px;
+  height: 4px;
+  border-radius: 2px;
+  background: var(--accent);
+}
+
+.theme-name {
+  white-space: nowrap;
 }
 
 .about {
@@ -197,9 +276,9 @@ label.list-row {
 
   // On phones the text gets the full width; segmented controls and steppers
   // drop onto their own line under it (aligned with the text, after the icon).
-  .list-row:has(.segmented, .stepper) {
+  .list-row:not(.stacked):has(.segmented, .stepper) {
     flex-wrap: wrap;
-    row-gap: 10px;
+    row-gap: 8px; // the control sits right under its text
 
     .row-text {
       flex: 1 1 calc(100% - 60px);
@@ -211,16 +290,9 @@ label.list-row {
     }
   }
 
-  // The sub-row has no icon: its control spans the row, equal-width options.
-  .list-row.sub-row:has(.segmented) {
-    .segmented {
-      flex: 1 1 100%;
-      margin-left: 0;
-
-      button {
-        flex: 1;
-      }
-    }
+  .themes {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: 8px;
   }
 }
 

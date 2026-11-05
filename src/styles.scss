@@ -609,8 +609,17 @@ a {
   color: var(--text);
   text-align: left;
 
-  & + .list-row {
-    box-shadow: 0 -1px 0 var(--border);
+  // Separators start where the text starts (after the icon), like iOS lists:
+  // icon, text and controls of a row read as one block.
+  & + .list-row::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0;
+    left: 66px; // 16 padding + 36 icon + 14 gap
+    height: 1px;
+    background: var(--border);
+    pointer-events: none;
   }
 
   &.clickable {

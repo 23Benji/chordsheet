@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, ElementRef, OnInit, computed, inject, signal, viewChild } from '@angular/core';
 import { daysAgo } from '../../core/backup-reminder';
 import { shareOrDownload } from '../../core/export';
-import { Settings } from '../../core/models';
+import { Settings, THEMES, isDarkTheme } from '../../core/models';
 import { ImportedFiles, createSongbookFile, songbookFileName } from '../../core/songbook-file';
 import { currentPlatform, songImportAccept } from '../../core/platform';
 import { RouterLink } from '@angular/router';
@@ -60,10 +60,12 @@ export class SettingsPage implements OnInit {
   protected readonly version = APP_VERSION;
   protected readonly accidentalOptions = ['auto', 'sharps', 'flats'] as const;
   protected readonly instruments = ['guitar', 'piano', 'bass'] as const;
+  protected readonly themes = THEMES;
   protected readonly fontMin = FONT_MIN;
   protected readonly fontMax = FONT_MAX;
 
   protected readonly settings = this.settingsService.settings;
+  protected readonly darkTheme = computed(() => isDarkTheme(this.settings().theme));
   protected readonly fontPercent = computed(() => Math.round(this.settings().fontScale * 100));
   protected readonly appName = IT.appName;
   protected readonly autoStatus = this.backup.autoStatus;

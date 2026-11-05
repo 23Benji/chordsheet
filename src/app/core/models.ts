@@ -101,8 +101,13 @@ export interface Folder {
 
 export type Instrument = 'guitar' | 'piano' | 'bass';
 
+/** Colour themes (tokens in styles/_tokens.scss). */
+export type Theme = 'dark' | 'light' | 'black' | 'mono' | 'paper';
+export const THEMES: Theme[] = ['dark', 'black', 'light', 'mono', 'paper'];
+export const isDarkTheme = (theme: Theme) => theme === 'dark' || theme === 'black';
+
 export interface Settings {
-  theme: 'dark' | 'light';
+  theme: Theme;
   fontScale: number;
   chordStyle: 'above' | 'inline';
   showChordDiagrams: boolean;

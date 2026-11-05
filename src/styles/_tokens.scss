@@ -70,6 +70,89 @@
   color-scheme: light;
 }
 
+// Nero: true black (OLED screens switch those pixels off), amber chords.
+[data-theme='black'] {
+  --bg: #000000;
+  --bg-elev-1: #101010;
+  --surface: #1e1e1e;
+  --surface-chorus: rgb(30 30 30 / 60%);
+  --surface-bridge: rgb(238 154 120 / 7%);
+  --border: #2a2a2a;
+  --text: #ffffff;
+  --text-muted: #a6a6a6;
+  --accent: #f2b45c;
+  --accent-ink: #000000;
+  --coral: #ee9a78;
+  --sage: #9cc3a3;
+  --sky: #8fb8de;
+  --highlight-amber: rgb(242 180 92 / 18%);
+  --highlight-coral: rgb(238 154 120 / 18%);
+  --highlight-sage: rgb(156 195 163 / 16%);
+  --highlight-sky: rgb(143 184 222 / 16%);
+  --scrim: rgb(0 0 0 / 65%);
+  --shadow: 0 8px 30px rgb(0 0 0 / 60%);
+  --key-white: #e8e8e8;
+  --key-black: #111111;
+
+  color-scheme: dark;
+}
+
+// Bianco: black on white only, like printed sheet music (no amber).
+[data-theme='mono'] {
+  --bg: #ffffff;
+  --bg-elev-1: #f4f4f4;
+  --surface: #e6e6e6;
+  --surface-chorus: rgb(0 0 0 / 4%);
+  --surface-bridge: rgb(0 0 0 / 3%);
+  --border: #d6d6d6;
+  --text: #000000;
+  --text-muted: #5e5e5e;
+  --accent: #000000;
+  --accent-ink: #ffffff;
+  --coral: #b3261e;
+  --sage: #3d6b47;
+  --sky: #2f5f8a;
+  --highlight-amber: rgb(0 0 0 / 8%);
+  --highlight-coral: rgb(179 38 30 / 11%);
+  --highlight-sage: rgb(61 107 71 / 12%);
+  --highlight-sky: rgb(47 95 138 / 11%);
+  --scrim: rgb(0 0 0 / 35%);
+  --shadow: 0 8px 30px rgb(0 0 0 / 14%);
+  --key-white: #ffffff;
+  --key-black: #000000;
+  // A black accent would make pressed white keys look like black keys.
+  --key-pressed: #9a9a9a;
+
+  color-scheme: light;
+}
+
+// Carta: warm sepia paper, easy on the eyes in daylight.
+[data-theme='paper'] {
+  --bg: #f3ead7;
+  --bg-elev-1: #faf4e6;
+  --surface: #e8dcc2;
+  --surface-chorus: rgb(232 220 194 / 55%);
+  --surface-bridge: rgb(160 82 28 / 6%);
+  --border: #dccdaf;
+  --text: #33281c;
+  --text-muted: #7a6a55;
+  --accent: #a0521c;
+  --accent-ink: #ffffff;
+  --coral: #a8432f;
+  --sage: #4f7350;
+  --sky: #3f6787;
+  --highlight-amber: rgb(160 82 28 / 14%);
+  --highlight-coral: rgb(168 67 47 / 12%);
+  --highlight-sage: rgb(79 115 80 / 13%);
+  --highlight-sky: rgb(63 103 135 / 12%);
+  --scrim: rgb(51 40 28 / 35%);
+  --shadow: 0 8px 30px rgb(80 60 30 / 16%);
+  --key-white: #fffaf0;
+  --key-black: #33281c;
+
+  color-scheme: light;
+}
+
 // Performance mode: maximum contrast (text ≥ 7:1 on the background).
 [data-contrast='high'] {
   --bg: #0e0b09;

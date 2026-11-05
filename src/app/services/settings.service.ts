@@ -23,7 +23,12 @@ export class SettingsService {
 
   constructor() {
     // An effect re-runs whenever a signal it reads changes: keeps <html data-theme> in sync.
-    effect(() => document.documentElement.setAttribute('data-theme', this._settings().theme));
+    effect(() => {
+      document.documentElement.setAttribute('data-theme', this._settings().theme);
+      // The browser / status bar colour follows the theme's background.
+      const bg = getComputedStyle(document.documentElement).getPropertyValue('--bg').trim();
+      if (bg) document.querySelector('meta[name="theme-color"]')?.setAttribute('content', bg);
+    });
   }
 
   async load(): Promise<void> {

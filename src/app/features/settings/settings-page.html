@@ -8,13 +8,29 @@
 
   <h2 class="list-group-title">{{ t.groups.appearance }}</h2>
   <div class="list-group">
-    <div class="list-row">
-      <span class="icon-tile"><app-icon [name]="settings().theme === 'light' ? 'sun' : 'moon'" /></span>
+    <!-- Themes as preview tiles ("Aa" in each theme's own colours), like Apple Books. -->
+    <div class="list-row stacked">
+      <span class="icon-tile"><app-icon [name]="darkTheme() ? 'moon' : 'sun'" /></span>
       <span class="row-text"><span class="row-label">{{ t.theme }}</span><span class="row-hint">{{ t.themeHint }}</span></span>
-      <span class="segmented" role="radiogroup" [attr.aria-label]="t.theme">
-        <button type="button" role="radio" [class.selected]="settings().theme === 'dark'" [attr.aria-checked]="settings().theme === 'dark'" (click)="set('theme', 'dark')">{{ t.themeDark }}</button>
-        <button type="button" role="radio" [class.selected]="settings().theme === 'light'" [attr.aria-checked]="settings().theme === 'light'" (click)="set('theme', 'light')">{{ t.themeLight }}</button>
-      </span>
+      <div class="themes" role="radiogroup" [attr.aria-label]="t.theme">
+        @for (theme of themes; track theme) {
+          <button
+            type="button"
+            role="radio"
+            class="theme"
+            [class.selected]="settings().theme === theme"
+            [attr.aria-checked]="settings().theme === theme"
+            (click)="set('theme', theme)"
+          >
+            <!-- data-theme on the swatch: the tokens of that theme apply inside it. -->
+            <span class="swatch" [attr.data-theme]="theme" aria-hidden="true">
+              <span class="aa">Aa</span>
+              <span class="chord-bar"></span>
+            </span>
+            <span class="theme-name">{{ t.themes[theme] }}</span>
+          </button>
+        }
+      </div>
     </div>
     <div class="list-row">
       <span class="icon-tile"><app-icon name="type" /></span>
@@ -41,30 +57,29 @@
 
   <h2 class="list-group-title">{{ t.groups.songs }}</h2>
   <div class="list-group">
-    <div class="list-row">
+    <!-- The instrument belongs to the diagrams: same row, shown only when they are on. -->
+    <div class="list-row stacked">
       <span class="icon-tile sage"><app-icon name="guitar" /></span>
       <span class="row-text"><span class="row-label">{{ t.diagrams }}</span><span class="row-hint">{{ t.diagramsHint }}</span></span>
       <app-switch [checked]="settings().showChordDiagrams" [label]="t.diagrams" (toggled)="set('showChordDiagrams', $event)" />
+      @if (settings().showChordDiagrams) {
+        <div class="row-extra">
+          <span class="segmented wide" role="radiogroup" [attr.aria-label]="t.instrument">
+            @for (option of instruments; track option) {
+              <button
+                type="button"
+                role="radio"
+                [class.selected]="(settings().instrument ?? 'guitar') === option"
+                [attr.aria-checked]="(settings().instrument ?? 'guitar') === option"
+                (click)="set('instrument', option)"
+              >
+                {{ t.instruments[option] }}
+              </button>
+            }
+          </span>
+        </div>
+      }
     </div>
-    @if (settings().showChordDiagrams) {
-      <!-- One instrument at a time: a segmented control (radio group), like iOS. -->
-      <div class="list-row sub-row">
-        <span class="row-text"><span class="row-label">{{ t.instrument }}</span></span>
-        <span class="segmented" role="radiogroup" [attr.aria-label]="t.instrument">
-          @for (option of instruments; track option) {
-            <button
-              type="button"
-              role="radio"
-              [class.selected]="(settings().instrument ?? 'guitar') === option"
-              [attr.aria-checked]="(settings().instrument ?? 'guitar') === option"
-              (click)="set('instrument', option)"
-            >
-              {{ t.instruments[option] }}
-            </button>
-          }
-        </span>
-      </div>
-    }
     <div class="list-row">
       <span class="icon-tile sage"><app-icon name="note" /></span>
       <span class="row-text"><span class="row-label">{{ t.showNotes }}</span><span class="row-hint">{{ t.showNotesHint }}</span></span>

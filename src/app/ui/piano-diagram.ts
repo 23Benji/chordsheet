@@ -73,7 +73,7 @@ interface Key {
       fill: var(--key-black);
     }
     .pressed {
-      fill: var(--accent);
+      fill: var(--key-pressed, var(--accent));
     }
     .label {
       fill: var(--text-muted);

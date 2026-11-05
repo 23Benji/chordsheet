@@ -19,11 +19,15 @@ describe('SettingsPage', () => {
     fixture.detectChanges();
     const el = fixture.nativeElement as HTMLElement;
     const click = async (text: string) => {
-      Array.from(el.querySelectorAll<HTMLButtonElement>('button')).find((b) => b.textContent?.trim() === text)!.click();
+      // Theme tiles: the name is under an "Aa" preview.
+      const name = (b: HTMLButtonElement) => (b.querySelector('.theme-name') ?? b).textContent?.trim();
+      Array.from(el.querySelectorAll<HTMLButtonElement>('button')).find((b) => name(b) === text)!.click();
       await fixture.whenStable();
       fixture.detectChanges();
     };
 
+    await click('Nero');
+    expect(document.documentElement.getAttribute('data-theme')).toBe('black');
     await click('Chiaro');
     expect(document.documentElement.getAttribute('data-theme')).toBe('light');
     await click('Nel testo');
