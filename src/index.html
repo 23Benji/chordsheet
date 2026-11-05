@@ -10,6 +10,15 @@
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black" />
+    <script>
+      // iPhone status bar: iOS reads its style as the app starts, before Angular
+      // has loaded the theme, so the last choice is kept in localStorage
+      // (written by SettingsService): white bar for light themes, black for dark.
+      try {
+        var bar = localStorage.getItem('innario.statusBar');
+        if (bar === 'default') document.querySelector('meta[name="apple-mobile-web-app-status-bar-style"]').setAttribute('content', bar);
+      } catch (e) {}
+    </script>
     <meta name="apple-mobile-web-app-title" content="Chordsheet" />
     <link rel="icon" type="image/png" href="icons/icon-192.png" />
     <link rel="apple-touch-icon" href="icons/apple-touch-icon.png" />

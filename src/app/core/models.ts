@@ -109,6 +109,13 @@ export type Theme = 'dark' | 'light' | 'black' | 'mono' | 'paper';
 export type ThemeChoice = Theme | 'auto';
 export const THEMES: ThemeChoice[] = ['auto', 'dark', 'black', 'light', 'mono', 'paper'];
 export const isDarkTheme = (theme: Theme) => theme === 'dark' || theme === 'black';
+/**
+ * iPhone home-screen app: the status bar (clock, battery) can only be black
+ * or white with dark text — black for the dark themes, white for the light ones.
+ */
+export const statusBarStyle = (theme: Theme): 'black' | 'default' => (isDarkTheme(theme) ? 'black' : 'default');
+/** localStorage copy, read by index.html before the app starts (iOS reads the style early). */
+export const STATUS_BAR_KEY = 'innario.statusBar';
 /** The theme actually shown for a choice, given the system's light/dark mode. */
 export const resolveTheme = (choice: ThemeChoice, systemDark: boolean): Theme =>
   choice === 'auto' ? (systemDark ? 'dark' : 'light') : choice;

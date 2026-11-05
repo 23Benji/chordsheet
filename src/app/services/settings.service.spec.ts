@@ -1,5 +1,5 @@
 import { TestBed } from '@angular/core/testing';
-import { resolveTheme } from '../core/models';
+import { resolveTheme, statusBarStyle } from '../core/models';
 import { DB } from '../data/db';
 import { SettingsService } from './settings.service';
 
@@ -8,6 +8,14 @@ describe('Automatico theme', () => {
     expect(resolveTheme('auto', false)).toBe('light');
     expect(resolveTheme('auto', true)).toBe('dark');
     expect(resolveTheme('paper', true)).toBe('paper');
+  });
+
+  it('iPhone status bar: black above dark themes, white above light ones', () => {
+    expect(statusBarStyle('dark')).toBe('black');
+    expect(statusBarStyle('black')).toBe('black');
+    expect(statusBarStyle('light')).toBe('default');
+    expect(statusBarStyle('mono')).toBe('default');
+    expect(statusBarStyle('paper')).toBe('default');
   });
 
   it('follows the system switch live', async () => {
@@ -30,6 +38,7 @@ describe('Automatico theme', () => {
     TestBed.tick();
     expect(settings.theme()).toBe('dark');
     expect(document.documentElement.getAttribute('data-theme')).toBe('dark');
+    expect(localStorage.getItem('innario.statusBar')).toBe('black');
     window.matchMedia = original;
   });
 });

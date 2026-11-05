@@ -340,7 +340,8 @@ From the research list (WCAG contrast, iOS home-screen app conventions, OnSong /
    - [x] Every text colour of every theme measured against its darkest background (`--surface`): Chiaro muted / accent / coral / sage and Carta muted / accent / coral / sage / sky were 3.1–4.5:1; each darkened just enough (same hue) to ≥ 4.6:1; white on the Chiaro accent button 3.9 → 5.7:1. Dark themes were already 5.6:1 or more
    - [x] Before/after screenshots (Chiaro, Carta): same look, crisper hints and chords
 2. **iPhone status bar follows the theme** (it is fixed to black: wrong in Chiaro / Bianco / Carta)
-   - [ ] 
+   - [x] iOS only offers black, white-with-dark-text, or see-through with white text (unreadable on light themes): black for Scuro / Nero, white for Chiaro / Bianco / Carta (`statusBarStyle` + test), set on every theme change and, because iOS reads it early, also by a tiny script in index.html from a localStorage copy before the app starts
+   - [ ] Benji: on the iPhone, Chiaro → close the app → reopen: the top strip is white with a dark clock
 3. **Launch screen**: the app's own start image instead of a plain flash (iOS `apple-touch-startup-image`, per iPhone size, light and dark)
    - [ ] 
 4. **Friendly error screen**: if something unexpected breaks, "Qualcosa non ha funzionato · Ricarica" instead of a frozen app (data stays safe)

@@ -1,5 +1,5 @@
 import { Injectable, computed, effect, inject, signal } from '@angular/core';
-import { Settings, Theme, resolveTheme } from '../core/models';
+import { STATUS_BAR_KEY, Settings, Theme, resolveTheme, statusBarStyle } from '../core/models';
 import { DB } from '../data/db';
 
 export const DEFAULT_SETTINGS: Settings = {
@@ -36,7 +36,16 @@ export class SettingsService {
     }
     // An effect re-runs whenever a signal it reads changes: keeps <html data-theme> in sync.
     effect(() => {
-      document.documentElement.setAttribute('data-theme', this.theme());
+      const theme = this.theme();
+      document.documentElement.setAttribute('data-theme', theme);
+      // The iPhone status bar: black above the dark themes, white above the light ones.
+      const style = statusBarStyle(theme);
+      document.querySelector('meta[name="apple-mobile-web-app-status-bar-style"]')?.setAttribute('content', style);
+      try {
+        localStorage.setItem(STATUS_BAR_KEY, style);
+      } catch {
+        // Private mode: the next start just begins with the default (black).
+      }
       // The browser / status bar colour follows the theme's background.
       const bg = getComputedStyle(document.documentElement).getPropertyValue('--bg').trim();
       if (bg) document.querySelector('meta[name="theme-color"]')?.setAttribute('content', bg);
