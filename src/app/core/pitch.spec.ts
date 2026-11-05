@@ -1,4 +1,14 @@
-import { GUITAR_STRINGS, PitchSmoother, detectPitch, nearestString, noteFromFrequency } from './pitch';
+import {
+  BASS_STRINGS,
+  GUITAR_STRINGS,
+  PitchSmoother,
+  TUNINGS,
+  detectPitch,
+  foldOctave,
+  nearestString,
+  noteFromFrequency,
+  stringRange,
+} from './pitch';
 
 const RATE = 48000;
 const SIZE = 4096;
@@ -73,8 +83,61 @@ describe('pitch detection (YIN)', () => {
 
   it('silence and pure noise give no note', () => {
     expect(detectPitch(new Float32Array(SIZE), RATE)).toBeNull();
-    expect(detectPitch(tone(110, [1]).map((v) => v * 0.01), RATE)).toBeNull(); // too quiet
+    expect(detectPitch(tone(110, [1]).map((v) => v * 0.001), RATE)).toBeNull(); // too quiet
     expect(detectPitch(tone(1, [0], SIZE, 0.5), RATE)).toBeNull();
+  });
+});
+
+/**
+ * A real string as a phone hears it: the fundamental almost gone, overtones
+ * slightly sharp (string stiffness, "inharmonicity" B), each fading at its
+ * own speed, a little noise, and quiet (no automatic volume).
+ */
+function realString(freq: number, length: number, amp = 0.01, B = 0.0002, at = 0.2): Float32Array {
+  const amps = [0.15, 1, 0.8, 0.6, 0.5, 0.35, 0.25, 0.2, 0.15, 0.1];
+  let s = 3;
+  const random = () => ((s = (s * 16807) % 2147483647) / 2147483647) * 2 - 1;
+  const out = new Float32Array(length);
+  for (let i = 0; i < length; i++) {
+    const t = at + i / RATE;
+    let v = 0;
+    amps.forEach((a, k) => {
+      const n = k + 1;
+      v += a * Math.exp(-t * (0.8 + 0.6 * n)) * Math.sin(2 * Math.PI * n * freq * Math.sqrt(1 + B * n * n) * t + n);
+    });
+    out[i] = amp * v + amp * 0.05 * random();
+  }
+  return out;
+}
+
+describe('real strings through a phone microphone', () => {
+  it('a quiet low E with a weak fundamental is still found (used to be dropped as silence)', () => {
+    const found = detectPitch(realString(midiHz(40), SIZE), RATE)!;
+    expect(found).not.toBeNull();
+    expect(Math.abs(cents(found.frequency, midiHz(40)))).toBeLessThan(5);
+  });
+
+  it('every guitar string, quiet and inharmonic, within 5 cents', () => {
+    for (const { midi } of GUITAR_STRINGS) {
+      const found = detectPitch(realString(midiHz(midi), SIZE), RATE, TUNINGS.guitar)!;
+      expect(found, `midi ${midi}`).not.toBeNull();
+      expect(Math.abs(cents(found.frequency, midiHz(midi))), `midi ${midi}`).toBeLessThan(5);
+    }
+  });
+
+  it('every bass string (E1 = 41 Hz) with the bass window', () => {
+    const { window, minFrequency } = TUNINGS.bass;
+    for (const { midi } of BASS_STRINGS) {
+      const found = detectPitch(realString(midiHz(midi), window), RATE, { minFrequency })!;
+      expect(found, `midi ${midi}`).not.toBeNull();
+      expect(Math.abs(cents(found.frequency, midiHz(midi))), `midi ${midi}`).toBeLessThan(5);
+    }
+  });
+
+  it('tuning one chosen string never reads it an octave up, even with no fundamental at all', () => {
+    const sound = tone(midiHz(40), [0, 1, 0.1, 0.4], SIZE); // E2 heard as almost only E3
+    const found = detectPitch(sound, RATE, stringRange(40))!;
+    expect(Math.abs(cents(found.frequency, midiHz(40)))).toBeLessThan(2);
   });
 });
 
@@ -94,6 +157,18 @@ describe('notes and strings', () => {
     expect(nearestString(246.94)).toMatchObject({ string: 2 });
     expect(nearestString(100)?.string).toBe(5); // a flat A string
     expect(nearestString(1000)).toBeNull();
+    expect(nearestString(41.2, BASS_STRINGS)).toMatchObject({ string: 4 });
+    expect(nearestString(98, BASS_STRINGS)).toMatchObject({ string: 1 });
+  });
+
+  it('octave fix: a low string heard an octave up goes back down; real strings stay', () => {
+    expect(foldOctave(midiHz(52))).toBeCloseTo(midiHz(40)); // E3 → low E
+    expect(foldOctave(midiHz(57))).toBeCloseTo(midiHz(45)); // A3 → A
+    expect(foldOctave(midiHz(52) * 2 ** (-60 / 1200))).toBeCloseTo(midiHz(40) * 2 ** (-60 / 1200)); // a flat low E too
+    for (const { midi } of GUITAR_STRINGS) expect(foldOctave(midiHz(midi)), `midi ${midi}`).toBeCloseTo(midiHz(midi));
+    expect(foldOctave(midiHz(64) * 2 ** (-150 / 1200))).toBeCloseTo(midiHz(64) * 2 ** (-150 / 1200)); // a very flat high E is not "D"
+    expect(foldOctave(midiHz(40), BASS_STRINGS)).toBeCloseTo(midiHz(28)); // bass: E2 → E1
+    for (const { midi } of BASS_STRINGS) expect(foldOctave(midiHz(midi), BASS_STRINGS)).toBeCloseTo(midiHz(midi));
   });
 
   it('smoother: median of recent readings, starts over on a new note or a pause', () => {

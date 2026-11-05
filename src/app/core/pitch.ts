@@ -32,7 +32,11 @@ export interface PitchOptions {
  * or not a clear note.
  */
 export function detectPitch(buffer: Float32Array, sampleRate: number, options: PitchOptions = {}): Pitch | null {
-  const { minFrequency = 60, maxFrequency = 1200, minRms = 0.01, threshold = 0.12 } = options;
+  // minRms is low on purpose: with the phone's automatic volume off, a low
+  // string arrives quiet (phone microphones hear little below ~100 Hz).
+  // Loudness doesn't change the maths (YIN compares the sound with itself),
+  // and room noise isn't periodic, so it still comes out as "no note".
+  const { minFrequency = 60, maxFrequency = 1200, minRms = 0.002, threshold = 0.12 } = options;
 
   let sum = 0;
   for (let i = 0; i < buffer.length; i++) sum += buffer[i] * buffer[i];
@@ -67,7 +71,14 @@ export function detectPitch(buffer: Float32Array, sampleRate: number, options: P
       break;
     }
   }
-  if (tau < 0) return null;
+  // No dip under the threshold (a real string is never perfectly periodic):
+  // take the best match anyway; its low clarity lets the caller decide.
+  if (tau < 0) {
+    let best = tauMin;
+    for (let t = tauMin + 1; t <= tauMax; t++) if (cmnd[t] < cmnd[best]) best = t;
+    if (cmnd[best] >= 0.5) return null;
+    tau = best;
+  }
 
   // Step 5: parabolic interpolation between samples, for sub-cent precision.
   let exact = tau;
@@ -96,25 +107,76 @@ export function noteFromFrequency(frequency: number, a4 = 440): NoteReading {
   return { name: noteName(midi, false), octave: Math.floor(midi / 12) - 1, midi, cents: (exact - midi) * 100 };
 }
 
+export type TunerInstrument = 'guitar' | 'bass';
+
+export interface TunerString {
+  /** Number as players count them: 1 = the thinnest. */
+  string: number;
+  midi: number;
+}
+
 /** Standard tuning, low to high: E2 A2 D3 G3 B3 E4. */
-export const GUITAR_STRINGS = [
+export const GUITAR_STRINGS: readonly TunerString[] = [
   { string: 6, midi: 40 },
   { string: 5, midi: 45 },
   { string: 4, midi: 50 },
   { string: 3, midi: 55 },
   { string: 2, midi: 59 },
   { string: 1, midi: 64 },
-] as const;
+];
+
+/** 4-string bass, an octave below the guitar's lowest four: E1 A1 D2 G2. */
+export const BASS_STRINGS: readonly TunerString[] = [
+  { string: 4, midi: 28 },
+  { string: 3, midi: 33 },
+  { string: 2, midi: 38 },
+  { string: 1, midi: 43 },
+];
+
+export const TUNINGS: Record<TunerInstrument, { strings: readonly TunerString[]; minFrequency: number; window: number }> = {
+  // window: samples analysed at once, ≥ 2 periods of the lowest note at 48 kHz.
+  guitar: { strings: GUITAR_STRINGS, minFrequency: 60, window: 4096 },
+  // Low E of a bass is 41 Hz (a period of 24 ms): it needs a longer window.
+  bass: { strings: BASS_STRINGS, minFrequency: 35, window: 8192 },
+};
+
+export const midiToHz = (midi: number, a4 = 440): number => a4 * 2 ** ((midi - 69) / 12);
 
 /** Which open string this sound is closest to (within a few semitones), or null. */
-export function nearestString(frequency: number, a4 = 440): { string: number; midi: number; cents: number } | null {
+export function nearestString(
+  frequency: number,
+  strings: readonly TunerString[] = GUITAR_STRINGS,
+  a4 = 440,
+): { string: number; midi: number; cents: number } | null {
   const exact = 69 + 12 * Math.log2(frequency / a4);
   let best: { string: number; midi: number; cents: number } | null = null;
-  for (const s of GUITAR_STRINGS) {
+  for (const s of strings) {
     const cents = (exact - s.midi) * 100;
     if (Math.abs(cents) <= 250 && (!best || Math.abs(cents) < Math.abs(best.cents))) best = { ...s, cents };
   }
   return best;
+}
+
+/**
+ * Corrects the classic mistake on the lowest strings: a phone microphone
+ * barely hears their fundamental, so the second harmonic (one octave up)
+ * can win and a low E reads as E3 (which then looks like a sharp D string).
+ * If the sound is not near any string but one octave down is near one of
+ * the two lowest strings, it is that string.
+ */
+export function foldOctave(frequency: number, strings: readonly TunerString[] = GUITAR_STRINGS, a4 = 440): number {
+  const near = (f: number, list: readonly TunerString[]) => {
+    const s = nearestString(f, list, a4);
+    return s !== null && Math.abs(s.cents) <= 100;
+  };
+  if (near(frequency, strings)) return frequency;
+  return near(frequency / 2, strings.slice(0, 2)) ? frequency / 2 : frequency;
+}
+
+/** Detection range when tuning one chosen string: up to 7 semitones either side (never an octave). */
+export function stringRange(midi: number, a4 = 440): { minFrequency: number; maxFrequency: number } {
+  const hz = midiToHz(midi, a4);
+  return { minFrequency: hz / 2 ** (7 / 12), maxFrequency: hz * 2 ** (7 / 12) };
 }
 
 /** Within this many cents the note counts as in tune (green). */

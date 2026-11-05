@@ -61,6 +61,12 @@ label.list-row {
   cursor: pointer;
 }
 
+// A row that opens another screen (Accordatore): looks like the button rows.
+a.list-row {
+  color: inherit;
+  text-decoration: none;
+}
+
 // A row whose control needs the full width (theme tiles, instrument): the
 // control goes on its own line *inside the same row*, aligned with the text
 // (16 padding + 36 icon + 14 gap = after the icon), so it reads as one block.

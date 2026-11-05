@@ -6,6 +6,20 @@
     <h1>{{ t.title }}</h1>
   </nav>
 
+  <div class="segmented instrument" role="radiogroup" [attr.aria-label]="t.instrument">
+    @for (option of instruments; track option) {
+      <button
+        type="button"
+        role="radio"
+        [class.selected]="instrument() === option"
+        [attr.aria-checked]="instrument() === option"
+        (click)="setInstrument(option)"
+      >
+        {{ t.instruments[option] }}
+      </button>
+    }
+  </div>
+
   <!-- Gauge: an arc from −50 to +50 cents, the green zone in the middle, the needle. -->
   <div class="tuner" [class.in-tune]="inTune()" [class.silent]="!reading()">
     <svg class="gauge" viewBox="-110 -110 220 125" aria-hidden="true">
@@ -39,15 +53,32 @@
   </div>
 
   @if (state() === 'listening') {
-    <!-- Standard tuning: the string you are closest to lights up. -->
-    <ol class="strings" [attr.aria-label]="t.strings">
-      @for (s of strings; track s.string) {
-        <li [class.on]="string()?.string === s.string" [class.ok]="string()?.string === s.string && inTune()">
-          <span class="string-name">{{ s.name }}</span>
-          <span class="string-number">{{ s.string }}ª</span>
+    <!-- Standard tuning: the string you are closest to lights up; tap one to tune only that string. -->
+    <ol class="strings" [style.--count]="strings().length" [attr.aria-label]="t.strings">
+      @for (s of strings(); track s.midi) {
+        <li>
+          <button
+            type="button"
+            [class.on]="litMidi() === s.midi"
+            [class.ok]="litMidi() === s.midi && inTune()"
+            [class.picked]="picked() === s.midi"
+            [attr.aria-pressed]="picked() === s.midi"
+            [attr.aria-label]="t.pickAria(s.name, s.string)"
+            (click)="pick(s.midi)"
+          >
+            <span class="string-name">{{ s.name }}</span>
+            <span class="string-number">{{ s.string }}ª</span>
+          </button>
         </li>
       }
     </ol>
+    <p class="pick-hint">
+      @if (pickedString(); as p) {
+        {{ t.picked(p.name, p.string) }}
+      } @else {
+        {{ t.pickHint }}
+      }
+    </p>
   } @else {
     <div class="start">
       @switch (state()) {
@@ -57,12 +88,17 @@
         @case ('unsupported') {
           <p class="error">{{ t.unsupported }}</p>
         }
+        @case ('paused') {
+          <p>{{ t.paused }}</p>
+        }
         @default {
           <p>{{ t.intro }}</p>
         }
       }
       @if (state() !== 'unsupported') {
-        <button type="button" class="btn btn-primary big" (click)="start()"><app-icon name="volume" /> {{ t.start }}</button>
+        <button type="button" class="btn btn-primary big" (click)="start()">
+          <app-icon name="volume" /> {{ state() === 'paused' ? t.resume : t.start }}
+        </button>
       }
       <p class="privacy">{{ t.privacy }}</p>
     </div>

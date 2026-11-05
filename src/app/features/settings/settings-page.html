@@ -121,6 +121,11 @@
       <span class="row-text"><span class="row-label">{{ t.keys }}</span><span class="row-hint">{{ t.keysHint }}</span></span>
       <app-icon name="chevronRight" class="row-chevron" />
     </button>
+    <a class="list-row clickable" routerLink="/accordatore" [state]="{ canGoBack: true }">
+      <span class="icon-tile sky"><app-icon name="guitar" /></span>
+      <span class="row-text"><span class="row-label">{{ tuner.title }}</span><span class="row-hint">{{ tuner.settingsHint }}</span></span>
+      <app-icon name="chevronRight" class="row-chevron" />
+    </a>
   </div>
 
   <h2 class="list-group-title">{{ t.groups.data }}</h2>

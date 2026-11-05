@@ -25,7 +25,7 @@
 
 .tuner {
   --state: var(--coral);
-  margin-top: var(--space-8);
+  margin-top: var(--space-6);
   text-align: center;
 
   &.in-tune {
@@ -134,21 +134,25 @@
 
 .strings {
   display: grid;
-  grid-template-columns: repeat(6, 1fr);
+  grid-template-columns: repeat(var(--count, 6), 1fr);
   gap: var(--space-2);
   margin: var(--space-6) 0 0;
   padding: 0;
   list-style: none;
 
-  li {
+  button {
     display: flex;
     flex-direction: column;
     align-items: center;
+    width: 100%;
     padding: var(--space-2) 0;
+    border: 2px solid transparent;
     border-radius: var(--radius-m);
     background: var(--bg-elev-1);
     color: var(--text-muted);
-    transition: background-color 0.15s, color 0.15s;
+    font: inherit;
+    cursor: pointer;
+    transition: background-color 0.15s, color 0.15s, border-color 0.15s;
 
     &.on {
       background: var(--surface);
@@ -158,6 +162,49 @@
     &.ok {
       background: var(--highlight-sage);
       color: var(--sage);
+    }
+
+    // Chosen by tapping: a ring, so it reads as "locked" even in silence.
+    &.picked {
+      border-color: currentColor;
+    }
+  }
+}
+
+.pick-hint {
+  margin: var(--space-3) 0 0;
+  color: var(--text-muted);
+  font-size: 13px;
+  text-align: center;
+}
+
+// ── Instrument (same look as the settings' segmented control) ────────────────
+
+.segmented {
+  display: flex;
+  gap: 2px;
+  max-width: 280px;
+  margin: var(--space-4) auto 0;
+  padding: var(--space-1);
+  border-radius: var(--radius-m);
+  background: var(--surface);
+
+  button {
+    flex: 1;
+    min-height: calc(var(--tap) - 6px);
+    padding: 0 var(--space-3);
+    border: none;
+    border-radius: var(--radius-s);
+    background: transparent;
+    color: var(--text-muted);
+    font: inherit;
+    font-weight: 700;
+    cursor: pointer;
+
+    &.selected {
+      background: var(--bg-elev-1);
+      color: var(--accent);
+      box-shadow: 0 1px 2px rgb(0 0 0 / 25%);
     }
   }
 }

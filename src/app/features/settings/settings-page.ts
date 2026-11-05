@@ -56,6 +56,7 @@ export class SettingsPage implements OnInit {
   private readonly keymap = viewChild.required(KeymapDialog);
   private readonly restoreDialog = viewChild.required<ElementRef<HTMLDialogElement>>('restoreDialog');
   protected readonly t = IT.settings;
+  protected readonly tuner = IT.tuner;
   protected readonly backLabel = IT.song.backToLibrary;
   protected readonly version = APP_VERSION;
   protected readonly accidentalOptions = ['auto', 'sharps', 'flats'] as const;

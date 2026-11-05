@@ -297,6 +297,10 @@ In this order, one at a time (build + tests + screenshots + push after each):
    - [x] `core/pitch.ts` (+ tests): YIN pitch detection with parabolic interpolation, note/cents, nearest open string, median smoother — every open string within 1 cent on pure tones, overtone-heavy tones and Karplus-Strong plucks, with noise
    - [x] `/accordatore`: gauge (±50 cent, green ±5), note + octave, cents, Hz, string row; mic with echo cancelling / noise suppression / auto gain off; entries in the song ⋯ menu and the setlist page
    - [x] End-to-end through the app's audio chain with a synthetic plucked-string "microphone": A2 +10.4 → "+10 cent", E2 −1.1 → "Accordata", B3 −28.0 → "−28 cent"
-   - [ ] Benji: try it with the real guitar on the iPhone (keep it only if it is accurate enough)
+   - [x] Benji tried it on the iPhone: "works strangely good enough", but: frozen after leaving the app, low E not detected
+   - [x] Leaving the app pauses it ("In pausa" + Riprendi); also pauses if iOS ends the mic or suspends the audio
+   - [x] Low E: loudness gate 0.01 → 0.002 (a quiet low E was dropped as silence), best-match fallback when no dip is under the threshold, octave fix for the two lowest strings, tap a string to tune only that one (±7 semitones, no octave errors)
+   - [x] Bass (E1 A1 D2 G2, 8192-sample window) with a Chitarra / Basso switch, remembered
+   - [x] Also reachable from Impostazioni → Esibizione → Accordatore (discreet, always there)
 
 Ideas noted for later: service plan items in setlists (Preghiera, Lettura…), lyrics on the church projector, song history ("suonato 3 settimane fa"), key-jump warnings in setlists, reference recording per song, song version history.
