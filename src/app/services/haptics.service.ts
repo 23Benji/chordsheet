@@ -1,4 +1,5 @@
 import { Injectable, inject } from '@angular/core';
+import { currentPlatform, isIos } from '../core/platform';
 import { SettingsService } from './settings.service';
 
 /**
@@ -17,10 +18,12 @@ import { SettingsService } from './settings.service';
 @Injectable({ providedIn: 'root' })
 export class HapticsService {
   private readonly settings = inject(SettingsService);
+  private readonly ios = isIos(currentPlatform());
 
   tick(): void {
     if (this.settings.settings().haptics === false) return;
-    if (typeof navigator.vibrate === 'function') {
+    // iPhone: always the switch (a vibrate() there, if it ever appears, may do nothing).
+    if (!this.ios && typeof navigator.vibrate === 'function') {
       navigator.vibrate(10);
       return;
     }
@@ -30,14 +33,17 @@ export class HapticsService {
 
 function switchTick(): void {
   try {
+    // Drawn but invisible and out of the way (iOS may skip the tick for a
+    // switch that isn't rendered at all, e.g. display: none).
     const label = document.createElement('label');
     label.ariaHidden = 'true';
-    label.style.display = 'none';
+    label.style.cssText = 'position:fixed;left:0;top:0;width:1px;height:1px;opacity:0.01;overflow:hidden;pointer-events:none';
     const input = document.createElement('input');
     input.type = 'checkbox';
     input.setAttribute('switch', '');
+    input.tabIndex = -1;
     label.appendChild(input);
-    document.head.appendChild(label);
+    document.body.appendChild(label);
     label.click();
     label.remove();
   } catch {

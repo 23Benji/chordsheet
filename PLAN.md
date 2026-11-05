@@ -372,5 +372,7 @@ From the research list (WCAG contrast, iOS home-screen app conventions, OnSong /
 - [x] Ticks: swipe passing the delete point and tapping Elimina, Annulla / Ricarica, long-press menu (Android; on iPhone maybe not — the finger is still down), every switch, theme / instrument / sharps-flats / chord-position choices, tuner instrument and strings, statistics period, page turns by tap or swipe in performance mode (not keys or pedals)
 - [x] Counted in the browser for both paths: one tick per action, none for arrow/pedal turns
 - [ ] Benji: feel it on the iPhone (if the long-press tick doesn't come, that's the iOS limit)
+- [x] 1.35.1 (Benji: "I don't feel that"): on iPhone always the switch trick (even if a vibrate() exists), the hidden switch drawn invisibly in the page instead of display: none
+- [x] 1.35.1 (Benji: "when in presentation the screen [shouldn't] shut off"): Safari grants the wake lock only inside a tap — now requested in the tap that opens performance mode (▷, Suona), re-taken at the next tap / key / pedal whenever it isn't held (refused, or dropped by iOS), and kept across songs of a setlist (released 1.5 s after leaving) — `ScreenService` + tests
 
 Ideas noted for later: service plan items in setlists (Preghiera, Lettura…), lyrics on the church projector, song history ("suonato 3 settimane fa"), key-jump warnings in setlists, tuner: keep the screen awake + steadier "Accordata", reopen the app on the last song, follow the iPhone text size (Dynamic Type), left-handed chord diagrams, reference recording per song, song version history.

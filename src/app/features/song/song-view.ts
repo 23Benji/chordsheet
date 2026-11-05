@@ -607,6 +607,8 @@ export class SongView {
   }
 
   protected perform(): void {
+    // Inside the tap: Safari grants the "keep the screen on" lock only now.
+    void this.screen.keepAwake();
     void this.screen.enterFullscreen();
     void this.router.navigate(['/canto', this.id(), 'esibizione'], { state: { canGoBack: true } });
   }

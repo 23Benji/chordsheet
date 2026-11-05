@@ -31,6 +31,6 @@ describe('HapticsService', () => {
     setup().haptics.tick();
     document.removeEventListener('click', onClick, true);
     expect(clicks.some((el) => el.tagName === 'LABEL')).toBe(true);
-    expect(document.head.querySelector('input[switch]')).toBeNull();
+    expect(document.querySelector('input[switch]')).toBeNull();
   });
 });

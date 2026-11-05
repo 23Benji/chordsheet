@@ -4,6 +4,7 @@ import { Setlist } from '../../core/models';
 import { formatSetlistDate, importSetlist } from '../../core/setlists';
 import { IT } from '../../i18n/it';
 import { LibraryService } from '../../services/library.service';
+import { ScreenService } from '../../services/screen.service';
 import { SetlistService } from '../../services/setlist.service';
 import { ToastService, UNDO_MS } from '../../services/toast.service';
 import { Icon } from '../../ui/icon';
@@ -24,6 +25,7 @@ import { SHARED_SETLIST_PATH, linkFragment } from '../../core/setlist-link';
 export class SetlistsPage {
   protected readonly service = inject(SetlistService);
   private readonly library = inject(LibraryService);
+  private readonly screen = inject(ScreenService);
   private readonly router = inject(Router);
   private readonly toast = inject(ToastService);
   private readonly shareSheet = viewChild.required(ShareSetlistSheet);
@@ -57,6 +59,8 @@ export class SetlistsPage {
 
   protected play(setlist: Setlist): void {
     const first = setlist.items.find((i) => this.library.byId().has(i.songId));
+    // Inside the tap: Safari grants the "keep the screen on" lock only now.
+    void this.screen.keepAwake();
     if (first) void this.router.navigate(['/canto', first.songId, 'esibizione'], {
         queryParams: { scaletta: setlist.id, pos: 0 },
         state: { canGoBack: true }, // X in performance mode comes back here

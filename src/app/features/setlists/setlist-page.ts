@@ -19,6 +19,7 @@ import { effectiveTranspose, formatSetlistDate, moveItem, setlistFileName } from
 import { numberLabel } from '../../core/song-meta';
 import { clampTranspose, keyView } from '../../core/transpose';
 import { IT } from '../../i18n/it';
+import { ScreenService } from '../../services/screen.service';
 import { SetlistService } from '../../services/setlist.service';
 import { LibraryService } from '../../services/library.service';
 import { SettingsService } from '../../services/settings.service';
@@ -63,6 +64,7 @@ interface Row {
 export class SetlistPage {
   private readonly service = inject(SetlistService);
   private readonly library = inject(LibraryService);
+  private readonly screen = inject(ScreenService);
   private readonly prefs = inject(SongPrefsService);
   private readonly router = inject(Router);
   private readonly settings = inject(SettingsService);
@@ -256,6 +258,8 @@ export class SetlistPage {
     if (!start?.song) return;
     this.closeItem();
     // `canGoBack`: closing performance mode (X) comes back to this page.
+    // Inside the tap: Safari grants the "keep the screen on" lock only now.
+    void this.screen.keepAwake();
     void this.router.navigate(['/canto', start.song.id, 'esibizione'], {
       queryParams: { scaletta: this.id(), pos: start.playIndex },
       state: { canGoBack: true },
