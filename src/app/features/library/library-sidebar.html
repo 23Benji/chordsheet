@@ -113,7 +113,7 @@
 @if (showRecent()) {
   <!-- Tapping the empty search: the last songs opened, for a quick way back. -->
   <nav class="recent" [attr.aria-label]="t.recent">
-    <h2 class="recent-title">{{ t.recent }}</h2>
+    <h2 class="list-group-title">{{ t.recent }}</h2>
     @for (song of recentSongs(); track song.id) {
       <a class="row" [routerLink]="['/canto', song.id]" (click)="openRecent(search)">
         <ng-container *ngTemplateOutlet="rowContent; context: { $implicit: song }" />

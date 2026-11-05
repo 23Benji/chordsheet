@@ -318,7 +318,7 @@ Benji: "I don't think more features are wise to add" — small improvements to w
    - [x] `RecentService` (+ tests): last 5 songs opened on this device (localStorage, not synced — a convenience), recorded by the song view and performance mode
    - [x] Library: "Recenti" above the list while the empty search has the focus (not while typing or selecting; the song open right now is left out); screenshots 390 + 1280
 4. **"Prossimo" with key and capo** in performance mode ("Prossimo: Tu sei Re · E, capo 2")
-   - [ ] 
+   - [x] Key you'll play in (the song's key + its setlist transposition − its capo) and the capo; just the title in Solo testo; test + screenshot
 5. **"Annulla" instead of "Sei sicuro?"**: delete at once, with an undo button in the message for a few seconds
    - [ ] 
 6. **"Automatico" theme**: follows the iPhone's light/dark mode

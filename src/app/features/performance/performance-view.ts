@@ -120,6 +120,23 @@ export class PerformanceView {
     const i = this.queueIndex();
     return i >= 0 ? (this.library.byId().get(this.queue()[i + 1]) ?? null) : null;
   });
+  /**
+   * "Prossimo: Tu sei Re · E, capo 2": the key you'll play the next song in
+   * (its setlist transposition and its own capo), so you can move the capo
+   * before it starts. The key comes from the song's metadata (no parsing of
+   * the next song needed); without one, just the capo.
+   */
+  protected readonly nextLabel = computed(() => {
+    const next = this.nextSong();
+    if (!next) return null;
+    if (this.lyricsOnly()) return this.t.nextSong(next.title);
+    const prefs = this.prefsService.get(next.id);
+    const capo = this.prefsService.has(next.id) ? prefs.capo : (next.capo ?? 0);
+    const item = this.setlist() ? this.playable()[this.queueIndex() + 1] : undefined;
+    const transpose = item?.transpose ?? prefs.transpose;
+    const key = keyView(next.key ?? null, transpose, capo).shapeKey;
+    return this.t.nextSongDetail(next.title, key, capo);
+  });
 
   private readonly transpose = computed(() => this.item()?.transpose ?? this.prefs().transpose);
   protected readonly keys = computed(() =>

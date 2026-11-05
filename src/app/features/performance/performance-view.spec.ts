@@ -14,6 +14,7 @@ import { PerformanceView } from './performance-view';
 const a = songFromChordPro('{title: Primo}\n{meta: numero 1}\n{tempo: 120}\n[C]uno', '', 'bundled');
 const b = songFromChordPro('{title: Secondo}\n{meta: numero 2}\n[G]due', '', 'bundled');
 const c = songFromChordPro('{title: Terzo}\n{meta: numero 3}\n[D]tre', '', 'bundled');
+const d = songFromChordPro('{title: Quarto}\n{key: E}\n{capo: 2}\n[E]quattro', '', 'bundled');
 
 const fakeDb = {
   songPrefs: { toArray: async () => [], put: async () => undefined },
@@ -31,7 +32,7 @@ function setup(id: string, coda?: string, setlist?: Setlist, pos = 0) {
   const request = vi.fn().mockResolvedValue({ release: vi.fn().mockResolvedValue(undefined) });
   Object.defineProperty(navigator, 'wakeLock', { value: { request }, configurable: true });
 
-  const songs = new Map<string, Song>([a, b, c].map((s) => [s.id, s]));
+  const songs = new Map<string, Song>([a, b, c, d].map((s) => [s.id, s]));
   TestBed.configureTestingModule({
     imports: [PerformanceView],
     providers: [
@@ -64,7 +65,7 @@ describe('PerformanceView', () => {
     const { el, request } = setup(b.id, coda);
     expect(el.querySelector('.song-title')?.textContent).toContain('Secondo');
     expect(el.querySelector('.bar .meta')?.textContent).toContain('Canto 2 di 3');
-    expect(el.querySelector('.up-next')?.textContent).toBe('Prossimo: Terzo');
+    expect(el.querySelector('.up-next')?.textContent).toBe('Prossimo: Terzo · D'); // key from the song's metadata
     expect(request).toHaveBeenCalledWith('screen');
   });
 
@@ -139,6 +140,20 @@ describe('PerformanceView', () => {
       replaceUrl: true,
       state: { canGoBack: false },
     });
+  });
+
+  it('"Prossimo" says the key and capo of the next song (its setlist transposition included)', () => {
+    const items = (transpose?: number) => [
+      { id: '1', songId: a.id },
+      { id: '2', songId: d.id, transpose },
+    ];
+    const at = (transpose?: number) => {
+      TestBed.resetTestingModule();
+      const setlist: Setlist = { id: 'sl', name: 'Domenica', items: items(transpose), createdAt: 0, updatedAt: 0 };
+      return setup(a.id, undefined, setlist, 0).el.querySelector('.up-next')?.textContent;
+    };
+    expect(at()).toBe('Prossimo: Quarto · D, capo 2'); // E with capo 2 = shapes in D
+    expect(at(2)).toBe('Prossimo: Quarto · E, capo 2'); // a tone up in this setlist
   });
 
   it('the last entry of a setlist (a repeat of the first song) knows where it is', () => {

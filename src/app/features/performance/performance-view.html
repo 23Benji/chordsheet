@@ -113,8 +113,8 @@
           <p class="item-note">{{ note }}</p>
         }
         <app-song-sheet [sheet]="sheet" [annotations]="notes()" [intro]="intro()" [chordStyle]="chordStyle()" [lyricsOnly]="lyricsOnly()" />
-        @if (nextSong(); as next) {
-          <p class="up-next">{{ t.nextSong(next.title) }}</p>
+        @if (nextLabel(); as next) {
+          <p class="up-next">{{ next }}</p>
         }
       </article>
 

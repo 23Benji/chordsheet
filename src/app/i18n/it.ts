@@ -611,6 +611,8 @@ export const IT = {
     songOf: (n: number, total: number) => `Canto ${n} di ${total}`,
     page: (n: number, total: number) => `${n}/${total}`,
     nextSong: (title: string) => `Prossimo: ${title}`,
+    nextSongDetail: (title: string, key: string | null, capo: number) =>
+      `Prossimo: ${title}` + (key || capo ? ' · ' : '') + [key, capo ? `capo ${capo}` : ''].filter(Boolean).join(', '),
     end: 'Fine',
     autoscroll: 'Scorrimento automatico (S)',
     autoscrollStart: 'Avvia scorrimento (S)',
