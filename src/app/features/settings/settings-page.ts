@@ -59,6 +59,7 @@ export class SettingsPage implements OnInit {
   protected readonly backLabel = IT.song.backToLibrary;
   protected readonly version = APP_VERSION;
   protected readonly accidentalOptions = ['auto', 'sharps', 'flats'] as const;
+  protected readonly instruments = ['guitar', 'piano', 'bass'] as const;
   protected readonly fontMin = FONT_MIN;
   protected readonly fontMax = FONT_MAX;
 

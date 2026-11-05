@@ -294,7 +294,11 @@
       (mouseenter)="keepDiagram()"
       (mouseleave)="onChordHover(null)"
     >
-      <app-chord-diagram [chord]="d.chord" />
+      @switch (instrument()) {
+        @case ('piano') { <app-piano-diagram [chord]="d.chord" /> }
+        @case ('bass') { <app-bass-diagram [chord]="d.chord" /> }
+        @default { <app-chord-diagram [chord]="d.chord" /> }
+      }
     </div>
   }
 

@@ -59,6 +59,13 @@ label.list-row {
   cursor: pointer;
 }
 
+// A choice that belongs to the row above (e.g. the instrument of the chord
+// diagrams): no icon, text aligned with the label above (16 + 36 icon + 14 gap).
+.list-row.sub-row {
+  min-height: 52px;
+  padding-left: 66px;
+}
+
 .about {
   padding: 24px;
   text-align: center;
@@ -201,6 +208,18 @@ label.list-row {
     .segmented,
     .stepper {
       margin-left: 50px;
+    }
+  }
+
+  // The sub-row has no icon: its control spans the row, equal-width options.
+  .list-row.sub-row:has(.segmented) {
+    .segmented {
+      flex: 1 1 100%;
+      margin-left: 0;
+
+      button {
+        flex: 1;
+      }
     }
   }
 }

@@ -46,6 +46,25 @@
       <span class="row-text"><span class="row-label">{{ t.diagrams }}</span><span class="row-hint">{{ t.diagramsHint }}</span></span>
       <app-switch [checked]="settings().showChordDiagrams" [label]="t.diagrams" (toggled)="set('showChordDiagrams', $event)" />
     </div>
+    @if (settings().showChordDiagrams) {
+      <!-- One instrument at a time: a segmented control (radio group), like iOS. -->
+      <div class="list-row sub-row">
+        <span class="row-text"><span class="row-label">{{ t.instrument }}</span></span>
+        <span class="segmented" role="radiogroup" [attr.aria-label]="t.instrument">
+          @for (option of instruments; track option) {
+            <button
+              type="button"
+              role="radio"
+              [class.selected]="(settings().instrument ?? 'guitar') === option"
+              [attr.aria-checked]="(settings().instrument ?? 'guitar') === option"
+              (click)="set('instrument', option)"
+            >
+              {{ t.instruments[option] }}
+            </button>
+          }
+        </span>
+      </div>
+    }
     <div class="list-row">
       <span class="icon-tile sage"><app-icon name="note" /></span>
       <span class="row-text"><span class="row-label">{{ t.showNotes }}</span><span class="row-hint">{{ t.showNotesHint }}</span></span>

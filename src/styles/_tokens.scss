@@ -21,6 +21,9 @@
   --highlight-sage: rgb(156 195 163 / 16%);
   --highlight-sky: rgb(143 184 222 / 16%);
   --scrim: rgb(20 16 13 / 55%);
+  // Piano diagram: keys keep their real colours in both themes (ivory / ebony).
+  --key-white: #ece3d6;
+  --key-black: #1f1813;
 
   --radius-s: 8px;
   --radius-m: 12px;
@@ -61,6 +64,8 @@
   --highlight-sky: rgb(59 107 152 / 12%);
   --scrim: rgb(42 31 23 / 35%);
   --shadow: 0 8px 30px rgb(60 40 20 / 14%);
+  --key-white: #ffffff;
+  --key-black: #2a1f17;
 
   color-scheme: light;
 }

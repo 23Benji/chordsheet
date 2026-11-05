@@ -99,6 +99,8 @@ export interface Folder {
   updatedAt: number;
 }
 
+export type Instrument = 'guitar' | 'piano' | 'bass';
+
 export interface Settings {
   theme: 'dark' | 'light';
   fontScale: number;
@@ -109,6 +111,8 @@ export interface Settings {
   showNotes: boolean;
   /** Default spelling after transposing (a song's own preferSharps wins). */
   accidentals?: 'auto' | 'sharps' | 'flats';
+  /** Which chord diagrams to show: one instrument at a time (default guitar). */
+  instrument?: Instrument;
   /** "Parti ripetute": identical sections in a row shown once with "×2" (default: all written out). */
   collapseRepeats?: boolean;
 }

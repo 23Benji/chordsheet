@@ -33,7 +33,9 @@ import { Pager } from '../../ui/pager';
 import { Swipe } from '../../ui/swipe';
 import { Popover } from '../../ui/popover';
 import { Switch } from '../../ui/switch';
+import { BassDiagram } from '../../ui/bass-diagram';
 import { ChordDiagram } from '../../ui/chord-diagram';
+import { PianoDiagram } from '../../ui/piano-diagram';
 import { Metronome } from '../../ui/metronome';
 import { AddToSetlist } from './add-to-setlist';
 import { SongFolders } from './song-folders';
@@ -51,7 +53,7 @@ const WIDE_QUERY = '(min-width: 900px)';
 
 @Component({
   selector: 'app-song-view',
-  imports: [RouterLink, Icon, SongSheet, AnnotationPanel, Pager, AddToSetlist, SongFolders, IntroPanel, ExportMenu, Metronome, ChordDiagram, Swipe, Popover, Switch],
+  imports: [RouterLink, Icon, SongSheet, AnnotationPanel, Pager, AddToSetlist, SongFolders, IntroPanel, ExportMenu, Metronome, ChordDiagram, PianoDiagram, BassDiagram, Swipe, Popover, Switch],
   templateUrl: './song-view.html',
   styleUrl: './song-view.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -157,6 +159,7 @@ export class SongView {
 
   protected readonly showDiagrams = computed(() => this.settings.settings().showChordDiagrams);
   protected readonly chordStyle = computed(() => this.settings.settings().chordStyle);
+  protected readonly instrument = computed(() => this.settings.settings().instrument ?? 'guitar');
   protected readonly diagram = signal<{ chord: string; left: number; top: number } | null>(null);
 
   private hideDiagramTimer: ReturnType<typeof setTimeout> | undefined;
@@ -173,11 +176,13 @@ export class SongView {
       return;
     }
     const { rect } = hover;
-    const below = rect.bottom + 220 < window.innerHeight;
+    // The piano diagram is wider and lower than the guitar / bass ones.
+    const [width, height] = this.instrument() === 'piano' ? [230, 190] : [150, 216];
+    const below = rect.bottom + height + 4 < window.innerHeight;
     this.diagram.set({
       chord: hover.chord,
-      left: Math.min(Math.max(8, rect.left - 24), window.innerWidth - 150),
-      top: below ? rect.bottom + 6 : rect.top - 216,
+      left: Math.min(Math.max(8, rect.left - 24), window.innerWidth - width),
+      top: below ? rect.bottom + 6 : rect.top - height,
     });
   }
 

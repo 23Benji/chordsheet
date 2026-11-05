@@ -11,6 +11,7 @@ export const DEFAULT_SETTINGS: Settings = {
   showNotes: true,
   accidentals: 'auto',
   collapseRepeats: false,
+  instrument: 'guitar',
 };
 
 /** Global app settings (the settings page arrives in M5). */

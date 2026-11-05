@@ -1,6 +1,7 @@
 import { ChangeDetectionStrategy, Component, computed, input, linkedSignal } from '@angular/core';
 import { chordShapes } from '../core/chord-diagrams';
 import { IT } from '../i18n/it';
+import { DiagramVoicings } from './diagram-voicings';
 
 const STRINGS = 6;
 const FRETS = 4;
@@ -14,6 +15,7 @@ const GAP_Y = (H - TOP - 14) / FRETS;
 /** Guitar chord diagram (SVG): strings vertical, frets horizontal, dots for fingers. */
 @Component({
   selector: 'app-chord-diagram',
+  imports: [DiagramVoicings],
   template: `
     @if (shape(); as s) {
       <figure>
@@ -55,11 +57,7 @@ const GAP_Y = (H - TOP - 14) / FRETS;
           <p class="bass">{{ t.bass(s.bass) }}</p>
         }
         @if (shapes().length > 1) {
-          <div class="voicings" role="group" [attr.aria-label]="t.voicings">
-            <button type="button" (click)="step(-1)" [attr.aria-label]="t.previous">‹</button>
-            <span>{{ t.voicing(index() + 1, shapes().length) }}</span>
-            <button type="button" (click)="step(1)" [attr.aria-label]="t.next">›</button>
-          </div>
+          <app-diagram-voicings [index]="index()" [count]="shapes().length" (step)="step($event)" />
         }
       </figure>
     } @else {
@@ -99,27 +97,6 @@ const GAP_Y = (H - TOP - 14) / FRETS;
       fill: var(--text-muted);
       font-size: 11px;
       text-anchor: middle;
-    }
-    .voicings {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 4px;
-      margin-top: 4px;
-      color: var(--text-muted);
-      font-size: 13px;
-      font-variant-numeric: tabular-nums;
-
-      button {
-        min-width: var(--tap-small);
-        min-height: var(--tap-small);
-        border: none;
-        border-radius: var(--radius-s);
-        background: var(--surface);
-        color: var(--text);
-        font-size: 18px;
-        cursor: pointer;
-      }
     }
     .bass,
     .unknown {

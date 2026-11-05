@@ -1,7 +1,6 @@
 import { ChangeDetectionStrategy, Component, ElementRef, computed, inject, signal, viewChild } from '@angular/core';
 import {
   DEFAULT_KEYMAP,
-  KEY_ACTIONS,
   KeyAction,
   assignKey,
   effectiveKeymap,
@@ -20,117 +19,244 @@ import { Icon } from './icon';
   imports: [Icon],
   template: `
     <dialog #dialog aria-labelledby="keymap-title" (close)="listening.set(null)" (keydown)="onKeydown($event)">
-      <div class="body">
+      <!-- iOS-style sheet: title bar with "Fine", grouped rows that scroll underneath. -->
+      <header class="bar">
         <h2 id="keymap-title">{{ t.title }}</h2>
+        <button type="button" class="done" (click)="close()">{{ t.done }}</button>
+      </header>
+      <div class="content">
         <p class="help">{{ t.help }}</p>
-        <ul>
-          @for (action of actions; track action) {
-            <li>
-              <span class="action">{{ t.actions[action] }}</span>
-              <span class="keys">
-                @for (key of keysOf(action); track key) {
-                  <span class="key">
-                    {{ label(key) }}
-                    <button type="button" class="remove" (click)="remove(key)" [attr.aria-label]="t.remove(label(key))">
-                      <app-icon name="close" />
-                    </button>
-                  </span>
+        @for (group of groups; track group.title) {
+          <h3 class="list-group-title">{{ group.title }}</h3>
+          <div class="list-group">
+            @for (action of group.actions; track action) {
+              <div class="row" [class.listening]="listening() === action">
+                <div class="text">
+                  <span class="action">{{ t.actions[action] }}</span>
+                  @if (listening() === action) {
+                    <span class="prompt" role="status">{{ t.listening }}</span>
+                  } @else {
+                    <span class="keys">
+                      @for (key of keysOf(action); track key) {
+                        <span class="key">
+                          <kbd>{{ label(key) }}</kbd>
+                          <button type="button" class="remove" (click)="remove(key)" [attr.aria-label]="t.remove(label(key))">
+                            <app-icon name="close" />
+                          </button>
+                        </span>
+                      } @empty {
+                        <span class="none">{{ t.none }}</span>
+                      }
+                    </span>
+                  }
+                </div>
+                @if (listening() === action) {
+                  <button type="button" class="btn small" (click)="listening.set(null)">{{ t.cancelListening }}</button>
+                } @else {
+                  <button type="button" class="add" (click)="listen(action)" [attr.aria-label]="t.add(t.actions[action])" [title]="t.add(t.actions[action])">
+                    <app-icon name="plus" />
+                  </button>
                 }
-              </span>
-              <button type="button" class="btn small" [class.listening]="listening() === action" (click)="listening.set(action)">
-                {{ listening() === action ? t.listening : t.add }}
-              </button>
-            </li>
-          }
-        </ul>
+              </div>
+            }
+          </div>
+        }
         @if (warning()) {
           <p class="warning" role="alert">{{ warning() }}</p>
         }
-        <div class="footer">
-          <button type="button" class="btn" (click)="reset()">{{ t.reset }}</button>
-          <button type="button" class="btn btn-primary" (click)="close()">{{ t.done }}</button>
+        <div class="list-group reset-group">
+          <button type="button" class="row reset" (click)="reset()">{{ t.reset }}</button>
         </div>
       </div>
     </dialog>
   `,
   styles: `
     dialog {
-      width: min(560px, 94vw);
+      display: none;
+      flex-direction: column;
+      width: min(520px, 94vw);
+      max-height: min(720px, 88dvh);
       padding: 0;
+      overflow: hidden;
       border: none;
       border-radius: var(--radius-l);
-      background: var(--bg-elev-1);
+      background: var(--bg);
       color: var(--text);
       box-shadow: var(--shadow);
+    }
+    dialog[open] {
+      display: flex;
     }
     dialog::backdrop {
       background: var(--scrim);
     }
-    .body {
-      padding: 24px;
+    .bar {
+      display: flex;
+      flex: none;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 14px 12px 14px 20px;
+      border-bottom: 1px solid var(--border);
+      background: var(--bg-elev-1);
     }
     h2 {
-      font-size: 22px;
+      margin: 0;
+      font-size: 20px;
+    }
+    .done {
+      min-height: var(--tap);
+      padding: 0 12px;
+      border: none;
+      border-radius: var(--radius-s);
+      background: none;
+      color: var(--accent);
+      font: inherit;
+      font-size: 17px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .content {
+      flex: 1;
+      min-height: 0;
+      padding: 4px 16px 24px;
+      overflow-y: auto;
+      overscroll-behavior: contain;
     }
     .help {
+      margin: 12px 4px 0;
       color: var(--text-muted);
+      font-size: 14px;
+      line-height: 1.4;
     }
-    ul {
-      margin: 16px 0;
-      padding: 0;
-      list-style: none;
-    }
-    li {
+    .row {
       display: flex;
-      flex-wrap: wrap;
       align-items: center;
-      gap: 8px;
-      padding: 8px 0;
-      border-bottom: 1px solid var(--border);
+      gap: 12px;
+      width: 100%;
+      min-height: 60px;
+      padding: 10px 10px 10px 16px;
+      border: none;
+      background: none;
+      color: var(--text);
+      font: inherit;
+      text-align: left;
+
+      & + .row {
+        box-shadow: 0 -1px 0 var(--border);
+      }
+      &.listening {
+        background: var(--highlight-amber);
+      }
+    }
+    .text {
+      display: flex;
+      flex: 1;
+      flex-direction: column;
+      gap: 6px;
+      min-width: 0;
     }
     .action {
-      flex: 0 0 11em;
+      font-size: 16px;
+      font-weight: 700;
+    }
+    .prompt {
+      color: var(--accent);
+      font-size: 14px;
       font-weight: 700;
     }
     .keys {
       display: flex;
-      flex: 1;
       flex-wrap: wrap;
       gap: 6px;
     }
+    /* A key cap: rounded, a slightly thicker bottom edge. */
     .key {
       display: inline-flex;
       align-items: center;
-      gap: 2px;
-      padding: 2px 4px 2px 10px;
+      border: 1px solid var(--border);
+      border-bottom-width: 2px;
       border-radius: var(--radius-s);
       background: var(--surface);
-      font-family: var(--font-mono);
+      white-space: nowrap;
+    }
+    kbd {
+      padding: 3px 2px 3px 10px;
+      font-family: var(--font-body);
+      font-size: 14px;
+      font-weight: 700;
     }
     .remove {
       display: inline-flex;
-      padding: 4px;
+      align-items: center;
+      justify-content: center;
+      width: 28px;
+      height: 28px;
       border: none;
       background: none;
       color: var(--text-muted);
       cursor: pointer;
-      font-size: 12px;
+      --icon-size: 14px;
+
+      &:hover {
+        color: var(--coral);
+      }
+    }
+    .none {
+      color: var(--text-muted);
+      font-size: 14px;
+    }
+    .add {
+      display: inline-flex;
+      flex: none;
+      align-items: center;
+      justify-content: center;
+      width: var(--tap);
+      height: var(--tap);
+      border: none;
+      border-radius: 50%;
+      background: var(--highlight-amber);
+      color: var(--accent);
+      cursor: pointer;
+      --icon-size: 20px;
     }
     .small {
+      flex: none;
       min-height: var(--tap-small);
       font-size: 14px;
     }
-    .listening {
-      background: var(--accent);
-      color: var(--accent-ink);
-    }
     .warning {
+      margin: 12px 4px 0;
       color: var(--coral);
+      font-size: 14px;
     }
-    .footer {
-      display: flex;
-      justify-content: space-between;
-      gap: 8px;
+    .reset-group {
+      margin-top: 24px;
+    }
+    .reset {
+      justify-content: center;
+      min-height: 52px;
+      color: var(--coral);
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    /* iPhone: a full-screen page, like iOS settings sheets. */
+    @media (max-width: 600px) {
+      dialog {
+        width: 100%;
+        max-width: 100%;
+        height: 100dvh;
+        max-height: 100dvh;
+        margin: 0;
+        border-radius: 0;
+      }
+      .bar {
+        padding-top: calc(10px + env(safe-area-inset-top) + var(--top-gap));
+      }
+      .content {
+        padding-bottom: calc(24px + env(safe-area-inset-bottom));
+      }
     }
   `,
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -139,7 +265,11 @@ export class KeymapDialog {
   private readonly settings = inject(SettingsService);
   private readonly dialog = viewChild.required<ElementRef<HTMLDialogElement>>('dialog');
   protected readonly t = IT.keymap;
-  protected readonly actions = KEY_ACTIONS;
+  /** Rows grouped like iOS settings: turning pages, then the auto-scroll. */
+  protected readonly groups: { title: string; actions: KeyAction[] }[] = [
+    { title: IT.keymap.groups.pages, actions: ['next', 'prev'] },
+    { title: IT.keymap.groups.scroll, actions: ['autoscroll', 'slower', 'faster'] },
+  ];
   protected readonly label = keyLabel;
 
   private readonly map = computed(() => effectiveKeymap(this.settings.settings().keyboardMap));
@@ -158,6 +288,11 @@ export class KeymapDialog {
 
   protected close(): void {
     this.dialog().nativeElement.close();
+  }
+
+  protected listen(action: KeyAction): void {
+    this.warning.set(null);
+    this.listening.set(action);
   }
 
   protected keysOf(action: KeyAction): string[] {

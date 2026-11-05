@@ -323,6 +323,8 @@ export const IT = {
 
     diagrams: 'Diagrammi degli accordi',
     diagramsHint: 'Passa sopra o tocca un accordo per vedere come si suona',
+    instrument: 'Strumento',
+    instruments: { guitar: 'Chitarra', piano: 'Piano', bass: 'Basso' },
 
     showNotes: 'Le mie note',
     showNotesHint: 'Note, evidenziazioni, assoli e promemoria sui canti',
@@ -470,6 +472,14 @@ export const IT = {
     voicing: (n: number, total: number) => `${n} / ${total}`,
     previous: 'Posizione precedente',
     next: 'Posizione successiva',
+    pianoAria: (chord: string, notes: string) => `Accordo ${chord} al pianoforte: ${notes}`,
+    rootPosition: 'Stato fondamentale',
+    inversion: (n: number) => `${n}º rivolto`,
+    inversions: 'Rivolti',
+    leftHand: (note: string) => `mano sinistra: ${note}`,
+    bassAria: (chord: string, note: string) => `Accordo ${chord} al basso: fondamentale ${note}`,
+    bassRoot: (note: string) => `fondamentale ${note}`,
+    bassOthers: 'quinta e ottava',
   },
 
   setlists: {
@@ -553,20 +563,23 @@ export const IT = {
 
   keymap: {
     title: 'Tasti e pedale',
-    help: 'I pedali Bluetooth (AirTurn, PageFlip…) funzionano come una tastiera. Premi “Aggiungi” e poi il tasto o il pedale da usare.',
+    help: 'Funziona con la tastiera e con i pedali Bluetooth (AirTurn, PageFlip…). Tocca + e poi premi il tasto o il pedale.',
+    groups: { pages: 'Pagine', scroll: 'Scorrimento automatico' },
     actions: {
-      next: 'Avanti',
-      prev: 'Indietro',
-      autoscroll: 'Avvia/ferma scorrimento',
-      slower: 'Scorrimento più lento',
-      faster: 'Scorrimento più veloce',
+      next: 'Pagina avanti',
+      prev: 'Pagina indietro',
+      autoscroll: 'Avvia / ferma',
+      slower: 'Più lento',
+      faster: 'Più veloce',
     },
-    add: 'Aggiungi',
-    listening: 'Premi un tasto…',
+    add: (action: string) => `Aggiungi un tasto per “${action}”`,
+    listening: 'Premi un tasto o il pedale…',
+    cancelListening: 'Annulla',
+    none: 'Nessun tasto',
     remove: (key: string) => `Rimuovi ${key}`,
-    reserved: 'Questo tasto è riservato.',
-    reset: 'Ripristina predefiniti',
-    done: 'Fatto',
+    reserved: 'Questo tasto serve all’app (Esc, Tab, Invio…): scegline un altro.',
+    reset: 'Ripristina i tasti predefiniti',
+    done: 'Fine',
   },
 
   editor: {

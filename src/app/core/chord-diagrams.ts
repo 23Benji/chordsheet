@@ -6,7 +6,7 @@
 // and the shape with the lowest frets wins.
 import { mod12, parseChord } from './transpose';
 
-type Quality =
+export type Quality =
   | '' | 'm' | '7' | 'm7' | 'maj7' | 'sus2' | 'sus4' | '7sus4' | 'add9'
   | '6' | 'm6' | '9' | 'dim' | 'dim7' | 'm7b5' | 'aug' | '5';
 
@@ -62,6 +62,11 @@ const OPEN: Record<string, number[]> = {
   '7:sus4': [3, 3, 0, 0, 1, 3], '7:add9': [3, 0, 0, 2, 0, 3], '7:sus2': [3, 0, 0, 2, 3, 3],
   '11:7': [-1, 2, 1, 2, 0, 2], '5:maj7': [-1, -1, 3, 2, 1, 0], '4:sus2': [0, 2, 4, 4, 0, 0],
 };
+
+/** "m", "min", "-" → 'm' …; undefined for chord types we don't know (e.g. "13#11"). */
+export function chordQuality(suffix: string): Quality | undefined {
+  return QUALITIES[suffix];
+}
 
 export interface ChordShape {
   name: string;
