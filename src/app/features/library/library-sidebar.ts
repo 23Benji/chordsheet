@@ -32,6 +32,7 @@ import { HintBanner } from '../../ui/hint-banner';
 import { FabMenu } from '../../ui/fab-menu';
 import { FolderNameDialog } from '../../ui/folder-name-dialog';
 import { Icon } from '../../ui/icon';
+import { LongPress } from '../../ui/long-press';
 import { ActionSheet, SheetAction } from '../../ui/action-sheet';
 
 type LibraryFilter = 'all' | 'notes';
@@ -39,7 +40,7 @@ type LibrarySort = 'number' | 'title';
 
 @Component({
   selector: 'app-library-sidebar',
-  imports: [RouterLink, NgTemplateOutlet, SelectionBar, Icon, HintBanner, FabMenu, FolderNameDialog, ActionSheet],
+  imports: [RouterLink, NgTemplateOutlet, SelectionBar, Icon, HintBanner, FabMenu, FolderNameDialog, ActionSheet, LongPress],
   templateUrl: './library-sidebar.html',
   styleUrl: './library-sidebar.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -275,6 +276,42 @@ export class LibrarySidebar {
 
   protected toggleAll(): void {
     this.selected.set(this.allSelected() ? new Map() : new Map(this.results().map((s) => [entryKey(s), s])));
+  }
+
+  /**
+   * Long-press (or right-click) on a song: the quick actions of the selection
+   * bar for just this song, like an iOS context menu. It reuses the selection
+   * code by selecting only this song for the moment.
+   */
+  protected async songMenu(song: Song): Promise<void> {
+    const here = this.folder();
+    const choice = await this.sheet().choose(
+      song.title,
+      [
+        { id: 'setlist', label: this.ft.menuSetlist, icon: 'listAdd' },
+        { id: 'folder', label: here ? this.ft.menuFolderHere : this.ft.menuFolder, icon: 'folderPlus' },
+        { id: 'share', label: this.ft.menuShare, icon: 'share' },
+        { id: 'select', label: this.ft.menuSelect, icon: 'circleCheck' },
+        { id: 'delete', label: this.ft.menuDelete, icon: 'trash', danger: true, divider: true },
+      ],
+      this.ft.cancel,
+    );
+    if (!choice) return;
+    if (choice === 'select') {
+      this.startSelecting();
+      this.toggleSelected(song);
+      return;
+    }
+    this.selected.set(new Map([[entryKey(song), song]]));
+    try {
+      if (choice === 'setlist') await this.addSelectedToSetlist();
+      else if (choice === 'folder') await this.folderSelected();
+      else if (choice === 'share') await this.shareSelected();
+      else if (choice === 'delete') await this.deleteSelected();
+    } finally {
+      // Not selecting: don't leave this song ticked for the next time.
+      if (!this.selecting()) this.selected.set(new Map());
+    }
   }
 
   /** Ids of the selected songs and all their versions. */

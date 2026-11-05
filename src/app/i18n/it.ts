@@ -103,6 +103,13 @@ export const IT = {
     barSetlist: 'Scaletta',
     barShare: 'Condividi',
     barDelete: 'Elimina',
+    /** Long-press menu of a song in the library. */
+    menuSetlist: 'Aggiungi a una scaletta',
+    menuFolder: 'Aggiungi a una cartella',
+    menuFolderHere: 'Cartella…',
+    menuShare: 'Condividi',
+    menuSelect: 'Seleziona',
+    menuDelete: 'Elimina',
     removeFrom: (folder: string) => `Togli da “${folder}”`,
     addToSetlistTitle: 'Aggiungi alla scaletta',
     newSetlistEllipsis: 'Nuova scaletta…',

@@ -115,7 +115,7 @@
   <nav class="recent" [attr.aria-label]="t.recent">
     <h2 class="list-group-title">{{ t.recent }}</h2>
     @for (song of recentSongs(); track song.id) {
-      <a class="row" [routerLink]="['/canto', song.id]" (click)="openRecent(search)">
+      <a class="row" [routerLink]="['/canto', song.id]" appLongPress (longPress)="songMenu(song)" (click)="openRecent(search)">
         <ng-container *ngTemplateOutlet="rowContent; context: { $implicit: song }" />
       </a>
     }
@@ -142,6 +142,8 @@
       <a
         class="row"
         [routerLink]="['/canto', song.id]"
+        appLongPress
+        (longPress)="songMenu(song)"
         [class.current]="isCurrent(song)"
         [class.active]="query() !== '' && i === activeIndex()"
         [attr.aria-current]="isCurrent(song) ? 'page' : null"

@@ -349,8 +349,10 @@ From the research list (WCAG contrast, iOS home-screen app conventions, OnSong /
    - [x] `AppErrorHandler` replaces Angular's (which only logs): uncaught errors and unhandled rejections → message + Ricarica, at most every 30 s; "È uscita una nuova versione" when an old page asks for a file that no longer exists; harmless browser events (closed share sheet, late share, ResizeObserver) only logged (`core/errors.ts` + tests)
    - [x] The app can't start (IndexedDB blocked): a plain page "Chordsheet non si è aperto" with what to check and Ricarica, instead of a blank screen
    - [x] Tested in the browser (real error → message; AbortError → nothing; blocked IndexedDB → start page). Toasts now use the screen width on the phone (they were squeezed to half and wrapped into many lines)
-5. **Long-press a song** for quick actions (add to setlist, folder, share, delete), like iOS context menus — library rows, setlist rows
-   - [ ] 
+5. **Long-press a song** for quick actions (add to setlist, folder, share, delete), like iOS context menus
+   - [x] `ui/long-press.ts` (+ tests): finger held 0.5 s (moving = scrolling cancels), or right-click / the system long-press event; no iOS link preview or text selection on hold; the click made by lifting that finger is swallowed (it would open the row, or close the menu that just appeared — found in the browser test), but only that one
+   - [x] Library rows and Recenti: sheet with the song's title — Aggiungi a una scaletta, Aggiungi a una cartella (inside a folder: Cartella…), Condividi, Seleziona, Elimina (with Annulla) — reusing the selection actions for that one song. Setlist rows already open their options on a tap
+   - [x] Tested with a simulated finger (390) and right-click (1280): menu opens, "Aggiungi a una scaletta" works, a quick tap still opens the song. The start-error page now loads only when needed (start-up bundle back under 520 kB)
 6. **Swipe left to delete** on rows (with Annulla), the standard iPhone gesture — setlists list, songs in a setlist
    - [ ] 
 7. **Half-page turn** (forScore's best-loved feature) in performance mode: turning shows the next part in the top half while the bottom half still shows what you're reading, so you can always read ahead. Mainly for laptop/iPad, also on the phone
