@@ -268,5 +268,6 @@ Elsewhere:
 - [x] `services/google-drive.ts` (+ spec): Google sign-in (code flow + PKCE, refresh token kept on the device), one file `chordsheet-sync.json` in Drive's hidden app folder; plain fetch, no library; loaded on demand
 - [x] `SyncService`: sync at start-up, when the app comes back to the front, when back online, 5 s after a change, "Sincronizza ora"; "Esci"
 - [x] Impostazioni → Sincronizzazione (hidden while no client ID is set); screenshots 390 + 1280
-- [ ] Benji: Google Cloud project + OAuth client → client ID + secret in `services/sync-config.ts`
-- [ ] Test on the real devices: sign-in inside the iPhone home-screen app, then laptop ↔ iPhone ↔ iPad
+- [x] Benji: Google Cloud project + OAuth client (ID in `sync-config.ts`, secret as Actions secret)
+- [x] Test on the real devices (Benji: "tutto ok")
+- [x] Impostazioni → "I tuoi dati": Google Drive / Importa (also backups → Unisci/Sostituisci) / Esporta (backup or songs); auto-backup only without sync; storage moved to Informazioni; backup/persist banners off while synced

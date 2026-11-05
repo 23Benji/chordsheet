@@ -205,23 +205,3 @@ label.list-row {
   }
 }
 
-.row-label.accent {
-  color: var(--accent);
-}
-
-// "Sincronizza ora" turns while a sync runs.
-.spinning app-icon {
-  animation: spin 1s linear infinite;
-}
-
-@keyframes spin {
-  to {
-    transform: rotate(360deg);
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .spinning app-icon {
-    animation: none;
-  }
-}

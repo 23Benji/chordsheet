@@ -3,6 +3,7 @@ import { daysAgo, shouldRemindBackup, snoozeUntil } from '../core/backup-reminde
 import { currentPlatform, shouldShowInstallHint } from '../core/platform';
 import { IT } from '../i18n/it';
 import { BackupService } from '../services/backup.service';
+import { SyncService } from '../services/sync.service';
 import { LibraryService } from '../services/library.service';
 import { ToastService } from '../services/toast.service';
 import { Icon } from './icon';
@@ -84,6 +85,7 @@ type Hint = 'install' | 'backup' | 'persist';
 export class HintBanner implements OnInit {
   private readonly library = inject(LibraryService);
   private readonly backup = inject(BackupService);
+  private readonly sync = inject(SyncService);
   private readonly toast = inject(ToastService);
   protected readonly t = IT.hints;
   private readonly snoozedUntil = signal<number | undefined>(readSnooze());
@@ -95,6 +97,8 @@ export class HintBanner implements OnInit {
   protected readonly hint = computed<Hint | null>(() => {
     if (this.library.isEmpty()) return null;
     if (this.installHint && !this.dismissed().includes('install')) return 'install';
+    // Signed in to Google: Drive keeps a copy of everything, no need to nag about backups.
+    if (this.sync.state() !== 'off') return null;
     if (this.backupDue()) return 'backup';
     if (!this.installHint && !this.persisted() && !this.dismissed().includes('persist')) return 'persist';
     return null;

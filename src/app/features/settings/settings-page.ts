@@ -13,6 +13,7 @@ import { LibraryService } from '../../services/library.service';
 import { SettingsService } from '../../services/settings.service';
 import { SyncService } from '../../services/sync.service';
 import { ToastService } from '../../services/toast.service';
+import { ActionSheet } from '../../ui/action-sheet';
 import { ConfirmDialog } from '../../ui/confirm-dialog';
 import { FolderPicker } from '../../ui/folder-picker';
 import { Icon } from '../../ui/icon';
@@ -27,7 +28,7 @@ const FONT_MAX = 1.6;
 /** Settings as grouped rows: icon · what it does · control on the right. */
 @Component({
   selector: 'app-settings-page',
-  imports: [RouterLink, Icon, ConfirmDialog, KeymapDialog, Switch, SidebarToggle, FolderPicker],
+  imports: [RouterLink, Icon, ConfirmDialog, KeymapDialog, Switch, SidebarToggle, FolderPicker, ActionSheet],
   templateUrl: './settings-page.html',
   styleUrl: './settings-page.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -40,6 +41,8 @@ export class SettingsPage implements OnInit {
   private readonly importer = inject(ImportService);
   private readonly folders = inject(FolderService);
   protected readonly sync = inject(SyncService);
+  /** Signed in to Google on this device: Drive keeps a copy, so backup reminders/options step back. */
+  protected readonly synced = computed(() => this.sync.state() !== 'off');
   protected readonly lastSync = computed(() => {
     const at = this.sync.lastSyncAt();
     return at ? daysAgo(at, Date.now()) : null;
@@ -49,6 +52,7 @@ export class SettingsPage implements OnInit {
   protected readonly it = IT.importFiles;
   protected readonly songsAccept = songImportAccept(currentPlatform(), IT.importFiles.accept);
   private readonly dialog = viewChild.required(ConfirmDialog);
+  private readonly sheet = viewChild.required(ActionSheet);
   private readonly keymap = viewChild.required(KeymapDialog);
   private readonly restoreDialog = viewChild.required<ElementRef<HTMLDialogElement>>('restoreDialog');
   protected readonly t = IT.settings;
@@ -88,8 +92,16 @@ export class SettingsPage implements OnInit {
   protected async chooseSongs(input: HTMLInputElement): Promise<void> {
     const list = input.files;
     if (!list?.length) return;
+    const name = list[0].name;
     const files = await this.importer.read(list);
     input.value = '';
+    if (!files.songs.length && files.backups.length === 1) {
+      // A backup: ask whether to add it to what is here or to replace everything.
+      this.restoreError.set(null);
+      this.pendingRestore.set({ name, json: files.backups[0] });
+      this.restoreDialog().nativeElement.showModal();
+      return;
+    }
     if (!files.songs.length) {
       // Only backups (or unknown files): nothing to file in a folder.
       await this.runImport(files, 'skip');
@@ -118,7 +130,7 @@ export class SettingsPage implements OnInit {
     }
   }
 
-  protected async shareSongs(): Promise<void> {
+  private async shareSongs(): Promise<void> {
     const json = JSON.stringify(createSongbookFile(this.library.songs()));
     await shareOrDownload(songbookFileName(), json);
   }
@@ -132,25 +144,38 @@ export class SettingsPage implements OnInit {
     this.set('fontScale', Math.min(FONT_MAX, Math.max(FONT_MIN, next)));
   }
 
-  protected async syncOut(): Promise<void> {
-    if (await this.dialog().ask({ ...this.t.confirmSyncOut })) await this.sync.signOut();
+  /** The Google Drive row: sign in, or (when connected) "Sincronizza ora" / "Esci". */
+  protected async syncRow(): Promise<void> {
+    const state = this.sync.state();
+    if (state === 'off' || state === 'expired') return this.sync.signIn();
+    const choice = await this.sheet().choose(
+      this.t.syncAccount(this.sync.email()),
+      [
+        { id: 'now', label: this.t.syncNow, icon: 'refresh' },
+        { id: 'out', label: this.t.syncOut, icon: 'logOut', danger: true, divider: true },
+      ],
+      this.t.cancel,
+    );
+    if (choice === 'now') await this.sync.sync();
+    if (choice === 'out' && (await this.dialog().ask({ ...this.t.confirmSyncOut }))) await this.sync.signOut();
+  }
+
+  /** "Esporta": a full backup (to keep) or only the songs (to share, without personal notes). */
+  protected async exportMenu(): Promise<void> {
+    const choice = await this.sheet().choose(
+      this.t.exportAll,
+      [
+        { id: 'backup', label: this.t.exportBackup, icon: 'fileDown' },
+        { id: 'songs', label: this.t.exportSongs, icon: 'share' },
+      ],
+      this.t.cancel,
+    );
+    if (choice === 'backup') await this.backup.export();
+    if (choice === 'songs') await this.shareSongs();
   }
 
   protected openKeys(): void {
     this.keymap().open();
-  }
-
-  protected exportBackup(): Promise<void> {
-    return this.backup.export();
-  }
-
-  protected async chooseBackup(input: HTMLInputElement): Promise<void> {
-    const file = input.files?.[0];
-    input.value = '';
-    if (!file) return;
-    this.restoreError.set(null);
-    this.pendingRestore.set({ name: file.name, json: await file.text() });
-    this.restoreDialog().nativeElement.showModal();
   }
 
   protected closeRestore(): void {
