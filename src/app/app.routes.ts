@@ -29,6 +29,11 @@ export const routes: Routes = [
     loadComponent: () => import('./features/setlists/setlists-page').then((m) => m.SetlistsPage),
   },
   {
+    // Before 'scalette/:id', or "statistiche" would be read as a setlist id.
+    path: 'scalette/statistiche',
+    loadComponent: () => import('./features/setlists/stats-page').then((m) => m.StatsPage),
+  },
+  {
     path: 'scalette/:id',
     loadComponent: () => import('./features/setlists/setlist-page').then((m) => m.SetlistPage),
   },

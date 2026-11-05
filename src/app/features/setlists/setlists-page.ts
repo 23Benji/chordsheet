@@ -30,6 +30,7 @@ export class SetlistsPage {
   protected readonly t = IT.setlists;
   protected readonly settingsLabel = IT.settings.link;
   protected readonly formatDate = formatSetlistDate;
+  protected readonly st = IT.stats;
 
   protected readonly creating = signal(false);
   protected readonly importError = signal<string | null>(null);

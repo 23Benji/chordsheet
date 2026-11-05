@@ -303,7 +303,7 @@ In this order, one at a time (build + tests + screenshots + push after each):
    - [x] Bass (E1 A1 D2 G2, 8192-sample window) with a Chitarra / Basso switch, remembered
    - [x] Also reachable from Impostazioni → Esibizione → Accordatore (discreet, always there)
 
-## 1.33 — Small upgrades + statistics (Benji, 2026-11-05)
+## 1.33 — Small upgrades + statistics (Benji, 2026-11-05) ✓
 
 Benji: "I don't think more features are wise to add" — small improvements to what is there, plus one thing for his Sundays. One at a time, carefully; **one version for the whole batch** (commit each item, push once at the end).
 
@@ -326,7 +326,10 @@ Benji: "I don't think more features are wise to add" — small improvements to w
 6. **"Automatico" theme**: follows the iPhone's light/dark mode
    - [x] Tile "Auto" (half Chiaro, half Scuro) first among the themes: Chiaro by day, Scuro when the system is in dark mode, switching live (`SettingsService.theme`, `resolveTheme` + tests); phone: tiles in two rows of three
    - [x] Screenshots 390 + 1280 with the system in light and dark mode
-7. **Statistiche** from the setlists (Benji makes a new scaletta every Sunday): which songs are sung most, which parts of the songbook (1–50, 51–100, 100+…), which numbers — with charts. Not a new button: an option inside Scalette ("Statistiche" in its ⋯ menu). "Maybe not everyone will use it", so it stays out of the way.
-   - [ ] 
+7. **Statistiche** from the setlists (Benji makes a new scaletta every Sunday): which songs are sung most, which parts of the songbook (1–50, 51–100, 100+…), which numbers — with charts. Not a new button: an option inside Scalette. "Maybe not everyone will use it", so it stays out of the way.
+   - [x] `core/setlist-stats.ts` (+ tests): a song counts once per setlist, versions of a number together, a setlist's day = its date (else created), deleted songs skipped; most sung (with the last time), parts of the songbook by 25 numbers (times sung, songs sung of how many; gaps in the numbering left out), never sung; periods Sempre / 12 mesi / 3 mesi
+   - [x] `/scalette/statistiche`: three numbers (scalette, canti diversi, mai cantati), ranked bars (top 10 + Mostra tutti, each opens the song), columns by number range + the same numbers as a table, "Mai cantati" list that opens
+   - [x] Entry: a quiet row "Statistiche" under the setlists (only with ≥ 2 setlists), no header button
+   - [x] One colour (the theme's accent, contrast ≥ 3:1 on every theme checked with the dataviz validator), numbers written on the marks, table under the columns; screenshots 390 + 1280, dark and light, with 24 sample Sundays
 
 Ideas noted for later: service plan items in setlists (Preghiera, Lettura…), lyrics on the church projector, song history ("suonato 3 settimane fa"), key-jump warnings in setlists, tuner: keep the screen awake + steadier "Accordata", reopen the app on the last song, reference recording per song, song version history.

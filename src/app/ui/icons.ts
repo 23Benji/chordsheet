@@ -84,6 +84,7 @@ export const ICONS = {
   folderMinus: [["path", {"d": "M9 13h6"}], ["path", {"d": "M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.69-.9L9.6 3.9A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2Z"}]],
   folderInput: [["path", {"d": "M2 9V5a2 2 0 0 1 2-2h3.9a2 2 0 0 1 1.69.9l.81 1.2a2 2 0 0 0 1.67.9H20a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2v-1"}], ["path", {"d": "M2 13h10"}], ["path", {"d": "m9 16 3-3-3-3"}]],
   circle: [["circle", {"cx": "12", "cy": "12", "r": "10"}]],
+  chart: [["path", {"d": "M3 3v16a2 2 0 0 0 2 2h16"}], ["path", {"d": "M18 17V9"}], ["path", {"d": "M13 17V5"}], ["path", {"d": "M8 17v-3"}]],
   circleCheck: [["circle", {"cx": "12", "cy": "12", "r": "10"}], ["path", {"d": "m9 12 2 2 4-4"}]],
 } satisfies Record<string, IconNode[]>;
 

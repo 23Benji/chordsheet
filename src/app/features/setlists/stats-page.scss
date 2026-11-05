@@ -1,0 +1,320 @@
+:host {
+  display: block;
+  height: 100%;
+  overflow-y: auto;
+}
+
+.page {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: calc(max(var(--space-5), env(safe-area-inset-top)) + var(--top-gap)) var(--page-x) var(--space-12);
+}
+
+.top {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  margin-left: calc(-1 * var(--space-2));
+
+  h1 {
+    font-size: 30px;
+  }
+}
+
+section {
+  margin-top: var(--space-6);
+}
+
+.hint,
+.span,
+.muted {
+  margin: 0 var(--space-1) var(--space-3);
+  color: var(--text-muted);
+  font-size: 14px;
+}
+
+.center {
+  margin-top: var(--space-6);
+  text-align: center;
+}
+
+// ── Period ────────────────────────────────────────────────────────────────────
+
+.segmented {
+  display: flex;
+  gap: 2px;
+  max-width: 360px;
+  margin: var(--space-4) 0 var(--space-2);
+  padding: var(--space-1);
+  border-radius: var(--radius-m);
+  background: var(--surface);
+
+  button {
+    flex: 1;
+    min-height: calc(var(--tap) - 6px);
+    padding: 0 var(--space-3);
+    border: none;
+    border-radius: var(--radius-s);
+    background: transparent;
+    color: var(--text-muted);
+    font: inherit;
+    font-weight: 700;
+    cursor: pointer;
+
+    &.selected {
+      background: var(--bg-elev-1);
+      color: var(--accent);
+      box-shadow: 0 1px 2px rgb(0 0 0 / 25%);
+    }
+  }
+}
+
+// ── Headline numbers ──────────────────────────────────────────────────────────
+
+.tiles {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--space-2);
+  margin: var(--space-3) 0 0;
+}
+
+.tile {
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-l);
+  background: var(--bg-elev-1);
+
+  dt {
+    color: var(--text-muted);
+    font-size: 13px;
+  }
+
+  dd {
+    margin: var(--space-1) 0 0;
+    color: var(--text);
+    font-family: var(--font-body);
+    font-size: 30px;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+    line-height: 1.1;
+  }
+}
+
+// ── I più cantati: ranked bars ────────────────────────────────────────────────
+
+.ranking,
+.never-list {
+  margin: 0;
+  padding: var(--space-1);
+  border-radius: var(--radius-l);
+  background: var(--bg-elev-1);
+  list-style: none;
+}
+
+.rank-row,
+.never-row {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-3);
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-m);
+  color: var(--text);
+  text-decoration: none;
+
+  &:hover {
+    background: var(--surface);
+  }
+
+  .pill {
+    flex: none;
+    min-width: 3.1em;
+    margin-top: 2px;
+    font-size: 14px;
+  }
+}
+
+.never-row {
+  align-items: center;
+
+  .pill {
+    margin-top: 0;
+  }
+}
+
+.rank-text {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: var(--space-1);
+  min-width: 0;
+}
+
+.rank-title {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.bar-line {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+// Thin bar, rounded only at its end (it grows from the left edge).
+.bar {
+  height: 8px;
+  border-radius: 0 4px 4px 0;
+  background: var(--accent);
+}
+
+.value {
+  flex: none;
+  color: var(--text);
+  font-size: 14px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.rank-last {
+  color: var(--text-muted);
+  font-size: 12px;
+}
+
+.more {
+  margin: var(--space-2) var(--space-1) 0;
+  padding: 0;
+  border: none;
+  background: none;
+  color: var(--accent);
+  font: inherit;
+  font-size: 15px;
+  cursor: pointer;
+}
+
+// ── Parti dell'innario: columns ───────────────────────────────────────────────
+
+.columns {
+  display: flex;
+  align-items: stretch;
+  gap: var(--space-1);
+  height: 180px;
+  padding: var(--space-4) var(--space-2) 0;
+  border-radius: var(--radius-l) var(--radius-l) 0 0;
+  background: var(--bg-elev-1);
+}
+
+.col {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-width: 0;
+
+  &:hover .col-bar {
+    opacity: 0.8;
+  }
+}
+
+// The plot area: the bar stands on the baseline at --h of its height, and
+// its value rides just above the cap (room for it above the tallest bar).
+.plot {
+  position: relative;
+  flex: 1;
+  margin-top: 20px;
+}
+
+.col-bar {
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  width: min(24px, 70%);
+  height: var(--h);
+  border-radius: 4px 4px 0 0;
+  background: var(--accent);
+  transform: translateX(-50%);
+}
+
+.col-value {
+  position: absolute;
+  bottom: calc(var(--h) + 4px);
+  left: 0;
+  right: 0;
+  color: var(--text-muted);
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+  text-align: center;
+
+  &.strong {
+    color: var(--text);
+    font-weight: 700;
+  }
+}
+
+.col-label {
+  padding: var(--space-1) 0 var(--space-2);
+  border-top: 1px solid var(--border);
+  width: 100%;
+  color: var(--text-muted);
+  font-size: 11px;
+  line-height: 1.25;
+  text-align: center;
+}
+
+.parts {
+  width: 100%;
+  margin-bottom: var(--space-3);
+  border-collapse: collapse;
+  border-radius: 0 0 var(--radius-l) var(--radius-l);
+  background: var(--bg-elev-1);
+  font-size: 14px;
+  font-variant-numeric: tabular-nums;
+
+  th,
+  td {
+    padding: var(--space-2) var(--space-4);
+    border-top: 1px solid var(--border);
+    text-align: left;
+  }
+
+  thead th {
+    color: var(--text-muted);
+    font-size: 12px;
+    font-weight: 700;
+  }
+
+  tbody th {
+    font-weight: 400;
+  }
+
+  .num {
+    text-align: right;
+  }
+}
+
+// ── Mai cantati ───────────────────────────────────────────────────────────────
+
+.never summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: var(--tap);
+  cursor: pointer;
+  list-style: none;
+
+  &::-webkit-details-marker {
+    display: none;
+  }
+
+  .list-group-title {
+    margin: 0 var(--space-1);
+  }
+
+  .caret {
+    margin-right: var(--space-2);
+    color: var(--text-muted);
+    transition: transform 0.15s;
+  }
+}
+
+.never[open] .caret {
+  transform: rotate(180deg);
+}

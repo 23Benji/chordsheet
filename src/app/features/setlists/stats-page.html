@@ -1,0 +1,154 @@
+<div class="page">
+  <nav class="top">
+    <a class="btn icon-btn back" routerLink="/scalette" [attr.aria-label]="t.back" [title]="t.back"><app-icon name="chevronLeft" /></a>
+    <h1>{{ t.title }}</h1>
+  </nav>
+
+  @if (!hasSetlists()) {
+    <div class="empty-state">
+      <span class="empty-icon"><app-icon name="chart" /></span>
+      <h2>{{ t.emptyTitle }}</h2>
+      <p>{{ t.empty }}</p>
+    </div>
+  } @else {
+    @let s = stats();
+
+    <div class="segmented" role="radiogroup" [attr.aria-label]="t.period">
+      @for (p of periods; track p) {
+        <button type="button" role="radio" [class.selected]="period() === p" [attr.aria-checked]="period() === p" (click)="setPeriod(p)">
+          {{ t.periods[p] }}
+        </button>
+      }
+    </div>
+
+    @if (s.from && s.to) {
+      <p class="span">{{ t.range(day(s.from), day(s.to)) }}</p>
+    }
+
+    <!-- Three headline numbers. -->
+    <dl class="tiles">
+      <div class="tile">
+        <dt>{{ t.setlists }}</dt>
+        <dd>{{ s.setlists }}</dd>
+      </div>
+      <div class="tile">
+        <dt>{{ t.distinct }}</dt>
+        <dd>{{ s.distinct }}</dd>
+      </div>
+      <div class="tile">
+        <dt>{{ t.never }}</dt>
+        <dd>{{ s.neverSung.length }}</dd>
+      </div>
+    </dl>
+
+    @if (!s.setlists) {
+      <p class="muted center">{{ t.emptyPeriod }}</p>
+    } @else {
+      <!-- Ranked bars: one per song, longest = most sung; the count is written at the tip. -->
+      <section>
+        <h2 class="list-group-title">{{ t.top }}</h2>
+        <p class="hint">{{ t.topHint }}</p>
+        <ol class="ranking">
+          @for (row of top(); track row.song.id) {
+            <li>
+              <a class="rank-row" [routerLink]="['/canto', row.song.id]" [title]="t.last(day(row.last))">
+                @if (row.song.number !== null) {
+                  <span class="pill">{{ numberLabel(row.song) }}</span>
+                } @else {
+                  <span class="pill pill-secondary">–</span>
+                }
+                <span class="rank-text">
+                  <span class="rank-title">{{ row.song.title }}</span>
+                  <span class="bar-line">
+                    <span class="bar" [style.width.%]="percent(row.count, maxCount())"></span>
+                    <span class="value" [attr.aria-label]="t.times(row.count)">{{ t.timesShort(row.count) }}</span>
+                  </span>
+                  <span class="rank-last">{{ t.last(day(row.last)) }}</span>
+                </span>
+              </a>
+            </li>
+          }
+        </ol>
+        @if (s.songs.length > 10) {
+          <button type="button" class="btn link more" (click)="showAll.set(!showAll())">
+            {{ showAll() ? t.showLess : t.showAll(s.songs.length) }}
+          </button>
+        }
+      </section>
+
+      @if (s.ranges.length > 1) {
+        <!-- Columns by number range; the same numbers are in the table under it. -->
+        <section>
+          <h2 class="list-group-title">{{ t.parts }}</h2>
+          <p class="hint">{{ t.partsHint }}</p>
+          <div class="columns" aria-hidden="true">
+            @for (r of s.ranges; track r.from) {
+              <div
+                class="col"
+                [style.--h]="(r.plays ? percent(r.plays, maxPlays()) : 0) + '%'"
+                [title]="r.from + '–' + r.to + ': ' + t.times(r.plays) + ' · ' + t.sung + ' ' + t.sungOf(r.sung, r.total)"
+              >
+                <span class="plot">
+                  <span class="col-bar"></span>
+                  <span class="col-value" [class.strong]="r === topRange()">{{ r.plays }}</span>
+                </span>
+                <!-- Two lines, so seven or eight parts still fit side by side on a phone. -->
+                <span class="col-label">{{ r.from }}<br />–{{ r.to }}</span>
+              </div>
+            }
+          </div>
+          <table class="parts">
+            <caption class="visually-hidden">{{ t.partsTable }}</caption>
+            <thead>
+              <tr>
+                <th scope="col">{{ t.numbers }}</th>
+                <th scope="col" class="num">{{ t.plays }}</th>
+                <th scope="col" class="num">{{ t.sung }}</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (r of s.ranges; track r.from) {
+                <tr>
+                  <th scope="row">{{ r.from }}–{{ r.to }}</th>
+                  <td class="num">{{ r.plays }}</td>
+                  <td class="num">{{ t.sungOf(r.sung, r.total) }}</td>
+                </tr>
+              }
+            </tbody>
+          </table>
+          @if (s.unnumberedPlays) {
+            <p class="hint">{{ t.unnumbered(s.unnumberedPlays) }}</p>
+          }
+        </section>
+      }
+    }
+
+    <section>
+      @if (s.neverSung.length) {
+        <details class="never">
+          <summary>
+            <span class="list-group-title">{{ t.neverTitle(s.neverSung.length) }}</span>
+            <app-icon name="chevronDown" class="caret" />
+          </summary>
+          <p class="hint">{{ t.neverHint }}</p>
+          <ul class="never-list">
+            @for (song of s.neverSung; track song.id) {
+              <li>
+                <a class="never-row" [routerLink]="['/canto', song.id]">
+                  @if (song.number !== null) {
+                    <span class="pill pill-secondary">{{ numberLabel(song) }}</span>
+                  } @else {
+                    <span class="pill pill-secondary">–</span>
+                  }
+                  <span class="rank-title">{{ song.title }}</span>
+                </a>
+              </li>
+            }
+          </ul>
+        </details>
+      } @else if (s.setlists) {
+        <p class="hint">{{ t.allSung }}</p>
+      }
+    </section>
+  }
+</div>

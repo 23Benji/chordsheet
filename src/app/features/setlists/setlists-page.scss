@@ -163,3 +163,36 @@
     flex: 1 1 100%;
   }
 }
+
+// "Statistiche": a quiet row under the setlists (useful, but not for everyone).
+.stats-link {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  margin-top: var(--space-4);
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-l);
+  color: var(--text-muted);
+  text-decoration: none;
+
+  &:hover {
+    background: var(--surface);
+  }
+
+  .chev {
+    margin-left: auto;
+  }
+}
+
+.stats-text {
+  display: flex;
+  flex-direction: column;
+}
+
+.stats-label {
+  color: var(--text);
+}
+
+.stats-hint {
+  font-size: 13px;
+}

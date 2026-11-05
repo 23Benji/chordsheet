@@ -74,6 +74,15 @@
       }
     }
   </ul>
+
+  @if (service.setlists().length >= 2) {
+    <!-- Quiet on purpose: a row under the list, not a button in the header. -->
+    <a class="stats-link" routerLink="/scalette/statistiche">
+      <app-icon name="chart" />
+      <span class="stats-text"><span class="stats-label">{{ st.link }}</span><span class="stats-hint">{{ st.linkHint }}</span></span>
+      <app-icon name="chevronRight" class="chev" />
+    </a>
+  }
 </div>
 
 <app-share-setlist-sheet />
