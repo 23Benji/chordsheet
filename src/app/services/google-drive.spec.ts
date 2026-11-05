@@ -17,20 +17,21 @@ describe('DriveClient', () => {
   it('gets an access token once, then reads and writes the sync file in the hidden app folder', async () => {
     const { fn, calls } = fakeFetch((url, init) => {
       if (url.includes('oauth2.googleapis.com/token')) return json({ access_token: 'tok', expires_in: 3600 });
-      if (url.includes('/upload/') && init.method === 'POST') return json({ id: 'new-file' });
-      if (url.includes('/upload/')) return json({});
+      if (url.includes('/upload/') && init.method === 'POST') return json({ id: 'new-file', version: '1' });
+      if (url.includes('/upload/')) return json({ id: 'new-file', version: '2' });
       if (url.includes('alt=media')) return new Response('{"x":1}');
       return json({ files: [] });
     });
     const drive = new DriveClient({ refreshToken: 'refresh', email: null }, fn);
 
     expect(await drive.findFile()).toBeNull();
-    expect(await drive.upload(null, '{}')).toBe('new-file');
-    expect(await drive.upload('new-file', '{"a":1}')).toBe('new-file');
+    expect(await drive.upload(null, '{}')).toEqual({ id: 'new-file', version: '1' });
+    expect(await drive.upload('new-file', '{"a":1}')).toEqual({ id: 'new-file', version: '2' });
     expect(await drive.download('new-file')).toBe('{"x":1}');
 
     expect(calls.filter((c) => c.url.includes('/token')).length).toBe(1); // token reused
     expect(calls[1].url).toContain('spaces=appDataFolder');
+    expect(decodeURIComponent(calls[1].url)).toContain('files(id,version)');
     const create = calls.find((c) => c.init.method === 'POST' && c.url.includes('/upload/'))!;
     expect(String(create.init.body)).toContain('"parents":["appDataFolder"]');
     expect((create.init.headers as Record<string, string>)['Authorization']).toBe('Bearer tok');

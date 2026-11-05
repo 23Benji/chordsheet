@@ -24,6 +24,12 @@ const FILE_NAME = 'chordsheet-sync.json';
 /** Survives the trip to Google and back (localStorage: on iPhone the trip may change tab). */
 const PENDING_KEY = 'chordsheet.oauthPending';
 
+export interface DriveFile {
+  id: string;
+  /** Drive's change counter for the file (a number sent as a string). */
+  version: string;
+}
+
 export interface GoogleAuth {
   refreshToken: string;
   email: string | null;
@@ -153,26 +159,31 @@ export class DriveClient {
     return response;
   }
 
-  /** The sync file's id, or null when no device has synced yet. */
-  async findFile(): Promise<string | null> {
-    const q = new URLSearchParams({ spaces: 'appDataFolder', q: `name = '${FILE_NAME}'`, fields: 'files(id)', pageSize: '1' });
-    const { files } = (await (await this.call(`${FILES_URL}?${q}`)).json()) as { files: { id: string }[] };
-    return files[0]?.id ?? null;
+  /**
+   * The sync file (id + version), or null when no device has synced yet.
+   * Drive raises `version` on every change: comparing it with the version of
+   * the last sync tells us whether another device wrote — a tiny request
+   * instead of downloading the whole file.
+   */
+  async findFile(): Promise<DriveFile | null> {
+    const q = new URLSearchParams({ spaces: 'appDataFolder', q: `name = '${FILE_NAME}'`, fields: 'files(id,version)', pageSize: '1' });
+    const { files } = (await (await this.call(`${FILES_URL}?${q}`)).json()) as { files: DriveFile[] };
+    return files[0] ?? null;
   }
 
   async download(id: string): Promise<string> {
     return (await this.call(`${FILES_URL}/${id}?alt=media`)).text();
   }
 
-  /** Creates the file (id null) or replaces its content; returns the id. */
-  async upload(id: string | null, json: string): Promise<string> {
+  /** Creates the file (id null) or replaces its content; returns its id and new version. */
+  async upload(id: string | null, json: string): Promise<DriveFile> {
     if (id) {
-      await this.call(`${UPLOAD_URL}/${id}?uploadType=media`, {
+      const response = await this.call(`${UPLOAD_URL}/${id}?uploadType=media&fields=id,version`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: json,
       });
-      return id;
+      return response.json();
     }
     // New file: metadata (name, hidden folder) and content in one "multipart" request.
     const boundary = `chordsheet${randomString()}`;
@@ -180,12 +191,12 @@ export class DriveClient {
     const body =
       `--${boundary}\r\nContent-Type: application/json; charset=UTF-8\r\n\r\n${metadata}\r\n` +
       `--${boundary}\r\nContent-Type: application/json\r\n\r\n${json}\r\n--${boundary}--`;
-    const response = await this.call(`${UPLOAD_URL}?uploadType=multipart&fields=id`, {
+    const response = await this.call(`${UPLOAD_URL}?uploadType=multipart&fields=id,version`, {
       method: 'POST',
       headers: { 'Content-Type': `multipart/related; boundary=${boundary}` },
       body,
     });
-    return ((await response.json()) as { id: string }).id;
+    return response.json();
   }
 
   /** "Esci": tells Google to forget this device's sign-in (best effort). */

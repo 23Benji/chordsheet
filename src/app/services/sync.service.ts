@@ -26,6 +26,10 @@ export type SyncState = 'off' | 'idle' | 'syncing' | 'error' | 'expired';
 const AUTH = 'syncAuth';
 const BASE = 'syncBase';
 const LAST = 'syncLastAt';
+/** Drive version of the cloud file at the last sync. */
+const VERSION = 'syncRemoteVersion';
+/** While the app is open, look for changes from other devices this often. */
+const POLL_MS = 30_000;
 /** Wait this long after the last change before syncing (typing a note = many changes). */
 const CHANGE_DELAY_MS = 5000;
 /** When the app comes back to the front, sync again if the last sync is older than this. */
@@ -74,6 +78,12 @@ export class SyncService {
       if (document.visibilityState === 'visible' && Date.now() - (this.lastSyncAt() ?? 0) > RESUME_AFTER_MS) void this.sync();
     });
     window.addEventListener('online', () => void this.sync());
+    // No server can tell us that another device changed something, so while
+    // the app is on screen we ask Drive every 30 s (a tiny request; the file
+    // is only downloaded when its version changed).
+    setInterval(() => {
+      if (document.visibilityState === 'visible' && navigator.onLine) void this.sync();
+    }, POLL_MS);
   }
 
   /** At start-up: finish a sign-in that just came back from Google, then sync in the background. */
@@ -85,7 +95,7 @@ export class SyncService {
         const fresh = await google.finishSignIn();
         if (fresh) {
           await this.db.kv.put({ key: AUTH, value: fresh });
-          await this.db.kv.delete(BASE); // new account: first sync again
+          await Promise.all([BASE, VERSION].map((key) => this.db.kv.delete(key))); // new account: first sync again
         }
       } catch {
         this.signInError.set(true);
@@ -113,7 +123,7 @@ export class SyncService {
     this.auth = null;
     this.drive = null;
     this.fileId = null;
-    await Promise.all([AUTH, BASE, LAST].map((key) => this.db.kv.delete(key)));
+    await Promise.all([AUTH, BASE, LAST, VERSION].map((key) => this.db.kv.delete(key)));
     this.email.set(null);
     this.lastSyncAt.set(null);
     this.state.set('off');
@@ -143,14 +153,23 @@ export class SyncService {
   }
 
   private async run(): Promise<void> {
-    this.state.set('syncing');
     try {
       const [{ EMPTY_SYNC_DATA, sameSyncData, syncMerge, toSyncData }, { createBackup, parseBackup }, google] = await loadSyncCode();
       const drive = (this.drive ??= new google.DriveClient(this.auth!));
-      this.fileId ??= await drive.findFile();
-      const remote: SyncData = this.fileId ? toSyncData(parseBackup(await drive.download(this.fileId))) : EMPTY_SYNC_DATA;
+      const file = await drive.findFile();
       const base = ((await this.db.kv.get(BASE))?.value as SyncData | undefined) ?? null;
       const local = toSyncData(await this.backup.readAll());
+      const lastVersion = (await this.db.kv.get(VERSION))?.value as string | undefined;
+      if (file && base && file.version === lastVersion && sameSyncData(local, base)) {
+        // Nobody changed anything since the last sync: nothing to download or upload.
+        await this.done(Date.now());
+        return;
+      }
+      // Only now show "Sincronizzazione…": the 30-second checks stay invisible.
+      this.state.set('syncing');
+      this.fileId = file?.id ?? null;
+      const remote: SyncData = this.fileId ? toSyncData(parseBackup(await drive.download(this.fileId))) : EMPTY_SYNC_DATA;
+      let version = file?.version;
       const { data, renamed } = syncMerge(base, local, remote);
 
       if (!sameSyncData(data, local)) {
@@ -164,16 +183,22 @@ export class SyncService {
       }
       if (!this.fileId || !sameSyncData(data, remote)) {
         // The file is a normal backup file (without settings): it can also be imported by hand.
-        this.fileId = await drive.upload(this.fileId, JSON.stringify(createBackup({ ...data, settings: null })));
+        const uploaded = await drive.upload(this.fileId, JSON.stringify(createBackup({ ...data, settings: null })));
+        this.fileId = uploaded.id;
+        version = uploaded.version;
       }
-      const now = Date.now();
       await this.db.kv.put({ key: BASE, value: data });
-      await this.db.kv.put({ key: LAST, value: now });
-      this.lastSyncAt.set(now);
-      this.state.set('idle');
+      await this.db.kv.put({ key: VERSION, value: version });
+      await this.done(Date.now());
     } catch (error) {
       this.state.set(error instanceof Error && error.message === 'sign-in-required' ? 'expired' : 'error');
     }
+  }
+
+  private async done(now: number): Promise<void> {
+    this.lastSyncAt.set(now);
+    this.state.set('idle');
+    await this.db.kv.put({ key: LAST, value: now });
   }
 
   /** The open song got the id used by the other devices: keep it open. */
