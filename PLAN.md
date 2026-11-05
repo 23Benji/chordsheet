@@ -337,7 +337,8 @@ Benji: "I don't think more features are wise to add" — small improvements to w
 From the research list (WCAG contrast, iOS home-screen app conventions, OnSong / forScore / SongbookPro). One at a time; one version for the batch.
 
 1. **Contrast in the light themes**: grey hints and orange links reach only 3.1–4.1:1 in Chiaro (Carta similar); small text needs ≥ 4.5:1 — one shade darker, checked by calculation for every theme
-   - [ ] 
+   - [x] Every text colour of every theme measured against its darkest background (`--surface`): Chiaro muted / accent / coral / sage and Carta muted / accent / coral / sage / sky were 3.1–4.5:1; each darkened just enough (same hue) to ≥ 4.6:1; white on the Chiaro accent button 3.9 → 5.7:1. Dark themes were already 5.6:1 or more
+   - [x] Before/after screenshots (Chiaro, Carta): same look, crisper hints and chords
 2. **iPhone status bar follows the theme** (it is fixed to black: wrong in Chiaro / Bianco / Carta)
    - [ ] 
 3. **Launch screen**: the app's own start image instead of a plain flash (iOS `apple-touch-startup-image`, per iPhone size, light and dark)

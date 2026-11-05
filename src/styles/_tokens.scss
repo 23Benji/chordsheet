@@ -52,11 +52,11 @@
   --surface-bridge: rgb(176 71 58 / 6%);
   --border: #e3d6c8;
   --text: #2a1f17;
-  --text-muted: #8c7b6c;
-  --accent: #c46a1e;
+  --text-muted: #726458; // was #8c7b6c: below 4.5:1 on --surface
+  --accent: #9c5418; // was #c46a1e: below 4.5:1 on --surface
   --accent-ink: #ffffff;
-  --coral: #b0473a;
-  --sage: #4b7a55;
+  --coral: #ac4539; // was #b0473a: below 4.5:1 on --surface
+  --sage: #446f4d; // was #4b7a55: below 4.5:1 on --surface
   --sky: #3b6b98;
   --highlight-amber: rgb(196 106 30 / 14%);
   --highlight-coral: rgb(176 71 58 / 12%);
@@ -135,12 +135,12 @@
   --surface-bridge: rgb(160 82 28 / 6%);
   --border: #dccdaf;
   --text: #33281c;
-  --text-muted: #7a6a55;
-  --accent: #a0521c;
+  --text-muted: #6c5e4c; // was #7a6a55: below 4.5:1 on --surface
+  --accent: #954c1a; // was #a0521c: below 4.5:1 on --surface
   --accent-ink: #ffffff;
-  --coral: #a8432f;
-  --sage: #4f7350;
-  --sky: #3f6787;
+  --coral: #a2412d; // was #a8432f: below 4.5:1 on --surface
+  --sage: #486849; // was #4f7350: below 4.5:1 on --surface
+  --sky: #3d6484; // was #3f6787: below 4.5:1 on --surface
   --highlight-amber: rgb(160 82 28 / 14%);
   --highlight-coral: rgb(168 67 47 / 12%);
   --highlight-sage: rgb(79 115 80 / 13%);
