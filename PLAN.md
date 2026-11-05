@@ -21,7 +21,7 @@
 - [x] PWA: manifest (Innario, `#14100D`, standalone), icons 192/512/maskable/apple-touch 180, service worker caching app shell, fonts, songs
 - [x] GitHub Pages workflow (`.github/workflows/deploy.yml`)
 - [x] `ng build` + `ng test` green, commit `M1: …`, fill in Commands in CLAUDE.md, write `DECISIONS.md`
-- [ ] Manual check in Chrome at 1366×768 and 1920×1080, install + offline test, Lighthouse PWA check (Benji — the browser couldn't be driven from Claude Code)
+- [x] Manual check in Chrome at 1366×768 and 1920×1080, install + offline test, Lighthouse PWA check — done 2026-11-05 with Playwright on a production build: no manifest/installability errors, service worker in control, library, song, performance, Scalette and Impostazioni all open offline (Lighthouse dropped its PWA category in v12, so Chrome's own installability check was used)
 
 ## M1.1 — Feedback after M1
 
@@ -271,3 +271,17 @@ Elsewhere:
 - [x] Benji: Google Cloud project + OAuth client (ID in `sync-config.ts`, secret as Actions secret)
 - [x] Test on the real devices (Benji: "tutto ok")
 - [x] Impostazioni → "I tuoi dati": Google Drive / Importa (also backups → Unisci/Sostituisci) / Esporta (backup or songs); auto-backup only without sync; storage moved to Informazioni; backup/persist banners off while synced
+
+## 1.27+ — Roadmap (Benji, 2026-11-05)
+
+In this order, one at a time (build + tests + screenshots + push after each):
+
+1. **Loose ends**
+   - [x] Second key in parentheses at the end of a line, e.g. `(Am Em Am Em)`: transpose it together with the song (song view, performance, PDF)
+   - [x] Production build: install (manifest + service worker) and offline check, automated with Playwright (the old manual M1 check)
+2. **Solo testo** (lyrics only): one switch hides all chords — for singers, and to print a lyrics booklet from a setlist
+3. **Capo consigliato**: for the current key, suggest the capo that gives easy open shapes (e.g. Bb → capo 3, shapes in G)
+4. **Share a setlist as a QR code / link**: the setlist travels inside the link (no server); opening it on another device imports it, matching songs by number
+5. **Accordatore** (tuner), experimental: microphone + pitch detection, offline; try it and keep it only if it is accurate enough
+
+Ideas noted for later: service plan items in setlists (Preghiera, Lettura…), lyrics on the church projector, song history ("suonato 3 settimane fa"), key-jump warnings in setlists, reference recording per song, song version history.

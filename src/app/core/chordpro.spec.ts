@@ -1,5 +1,6 @@
 import { readdirSync, readFileSync } from 'node:fs';
-import { ChordsLine, CommentLine, LyricLine, collapseRepeats, mapSheetChords, parseChordPro } from './chordpro';
+import { ChordsLine, CommentLine, LyricLine, collapseRepeats, mapSecondKey, mapSheetChords, parseChordPro } from './chordpro';
+import { keyView } from './transpose';
 import { numberLabel, parseFileName, parseSongNumber, readNumeroMeta } from './song-meta';
 import { HAS_SONGS } from '../../testing/bundled-songs';
 
@@ -267,5 +268,28 @@ describe.skipIf(!HAS_SONGS)('collapseRepeats on the bundled songs', () => {
   it('shows the verse of "È il Signor" once, ×2', () => {
     const sheet = collapseRepeats(parseChordPro(readFileSync('songs/088 - E il Signor.cho', 'utf8')));
     expect(sheet.sections.map((s) => [s.type, s.number, s.repeat])).toEqual([['verse', 1, 2]]);
+  });
+
+  describe('second key in parentheses', () => {
+    it('is transposed together with the song', () => {
+      const parsed = parseChordPro('[Bm]CANTA ALLE[F#m]LUIA AL SI[Bm]GNOR.    (Am Em Am Em)');
+      const up = mapSheetChords(parsed, keyView('Bm', 2, 0).mapChord);
+      const line = up.sections[0].lines[0] as LyricLine;
+      expect(line.words[0].segments[0].chord).toBe('C#m');
+      expect(line.secondKey).toBe('(Bm F#m Bm F#m)');
+    });
+
+    it('keeps separators, slash chords and non-chord text', () => {
+      const up = (c: string) => keyView('C', 2, 0).mapChord(c);
+      expect(mapSecondKey('(Am, C/G - F)', up)).toBe('(Bm, D/A - G)');
+      expect(mapSecondKey('(E)', up)).toBe('(F#)');
+      expect(mapSecondKey(null, up)).toBeNull();
+    });
+
+    it('also on plain chord lines', () => {
+      const parsed = parseChordPro('Am G F E    (Dm C Bb A)');
+      const line = mapSheetChords(parsed, (c) => c + '!').sections[0].lines[0] as ChordsLine;
+      expect(line.secondKey).toBe('(Dm! C! Bb! A!)');
+    });
   });
 });

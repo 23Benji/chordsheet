@@ -385,10 +385,12 @@ export function mapSheetChords(sheet: Sheet, mapChord: (chord: string) => string
             return {
               ...line,
               items: line.items.map((i) => ('chord' in i ? { chord: mapChord(i.chord) } : i)),
+              secondKey: line.secondKey && mapSecondKey(line.secondKey, mapChord),
             };
           case 'lyrics':
             return {
               ...line,
+              secondKey: mapSecondKey(line.secondKey, mapChord),
               words: line.words.map((word) => ({
                 segments: word.segments.map((s) => (s.chord ? { ...s, chord: mapChord(s.chord) } : s)),
               })),
@@ -397,6 +399,17 @@ export function mapSheetChords(sheet: Sheet, mapChord: (chord: string) => string
       }),
     })),
   };
+}
+
+/**
+ * "(Am Em Am Em)" → the same group with every chord mapped, keeping the
+ * spaces/commas between them. The second key moves together with the song:
+ * transposing +2 turns the alternative key's Am into Bm, just like the main
+ * chords (SPEC §3: "nice-to-have later: parse and transpose it too").
+ */
+export function mapSecondKey(group: string | null, mapChord: (chord: string) => string): string | null {
+  if (!group) return group;
+  return group.replace(/[^\s,()-]+/g, (token) => (parseChord(token) ? mapChord(token) : token));
 }
 
 /** What a section looks like on the page, without its line indexes. */
