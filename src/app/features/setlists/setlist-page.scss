@@ -1,3 +1,5 @@
+@use 'swipe-action';
+
 :host {
   display: block;
   height: 100%;
@@ -486,3 +488,5 @@
     padding-bottom: max(var(--space-3), env(safe-area-inset-bottom));
   }
 }
+
+@include swipe-action.swipe-action;

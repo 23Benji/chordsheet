@@ -65,7 +65,17 @@
     } @else {
       <ol class="items" cdkDropList (cdkDropListDropped)="drop($event)">
         @for (row of rows(); track row.item.id; let i = $index) {
-          <li class="item" cdkDrag cdkDragLockAxis="y" [class.missing]="!row.song">
+          <li
+            class="item"
+            cdkDrag
+            cdkDragLockAxis="y"
+            [class.missing]="!row.song"
+            appSwipeAction
+            swipeIgnore=".handle"
+            (swipeDelete)="remove(row.item)"
+          >
+            <!-- Revealed by swiping the row to the left (phones). -->
+            <button type="button" class="swipe-delete" tabindex="-1" aria-hidden="true"><app-icon name="trash" /> {{ t.swipeRemove }}</button>
             <button type="button" class="row" (click)="openItem(row)" [attr.aria-label]="t.itemOptions(row.song?.title ?? t.missingSong)">
               <span class="pos">{{ i + 1 }}</span>
               <span class="song">

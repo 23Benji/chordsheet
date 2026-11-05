@@ -354,7 +354,10 @@ From the research list (WCAG contrast, iOS home-screen app conventions, OnSong /
    - [x] Library rows and Recenti: sheet with the song's title — Aggiungi a una scaletta, Aggiungi a una cartella (inside a folder: Cartella…), Condividi, Seleziona, Elimina (with Annulla) — reusing the selection actions for that one song. Setlist rows already open their options on a tap
    - [x] Tested with a simulated finger (390) and right-click (1280): menu opens, "Aggiungi a una scaletta" works, a quick tap still opens the song. The start-error page now loads only when needed (start-up bundle back under 520 kB)
 6. **Swipe left to delete** on rows (with Annulla), the standard iPhone gesture — setlists list, songs in a setlist
-   - [ ] 
+   - [x] `ui/swipe-action.ts` (+ tests): touch only (computers keep their trash buttons); a short swipe reveals a red "Elimina"/"Togli" button that stays (tap it, or tap the row to close), past half the row deletes at once; vertical = scrolling, swipes on the drag handle stay reordering, one row open at a time, the swipe's own click doesn't open the row
+   - [x] Setlist cards (Elimina, Annulla existed) and songs in a setlist (Togli — now with Annulla too, back in the same place)
+   - [x] Styles in a mixin (`styles/_swipe-action.scss`) included only by the two lazy setlist pages: the start-up CSS stays under budget
+   - [x] Tested with simulated fingers: reveal → Elimina → Annulla; full swipe → removed → Annulla restores the order; a plain tap still opens the song's options
 7. **Half-page turn** (forScore's best-loved feature) in performance mode: turning shows the next part in the top half while the bottom half still shows what you're reading, so you can always read ahead. Mainly for laptop/iPad, also on the phone
    - [ ] 
 

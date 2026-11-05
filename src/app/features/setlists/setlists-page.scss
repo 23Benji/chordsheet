@@ -1,3 +1,5 @@
+@use 'swipe-action';
+
 :host {
   display: block;
   height: 100%;
@@ -196,3 +198,5 @@
 .stats-hint {
   font-size: 13px;
 }
+
+@include swipe-action.swipe-action;

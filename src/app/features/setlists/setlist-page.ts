@@ -25,6 +25,7 @@ import { SettingsService } from '../../services/settings.service';
 import { SongPrefsService } from '../../services/song-prefs.service';
 import { ToastService, UNDO_MS } from '../../services/toast.service';
 import { sectionLabel } from '../song/section-label';
+import { SwipeAction } from '../../ui/swipe-action';
 import { ActionSheet } from '../../ui/action-sheet';
 import { Icon } from '../../ui/icon';
 import { SidebarToggle } from '../../ui/sidebar-toggle';
@@ -50,7 +51,7 @@ interface Row {
  */
 @Component({
   selector: 'app-setlist-page',
-  imports: [RouterLink, Icon, ActionSheet, CdkDropList, CdkDrag, CdkDragHandle, SidebarToggle, AddSongsSheet, ShareSetlistSheet],
+  imports: [RouterLink, Icon, ActionSheet, CdkDropList, CdkDrag, CdkDragHandle, SidebarToggle, AddSongsSheet, ShareSetlistSheet, SwipeAction],
   templateUrl: './setlist-page.html',
   styleUrl: './setlist-page.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -172,9 +173,21 @@ export class SetlistPage {
     if (index >= 0) this.setItems(moveItem(items, index, index + delta));
   }
 
+  /** Takes the song out of the setlist, with "Annulla" to put it back in the same place. */
   protected remove(item: SetlistItem): void {
     if (this.openId() === item.id) this.closeItem();
-    this.setItems((this.setlist()?.items ?? []).filter((i) => i.id !== item.id));
+    const items = this.setlist()?.items ?? [];
+    const index = items.findIndex((i) => i.id === item.id);
+    this.setItems(items.filter((i) => i.id !== item.id));
+    const title = this.library.byId().get(item.songId)?.title ?? this.t.missingSong;
+    this.toast.show(this.t.removed(title), UNDO_MS, {
+      label: IT.shell.undo,
+      run: () => {
+        const now = this.setlist()?.items ?? [];
+        if (now.some((i) => i.id === item.id)) return;
+        this.setItems([...now.slice(0, index), item, ...now.slice(index)]);
+      },
+    });
   }
 
   protected transpose(row: Row, delta: number): void {

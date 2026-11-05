@@ -1,0 +1,51 @@
+// Swipe to delete (ui/swipe-action.ts): the row's content slides left by
+// --swipe-x; the red "Elimina" button behind it is exactly as wide as the
+// gap it leaves on the right. A mixin, included only by the (lazy) pages
+// that use it, so the start-up stylesheet stays small.
+@mixin swipe-action {
+  .swipe-host {
+    position: relative;
+    overflow: hidden;
+    touch-action: pan-y; // vertical = scrolling (the browser's); horizontal reaches us
+
+    > :not(.swipe-delete) {
+      transform: translateX(var(--swipe-x, 0px));
+      transition: transform 0.22s ease;
+    }
+
+    &.swiping > :not(.swipe-delete) {
+      transition: none; // follows the finger exactly while dragging
+    }
+  }
+
+  .swipe-delete {
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-1);
+    width: max(0px, calc(-1 * var(--swipe-x, 0px)));
+    padding: 0;
+    overflow: hidden;
+    border: none;
+    background: var(--coral);
+    color: var(--bg);
+    font: inherit;
+    font-size: 14px;
+    font-weight: 700;
+    white-space: nowrap;
+    transition: width 0.22s ease;
+    cursor: pointer;
+
+    .swiping > & {
+      transition: none;
+    }
+
+    @media (pointer: fine) {
+      display: none; // computers delete with their trash buttons
+    }
+  }
+}

@@ -621,6 +621,10 @@ export const IT = {
     moveUp: 'Sposta su',
     moveDown: 'Sposta giù',
     remove: 'Togli dalla scaletta',
+    removed: (title: string) => `“${title}” tolto dalla scaletta.`,
+    /** The red button revealed by swiping a row to the left. */
+    swipeDelete: 'Elimina',
+    swipeRemove: 'Togli',
     openSong: 'Apri il canto',
     transpose: 'Trasposizione per questa scaletta',
     transposeDown: 'Abbassa di un semitono',

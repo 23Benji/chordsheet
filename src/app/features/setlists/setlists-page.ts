@@ -8,6 +8,7 @@ import { SetlistService } from '../../services/setlist.service';
 import { ToastService, UNDO_MS } from '../../services/toast.service';
 import { Icon } from '../../ui/icon';
 import { SidebarToggle } from '../../ui/sidebar-toggle';
+import { SwipeAction } from '../../ui/swipe-action';
 import { ActionSheet } from '../../ui/action-sheet';
 import { ShareSetlistSheet } from './share-setlist-sheet';
 import { SHARED_SETLIST_PATH, linkFragment } from '../../core/setlist-link';
@@ -15,7 +16,7 @@ import { SHARED_SETLIST_PATH, linkFragment } from '../../core/setlist-link';
 /** All setlists: create, import, and quick actions. */
 @Component({
   selector: 'app-setlists-page',
-  imports: [RouterLink, Icon, SidebarToggle, ShareSetlistSheet, ActionSheet],
+  imports: [RouterLink, Icon, SidebarToggle, ShareSetlistSheet, ActionSheet, SwipeAction],
   templateUrl: './setlists-page.html',
   styleUrl: './setlists-page.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

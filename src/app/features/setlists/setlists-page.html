@@ -37,7 +37,9 @@
 
   <ul class="list">
     @for (setlist of service.setlists(); track setlist.id) {
-      <li class="card">
+      <li class="card" appSwipeAction (swipeDelete)="remove(setlist)">
+        <!-- Revealed by swiping the card to the left (phones). -->
+        <button type="button" class="swipe-delete" tabindex="-1" aria-hidden="true"><app-icon name="trash" /> {{ t.swipeDelete }}</button>
         <a class="main" [routerLink]="['/scalette', setlist.id]">
           <span class="name">{{ setlist.name }}</span>
           <span class="meta">
