@@ -37,9 +37,6 @@
         <button type="button" class="btn btn-primary" [disabled]="!canPlay()" (click)="play()"><app-icon name="play" /> {{ t.play }}</button>
         <button type="button" class="btn btn-secondary" (click)="openAdd()"><app-icon name="plus" /> {{ t.addSongs }}</button>
         <div class="tools wide-only">
-          <button type="button" class="btn icon-btn" (click)="openTuner()" [attr.aria-label]="IT.tuner.menu" [title]="IT.tuner.menu">
-            <app-icon name="guitar" />
-          </button>
           <button type="button" class="btn icon-btn" [disabled]="!canPlay()" (click)="printBooklet()" [attr.aria-label]="t.pdf" [title]="t.pdf">
             <app-icon name="print" />
           </button>

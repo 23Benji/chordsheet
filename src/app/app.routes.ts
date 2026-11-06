@@ -43,10 +43,6 @@ export const routes: Routes = [
     loadComponent: () => import('./features/setlists/shared-setlist-page').then((m) => m.SharedSetlistPage),
   },
   {
-    path: 'accordatore',
-    loadComponent: () => import('./features/tuner/tuner-page').then((m) => m.TunerPage),
-  },
-  {
     path: 'impostazioni',
     loadComponent: () => import('./features/settings/settings-page').then((m) => m.SettingsPage),
   },

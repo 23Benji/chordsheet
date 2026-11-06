@@ -372,3 +372,14 @@ From the research list (WCAG contrast, iOS home-screen app conventions, OnSong /
 - Vibration on phones was tried (1.35.0–1.35.1) and removed in 1.35.2 — Benji: "not a thing to have"; on his iPhone it couldn't be felt anyway
 
 Ideas noted for later: service plan items in setlists (Preghiera, Lettura…), lyrics on the church projector, song history ("suonato 3 settimane fa"), key-jump warnings in setlists, tuner: keep the screen awake + steadier "Accordata", reopen the app on the last song, follow the iPhone text size (Dynamic Type), left-handed chord diagrams, reference recording per song, song version history.
+
+## 1.36 — Tuner out; first start polished (Benji, 2026-11-06)
+
+One at a time; one version for the batch.
+
+1. **Remove the tuner** ("Accordatore"): page, pitch detection, entries in the song ⋯ menu, the setlist (button + ⋯) and Impostazioni, its strings, `Settings.tunerInstrument`, the privacy paragraph about the microphone
+   - [x] Removed; build + tests green
+2. **The empty start screen** (no songs yet): its options, buttons and animations, and the first Google sync (what you see while the songs arrive)
+   - [ ] …
+3. **Intro animation** when the app opens (3–4 s at most, skippable): bars coming from the sides that move/twist into the logo — mockups first, Benji picks
+   - [ ] …
