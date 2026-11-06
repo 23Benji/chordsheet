@@ -7,6 +7,7 @@ import {
   input,
   output,
   signal,
+  untracked,
   viewChild,
 } from '@angular/core';
 import {
@@ -87,8 +88,12 @@ export class LineEditor {
 
   constructor() {
     effect(() => {
+      // Only a NEW focus request may move the caret. The line is read with
+      // untracked(): otherwise this effect would also re-run on every
+      // keystroke (each one changes line()) and put the caret back at the
+      // requested position, so typed letters came out in reverse order.
       const request = this.focusRequest();
-      if (request?.lineId !== this.line().id) return;
+      if (request?.lineId !== untracked(() => this.line().id)) return;
       const el = this.textInput().nativeElement;
       el.focus();
       el.setSelectionRange(request.caret, request.caret);

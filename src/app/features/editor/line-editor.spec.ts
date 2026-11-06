@@ -68,4 +68,18 @@ describe('LineEditor', () => {
     text.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter' }));
     expect(splitAt).toBe(4);
   });
+
+  it('after a focus request, typing moves the caret forward (not back to the start)', () => {
+    const { fixture, text } = setup('');
+    fixture.componentRef.setInput('focusRequest', { lineId: fixture.componentInstance.line().id, caret: 0 });
+    fixture.detectChanges();
+    for (const ch of 'abc') {
+      const at = text.selectionStart ?? 0;
+      text.setRangeText(ch, at, at, 'end');
+      text.dispatchEvent(new Event('input'));
+      fixture.detectChanges();
+    }
+    expect(text.value).toBe('abc');
+    expect(text.selectionStart).toBe(3);
+  });
 });
