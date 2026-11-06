@@ -9,6 +9,12 @@
   height: 100%;
   transition: grid-template-columns 0.2s ease;
 
+  // Songs just arrived on the start screen: the library fades in (opacity
+  // only: a transform would move the fixed "+" button while it runs).
+  &.from-welcome {
+    animation: shell-in 0.6s ease-out backwards;
+  }
+
   &.sidebar-closed {
     grid-template-columns: 0 1fr;
   }
@@ -176,5 +182,15 @@
 
   .toast {
     bottom: calc(var(--bottom-bar) + 12px);
+  }
+}
+
+.bottom-bar.from-welcome {
+  animation: shell-in 0.6s ease-out backwards;
+}
+
+@keyframes shell-in {
+  from {
+    opacity: 0;
   }
 }

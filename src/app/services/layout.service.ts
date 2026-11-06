@@ -18,6 +18,13 @@ export class LayoutService {
   readonly phone = signal(false);
   /** Show the app (editor …) even with an empty library: "scrivi il primo canto". */
   readonly forceShell = signal(false);
+  /**
+   * Keep the start screen up although songs have arrived: it shows "142 canti
+   * arrivati" for a moment, then lets the library come in (see Welcome).
+   */
+  readonly holdWelcome = signal(false);
+  /** The library was just reached from the start screen: it fades in instead of popping up. */
+  readonly fromWelcome = signal(false);
   /** Bumped to ask the library search box to take focus (e.g. after pressing "/"). */
   readonly focusSearch = signal(0);
   /** Bumped when "Libreria" is tapped in the bottom bar while already there: back to the top. */

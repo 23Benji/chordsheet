@@ -6,108 +6,185 @@
 .welcome {
   position: relative;
   display: flex;
+  flex-direction: column;
   align-items: center;
   min-height: 100%;
-  padding: calc(max(var(--space-12), env(safe-area-inset-top)) + var(--top-gap)) 8vw var(--space-12);
+  padding: calc(max(var(--space-6), env(safe-area-inset-top)) + var(--top-gap)) var(--space-6)
+    max(var(--space-8), env(safe-area-inset-bottom));
   background: var(--bg) center / cover no-repeat;
-}
+  text-align: center;
 
-.brand {
-  position: absolute;
-  top: calc(max(28px, env(safe-area-inset-top)) + var(--top-gap));
-  left: 32px;
-  display: flex;
-  align-items: center;
-  gap: var(--space-3);
-  font-family: var(--font-heading);
-  font-size: 24px;
-  font-weight: 700;
+  // Darken the bottom of the picture so the buttons and their text stay readable.
+  &::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(transparent 40%, color-mix(in srgb, var(--bg) 75%, transparent));
+    pointer-events: none;
+  }
 
-  img {
-    width: 40px;
-    height: 40px;
-    border-radius: 10px;
+  > * {
+    position: relative;
+    z-index: 1;
   }
 }
 
-.content {
-  max-width: 760px;
+// The logo, name and motto: centred in the space above the buttons.
+.hero {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-8) 0;
 }
 
-.verse {
-  margin: 0;
+.logo {
+  --logo-size: 150px;
+}
+
+.name {
+  margin: var(--space-6) 0 0;
   font-family: var(--font-heading);
-  font-style: italic;
-  font-size: clamp(32px, 5vw, 60px);
-  line-height: 1.15;
-  color: var(--text);
+  font-size: 40px;
+  font-weight: 700;
+  line-height: 1.1;
 }
 
-.reference {
-  margin: var(--space-5) 0 0;
+.tag {
+  margin: var(--space-3) 0 0;
   color: var(--accent);
-  font-size: 14px;
+  font-size: 12px;
   font-weight: 700;
-  letter-spacing: 0.3em;
+  letter-spacing: 0.16em;
   text-transform: uppercase;
 }
 
-.intro {
-  margin: 56px 0 var(--space-5);
+// Same height whatever it shows (choices, progress, result, an error): the logo stays put.
+.bottom {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  width: 100%;
+  max-width: 440px;
+  min-height: 330px;
+}
+
+.choices,
+.status {
+  animation: rise 0.45s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+
+.status {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: var(--space-2);
+  min-height: 330px;
+  padding-bottom: var(--space-12);
+}
+
+.status-title {
+  margin: 0;
+  font-size: 19px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.status-sub {
+  margin: 0;
   color: var(--text-muted);
-  font-size: 18px;
+  font-size: 15px;
+}
+
+.hint {
+  margin: 0 0 var(--space-4);
+  color: var(--text-muted);
+  font-size: 16px;
+  line-height: 1.4;
 
   &.shared {
-    margin-top: 0;
     color: var(--accent);
   }
 }
 
-.actions {
+.error {
+  margin: 0 0 var(--space-4);
+  color: var(--coral);
+  font-size: 15px;
+  line-height: 1.4;
+}
+
+.buttons {
   display: flex;
-  flex-wrap: wrap;
+  flex-direction: column;
   gap: var(--space-3);
 }
 
 .big {
-  min-height: 52px;
-  padding: 0 var(--space-6);
+  width: 100%;
+  min-height: 54px;
+  border-radius: var(--radius-l);
   font-size: 17px;
+  white-space: normal;
   cursor: pointer;
+}
 
-  &.busy {
-    opacity: 0.6;
-    pointer-events: none;
+// See-through button over the picture (iOS "glass").
+.glass {
+  border: 1px solid color-mix(in srgb, var(--text) 14%, transparent);
+  background: color-mix(in srgb, var(--text) 10%, transparent);
+  -webkit-backdrop-filter: blur(18px);
+  backdrop-filter: blur(18px);
+
+  &:hover {
+    background: color-mix(in srgb, var(--text) 16%, transparent);
   }
 }
 
-.or {
-  margin-top: var(--space-4);
-  color: var(--text-muted);
-}
-
-.sync {
-  margin-top: var(--space-2);
-  color: var(--text-muted);
-}
-
 .link {
-  padding: 0;
+  align-self: center;
+  min-height: var(--tap);
+  padding: 0 var(--space-3);
   border: none;
   background: none;
   color: var(--accent);
+  font-size: 16px;
   font-weight: 700;
-  text-decoration: underline;
-  text-underline-offset: 3px;
   cursor: pointer;
 }
 
-.progress {
-  color: var(--accent);
-  font-size: 18px;
-  font-variant-numeric: tabular-nums;
+// Arriving: the pieces rise softly, one after the other.
+.hero > *,
+.choices {
+  animation: rise 0.6s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+.name {
+  animation-delay: 0.08s;
+}
+.tag {
+  animation-delay: 0.16s;
+}
+.choices {
+  animation-delay: 0.24s;
 }
 
-.error {
-  color: var(--coral);
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+}
+
+// Computers and tablets: a little bigger, still one centred column.
+@media (min-width: 700px) {
+  .logo {
+    --logo-size: 190px;
+  }
+  .name {
+    font-size: 52px;
+  }
+  .tag {
+    font-size: 13px;
+  }
 }

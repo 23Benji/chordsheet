@@ -380,6 +380,11 @@ One at a time; one version for the batch.
 1. **Remove the tuner** ("Accordatore"): page, pitch detection, entries in the song ⋯ menu, the setlist (button + ⋯) and Impostazioni, its strings, `Settings.tunerInstrument`, the privacy paragraph about the microphone
    - [x] Removed; build + tests green
 2. **The empty start screen** (no songs yet): its options, buttons and animations, and the first Google sync (what you see while the songs arrive)
-   - [ ] …
+   - [x] Three mockups (A Pulita, B Tre strade, C Logo al centro) — Benji picked **C**
+   - [x] `ui/logo-mark.ts`: the logo as four HTML bars (still / loading: the chords slide along the lines / done: a small pop), logo colours as tokens
+   - [x] Welcome: logo + name + motto in the middle; at the bottom (thumb reach) full-width buttons — Importa canti da file, "Ho già i canti · Accedi con Google" (a real button now), "oppure scrivi il primo canto"; pieces rise in one after the other
+   - [x] While songs arrive (import, first Google sync) the logo is the progress indicator; then "142 canti arrivati" for 1.4 s and the library fades in (`LayoutService.holdWelcome` / `fromWelcome`)
+   - [x] Sync errors: a message + **Riprova** (was "riopri l'app"); expired → "Accedi di nuovo con Google"; sign-in failed → message
+   - [x] Screenshots 390 + 1280 in every state; real import flow tested; build + tests green
 3. **Intro animation** when the app opens (3–4 s at most, skippable): bars coming from the sides that move/twist into the logo — mockups first, Benji picks
    - [ ] …

@@ -1,7 +1,7 @@
-@if (library.isEmpty() && !layout.forceShell()) {
+@if ((library.isEmpty() || layout.holdWelcome()) && !layout.forceShell()) {
   <app-welcome />
 } @else if (library.loaded()) {
-  <div class="shell" [class.sidebar-closed]="!libraryShown()">
+  <div class="shell" [class.sidebar-closed]="!libraryShown()" [class.from-welcome]="layout.fromWelcome()">
     <app-library-sidebar class="sidebar" [attr.inert]="libraryShown() ? null : ''" />
     <div class="scrim" (click)="layout.sidebarOpen.set(false)" aria-hidden="true"></div>
     <main class="main">
@@ -10,7 +10,7 @@
   </div>
 
   <!-- iPhone: bottom navigation bar (Impostazioni is in the library's floating "+" menu) -->
-  <nav class="bottom-bar" [class.hidden]="bottomBarHidden()" [attr.aria-label]="t.nav">
+  <nav class="bottom-bar" [class.hidden]="bottomBarHidden()" [class.from-welcome]="layout.fromWelcome()" [attr.aria-label]="t.nav">
     <button type="button" class="tab" [class.selected]="section() === 'library'" (click)="openLibrary()">
       <app-icon name="library" /><span>{{ t.library }}</span>
     </button>

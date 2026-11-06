@@ -24,6 +24,13 @@
   // Piano diagram: keys keep their real colours in both themes (ivory / ebony).
   --key-white: #ece3d6;
   --key-black: #1f1813;
+  // The logo's own colours (same in every theme, like the app icon): cream lines, amber chords.
+  --logo-cream-top: #fff5e4;
+  --logo-cream-bottom: #e7d2af;
+  --logo-amber-top: #ffd99a;
+  --logo-amber-mid: #f3ae4e;
+  --logo-amber-bottom: #d47f27;
+  --logo-glow: rgb(242 180 92 / 55%);
 
   --radius-s: 8px;
   --radius-m: 12px;
