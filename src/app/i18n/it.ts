@@ -409,6 +409,22 @@ export const IT = {
     },
     restored: (songs: number, setlists: number) => `Backup ripristinato: ${songs} canti, ${setlists} scalette.`,
     restoreError: 'Questo file non è un backup di Chordsheet.',
+    eraseAll: 'Elimina tutti i dati',
+    eraseAllHint: 'Canti, note, scalette, cartelle e impostazioni di questo dispositivo',
+    confirmErase: (synced: boolean, backedUp: boolean) => ({
+      title: 'Eliminare tutti i dati?',
+      message:
+        'Canti, note, scalette, cartelle e impostazioni verranno cancellati da questo dispositivo e l’app ripartirà da zero. ' +
+        (synced
+          ? 'Il dispositivo si scollega da Google: la copia nel tuo Google Drive resta, e accedendo di nuovo i canti tornano.'
+          : backedUp
+            ? 'Non si può annullare: ti resta solo il backup che hai esportato.'
+            : 'Non si può annullare. Se vuoi tenerli, prima esporta un backup.'),
+      confirm: 'Elimina tutto',
+      cancel: 'Annulla',
+    }),
+    erasing: 'Elimino i dati…',
+    eraseFailed: 'Non è stato possibile eliminare i dati. Chiudi l’app in tutte le schede e riprova.',
     confirmReplace: {
       title: 'Sostituire tutto?',
       message: 'Canti, note, scalette e impostazioni di questo dispositivo verranno sostituiti da quelli del backup.',

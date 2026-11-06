@@ -317,3 +317,12 @@ label.list-row {
   }
 }
 
+// "Elimina tutti i dati": the label in red, like iOS's destructive rows.
+.list-row.danger .row-label {
+  color: var(--coral);
+}
+
+// Kept apart from the other data rows: no title, just space above.
+.erase-group {
+  margin-top: var(--space-6);
+}

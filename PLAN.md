@@ -393,3 +393,9 @@ One at a time; one version for the batch.
    - [x] Seamless start: the iPhone launch images are now just the intro's background (v3 file names, palette PNGs ~200 KB each), and `#boot` in index.html shows the same until the app has drawn itself; the start screen waits to animate until the intro is gone
    - [x] Start screen loaded with `@defer` (only needed with an empty library): start-up bundle back under budget (528 kB)
    - [x] Real app checked at 390 and 1280 (frames over time, tap to skip); build + tests green
+
+## 1.37 — "Elimina tutti i dati" (Benji, 2026-11-06) ✓
+
+- [x] Impostazioni → its own red row under Dati: confirmation (says whether the Drive copy stays / a backup exists), then `EraseService` signs out of Google first (so the empty library never reaches Drive), removes this app's localStorage keys, deletes the IndexedDB database, and the app restarts at "/" (intro → start screen)
+- [x] Tests (order sign-out → delete, other sites' keys kept); real run: 166 songs imported → erased → start screen, database empty; screenshots 390 + 1280
+

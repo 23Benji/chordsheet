@@ -220,6 +220,14 @@
     }
   </div>
 
+  <!-- Destructive: on its own, at the end, in red (as in iOS Settings). -->
+  <div class="list-group erase-group">
+    <button type="button" class="list-row clickable danger" [disabled]="busy()" (click)="eraseAll()">
+      <span class="icon-tile coral"><app-icon name="trash" /></span>
+      <span class="row-text"><span class="row-label">{{ t.eraseAll }}</span><span class="row-hint">{{ t.eraseAllHint }}</span></span>
+    </button>
+  </div>
+
   <h2 class="list-group-title">{{ t.groups.about }}</h2>
   <div class="list-group about">
     <img class="app-icon" src="icons/icon-192.png" alt="" />

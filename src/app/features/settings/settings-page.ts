@@ -12,6 +12,7 @@ import { ConflictPolicy, ImportService } from '../../services/import.service';
 import { LibraryService } from '../../services/library.service';
 import { SettingsService } from '../../services/settings.service';
 import { SyncService } from '../../services/sync.service';
+import { EraseService } from '../../services/erase.service';
 import { ToastService } from '../../services/toast.service';
 import { ActionSheet } from '../../ui/action-sheet';
 import { ConfirmDialog } from '../../ui/confirm-dialog';
@@ -38,6 +39,7 @@ export class SettingsPage implements OnInit {
   private readonly backup = inject(BackupService);
   private readonly library = inject(LibraryService);
   private readonly toast = inject(ToastService);
+  private readonly eraser = inject(EraseService);
   private readonly importer = inject(ImportService);
   private readonly folders = inject(FolderService);
   protected readonly sync = inject(SyncService);
@@ -215,6 +217,22 @@ export class SettingsPage implements OnInit {
       this.toast.show(added ? this.t.bundledAdded(added) : this.t.bundledNone);
     } finally {
       this.busy.set(false);
+    }
+  }
+
+  /** "Elimina tutti i dati": after a confirmation, wipe this device and start the app again from zero. */
+  protected async eraseAll(): Promise<void> {
+    if (!(await this.dialog().ask({ ...this.t.confirmErase(this.synced(), this.lastBackup() !== null), danger: true }))) return;
+    this.busy.set(true);
+    this.toast.show(this.t.erasing, 0);
+    try {
+      await this.eraser.eraseAll();
+      // A fresh start at the app's first page: intro, then the start screen.
+      location.replace(document.baseURI);
+    } catch (e) {
+      console.error(e);
+      this.busy.set(false);
+      this.toast.show(this.t.eraseFailed, 8000);
     }
   }
 
