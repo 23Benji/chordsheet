@@ -7,6 +7,10 @@
 //   node scripts/splash/make-splash.mjs
 // It writes public/splash/*.png and the <link> tags in src/index.html
 // (between the "launch screens" markers).
+//
+// Then shrink them: Chrome's PNGs of the smooth gradient are ~700 KB each, but
+// it has fewer than 100 colours, so a palette PNG is exact and ~4× smaller:
+//   python3 -c "import glob; from PIL import Image; [Image.open(f).convert('RGB').convert('P', palette=Image.Palette.ADAPTIVE, colors=256).save(f, optimize=True) for f in glob.glob('public/splash/*.png')]"
 import { execFileSync } from 'node:child_process';
 import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 
@@ -49,7 +53,7 @@ const shots = [
   ]),
 ];
 /** Bump to make iOS (and caches) fetch new images instead of the old ones. */
-const VERSION = 2;
+const VERSION = 3;
 for (const { w, h, r, orientation, device = [w, h] } of shots) {
   const file = `splash/launch-v${VERSION}-${w * r}x${h * r}.png`;
   // Chrome won't make a window narrower than ~500 px: a phone (390 px) would

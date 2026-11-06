@@ -1,8 +1,9 @@
-import { ChangeDetectionStrategy, Component, DestroyRef, computed, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, DestroyRef, afterNextRender, computed, inject } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { NavigationEnd, Router, RouterLink, RouterOutlet } from '@angular/router';
 import { SwUpdate, VersionReadyEvent } from '@angular/service-worker';
 import { filter, map } from 'rxjs';
+import { Intro, shouldPlayIntro } from './features/intro/intro';
 import { LibrarySidebar } from './features/library/library-sidebar';
 import { Welcome } from './features/welcome/welcome';
 import { IT } from './i18n/it';
@@ -14,7 +15,7 @@ import { Icon } from './ui/icon';
 /** App shell: welcome screen while the library is empty, else sidebar + routed main area. */
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, RouterLink, LibrarySidebar, Welcome, Icon],
+  imports: [RouterOutlet, RouterLink, LibrarySidebar, Welcome, Intro, Icon],
   templateUrl: './app.html',
   styleUrl: './app.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -60,6 +61,11 @@ export class App {
   });
 
   constructor() {
+    // Opening animation when the app starts; the dark cover from index.html
+    // goes away once the app (and the animation over it) has been drawn.
+    this.layout.introPlaying.set(shouldPlayIntro());
+    afterNextRender(() => document.getElementById('boot')?.remove());
+
     // The service worker downloaded a new version: offer to reload into it.
     const updates = inject(SwUpdate);
     if (updates.isEnabled) {

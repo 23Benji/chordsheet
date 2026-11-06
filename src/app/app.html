@@ -1,5 +1,8 @@
 @if ((library.isEmpty() || layout.holdWelcome()) && !layout.forceShell()) {
-  <app-welcome />
+  <!-- Only needed with an empty library: downloaded separately (the service worker keeps it offline). -->
+  @defer (on immediate) {
+    <app-welcome />
+  }
 } @else if (library.loaded()) {
   <div class="shell" [class.sidebar-closed]="!libraryShown()" [class.from-welcome]="layout.fromWelcome()">
     <app-library-sidebar class="sidebar" [attr.inert]="libraryShown() ? null : ''" />
@@ -29,4 +32,9 @@
       </button>
     }
   </div>
+}
+
+<!-- Opening animation, over everything while the app gets ready underneath. -->
+@if (layout.introPlaying()) {
+  <app-intro (finished)="layout.introPlaying.set(false)" />
 }

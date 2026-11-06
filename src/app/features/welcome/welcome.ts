@@ -35,7 +35,7 @@ export const WELCOME_DONE_MS = 1400;
 export class Welcome implements OnInit, OnDestroy {
   private readonly library = inject(LibraryService);
   private readonly importer = inject(ImportService);
-  private readonly layout = inject(LayoutService);
+  protected readonly layout = inject(LayoutService);
   private readonly router = inject(Router);
   private readonly toast = inject(ToastService);
   protected readonly sync = inject(SyncService);

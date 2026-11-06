@@ -387,4 +387,9 @@ One at a time; one version for the batch.
    - [x] Sync errors: a message + **Riprova** (was "riopri l'app"); expired → "Accedi di nuovo con Google"; sign-in failed → message
    - [x] Screenshots 390 + 1280 in every state; real import flow tested; build + tests green
 3. **Intro animation** when the app opens (3–4 s at most, skippable): bars coming from the sides that move/twist into the logo — mockups first, Benji picks
-   - [ ] …
+   - [x] Four mockups (Dai lati, Torsione, Corda pizzicata, Flusso); Benji liked parts of 1, 3, 4 → two mixes (Lampo, Corde) sent as a GIF → **B · Corde**
+   - [x] `core/intro-animation.ts` (+ tests): geometry from the icon's proportions, strings that shoot in across the screen, vibrate and shrink into the logo lines, faint song lines drifting behind, chords flying in that pluck the strings, glow + name, fade-out; 2.75 s, a tap fades out in 0.25 s
+   - [x] `features/intro/intro.ts`: SVG updated per animation frame (no zone.js → no change detection per frame); only at app start, not after Google's sign-in page, not with "reduce motion"; ends if the app goes to the background
+   - [x] Seamless start: the iPhone launch images are now just the intro's background (v3 file names, palette PNGs ~200 KB each), and `#boot` in index.html shows the same until the app has drawn itself; the start screen waits to animate until the intro is gone
+   - [x] Start screen loaded with `@defer` (only needed with an empty library): start-up bundle back under budget (528 kB)
+   - [x] Real app checked at 390 and 1280 (frames over time, tap to skip); build + tests green

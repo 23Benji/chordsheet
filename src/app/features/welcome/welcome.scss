@@ -169,6 +169,11 @@
   animation-delay: 0.24s;
 }
 
+// The opening animation is still on top: start rising only when it's gone.
+.waiting * {
+  animation-play-state: paused !important;
+}
+
 @keyframes rise {
   from {
     opacity: 0;

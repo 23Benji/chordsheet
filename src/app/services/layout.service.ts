@@ -18,6 +18,8 @@ export class LayoutService {
   readonly phone = signal(false);
   /** Show the app (editor …) even with an empty library: "scrivi il primo canto". */
   readonly forceShell = signal(false);
+  /** The opening animation is on screen (the start screen waits to animate until it's gone). */
+  readonly introPlaying = signal(false);
   /**
    * Keep the start screen up although songs have arrived: it shows "142 canti
    * arrivati" for a moment, then lets the library come in (see Welcome).

@@ -1,5 +1,5 @@
 <!-- Relative URL in the template so it follows <base href> (GitHub Pages subfolder). -->
-<div class="welcome" style="background-image: url(assets/bg-dark-rays.jpg)">
+<div class="welcome" style="background-image: url(assets/bg-dark-rays.jpg)" [class.waiting]="layout.introPlaying()">
   <div class="hero">
     <app-logo-mark class="logo" [state]="logoState()" />
     <h1 class="name">{{ appName }}</h1>

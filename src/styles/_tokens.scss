@@ -31,6 +31,11 @@
   --logo-amber-mid: #f3ae4e;
   --logo-amber-bottom: #d47f27;
   --logo-glow: rgb(242 180 92 / 55%);
+  // Opening animation and launch screens: warm in the middle, darker at the edges.
+  --intro-bg-center: #2a1d12;
+  --intro-bg-edge: #0e0b09;
+  --intro-glow: rgb(242 180 92 / 38%);
+  --intro-glow-soft: rgb(224 138 46 / 10%);
 
   --radius-s: 8px;
   --radius-m: 12px;
