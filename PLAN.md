@@ -373,7 +373,7 @@ From the research list (WCAG contrast, iOS home-screen app conventions, OnSong /
 
 Ideas noted for later: service plan items in setlists (Preghiera, Lettura…), lyrics on the church projector, song history ("suonato 3 settimane fa"), key-jump warnings in setlists, tuner: keep the screen awake + steadier "Accordata", reopen the app on the last song, follow the iPhone text size (Dynamic Type), left-handed chord diagrams, reference recording per song, song version history.
 
-## 1.36 — Tuner out; first start polished (Benji, 2026-11-06)
+## 1.36 — Tuner out; first start polished (Benji, 2026-11-06) ✓
 
 One at a time; one version for the batch.
 

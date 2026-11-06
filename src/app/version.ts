@@ -1,2 +1,2 @@
 /** Shown in Impostazioni → Informazioni. Bump with each milestone/release. */
-export const APP_VERSION = '1.35.2';
+export const APP_VERSION = '1.36.0';
