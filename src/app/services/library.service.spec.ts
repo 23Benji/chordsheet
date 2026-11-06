@@ -1,10 +1,11 @@
 import { TestBed } from '@angular/core/testing';
-import { Annotation, Folder, Song, SongPrefs } from '../core/models';
+import { Annotation, Folder, Song, SongPrefs, TrashEntry } from '../core/models';
 import { DB } from '../data/db';
 import { AnnotationService } from './annotation.service';
 import { FolderService } from './folder.service';
 import { LibraryService } from './library.service';
 import { SongPrefsService } from './song-prefs.service';
+import { TrashService } from './trash.service';
 
 function setup(initial: Song[] = []) {
   const rows = new Map(initial.map((s) => [s.id, s]));
@@ -78,8 +79,9 @@ describe('LibraryService.deleteSongs', () => {
         }),
       }),
     };
-    const db = { songs, songPrefs, annotations, folders, transaction: async (_m: string, _t: unknown, work: () => Promise<void>) => work() };
-    return { db, songs, songPrefs, notes, folders };
+    const trash = table<TrashEntry>((e) => e.songId);
+    const db = { songs, songPrefs, annotations, folders, trash, transaction: async (_m: string, _t: unknown, work: () => Promise<void>) => work() };
+    return { db, songs, songPrefs, notes, folders, trash };
   }
 
   async function setupMemory() {
@@ -116,5 +118,32 @@ describe('LibraryService.deleteSongs', () => {
     expect(notes.rows.has('n1')).toBe(true);
     expect(folders.rows.get('f')!.songIds).toEqual(['a', 'b']);
     expect(TestBed.inject(FolderService).byId().get('f')!.songIds).toEqual(['a', 'b']);
+  });
+
+  it('deleted songs go to the Cestino with their prefs, notes and folders; "Annulla" takes them out again', async () => {
+    const { library, trash } = await setupMemory();
+    const deleted = await library.deleteSongs(['a', 'c']);
+    const bin = TestBed.inject(TrashService);
+    expect(bin.count()).toBe(2);
+    expect(trash.rows.get('a')).toMatchObject({ prefs: { transpose: 2 }, folderIds: ['f'], annotations: [] });
+    expect(trash.rows.get('c')!.annotations.map((n) => n.id)).toEqual(['n1']);
+    await library.restoreSongs(deleted);
+    expect(bin.count()).toBe(0);
+    expect(trash.rows.size).toBe(0);
+  });
+
+  it('"Ripristina" from the Cestino: back with prefs and notes, into folders that still exist, keeping their later changes', async () => {
+    const { library, songPrefs, notes, folders, trash } = await setupMemory();
+    await library.deleteSongs(['a', 'c']);
+    // Meanwhile a song is added to the folder.
+    await TestBed.inject(FolderService).addSongs(['f'], ['x']);
+    expect(await library.restoreFromTrash(['a'])).toBe(1);
+    expect(library.songs().map((s) => s.id)).toEqual(['a', 'b']);
+    expect(songPrefs.rows.get('a')?.transpose).toBe(2);
+    expect(folders.rows.get('f')!.songIds.sort()).toEqual(['a', 'b', 'x']);
+    expect([...trash.rows.keys()]).toEqual(['c']);
+    await library.restoreFromTrash(['c']);
+    expect(notes.rows.has('n1')).toBe(true);
+    expect(TestBed.inject(TrashService).count()).toBe(0);
   });
 });

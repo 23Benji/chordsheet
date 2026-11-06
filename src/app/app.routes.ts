@@ -43,6 +43,10 @@ export const routes: Routes = [
     loadComponent: () => import('./features/setlists/shared-setlist-page').then((m) => m.SharedSetlistPage),
   },
   {
+    path: 'cestino',
+    loadComponent: () => import('./features/library/trash-page').then((m) => m.TrashPage),
+  },
+  {
     path: 'impostazioni',
     loadComponent: () => import('./features/settings/settings-page').then((m) => m.SettingsPage),
   },

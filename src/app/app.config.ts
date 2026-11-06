@@ -18,6 +18,7 @@ import { SetlistService } from './services/setlist.service';
 import { SettingsService } from './services/settings.service';
 import { SongPrefsService } from './services/song-prefs.service';
 import { SyncService } from './services/sync.service';
+import { TrashService } from './services/trash.service';
 import { AppErrorHandler } from './services/app-error-handler';
 
 export const appConfig: ApplicationConfig = {
@@ -41,6 +42,8 @@ export const appConfig: ApplicationConfig = {
         inject(SetlistService).load(),
         inject(FolderService).load(),
         inject(BackupService).load(),
+        // Cestino: also drops songs deleted more than 30 days ago.
+        inject(TrashService).load(),
         // Finishes a Google sign-in that just came back, then syncs in the background.
         inject(SyncService).load(),
       ]),

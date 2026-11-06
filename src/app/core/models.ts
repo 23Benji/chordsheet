@@ -101,6 +101,20 @@ export interface Folder {
   updatedAt: number;
 }
 
+/**
+ * A deleted song in the Cestino: everything needed to bring it back as it
+ * was (its personal settings, notes and the folders it was in). Kept on this
+ * device only, for TRASH_DAYS (core/trash.ts).
+ */
+export interface TrashEntry {
+  songId: string;
+  deletedAt: number;
+  song: Song;
+  prefs: SongPrefs | null;
+  annotations: Annotation[];
+  folderIds: string[];
+}
+
 export type Instrument = 'guitar' | 'piano' | 'bass';
 
 /** Colour themes (tokens in styles/_tokens.scss). */

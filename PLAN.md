@@ -399,3 +399,16 @@ One at a time; one version for the batch.
 - [x] Impostazioni → its own red row under Dati: confirmation (says whether the Drive copy stays / a backup exists), then `EraseService` signs out of Google first (so the empty library never reaches Drive), removes this app's localStorage keys, deletes the IndexedDB database, and the app restarts at "/" (intro → start screen)
 - [x] Tests (order sign-out → delete, other sites' keys kept); real run: 166 songs imported → erased → start screen, database empty; screenshots 390 + 1280
 
+## 1.38 — Cestino + Apple HIG pass (Benji, 2026-11-06)
+
+One at a time; one version for the batch.
+
+1. **Cestino** for deleted songs ("maybe it's complicated to get back a song deleted by error")
+   - [x] Deleting songs (library selection, long-press, swipe, editor) puts each one in a device-only `trash` table (Dexie v4) with its prefs, notes and folder ids, in the same transaction; "Annulla" takes it out again
+   - [x] `core/trash.ts` (+ tests): 30 days, days left, newest first; expired entries removed at start-up (`TrashService.load`)
+   - [x] `/cestino`: rows with "Eliminato oggi · ancora 30 giorni" and a Ripristina button; tap a row → Ripristina / Elimina definitivamente (confirmation); Svuota (confirmation); Ripristina tutti. Restored songs go back into the folders that still exist (keeping the folders' later changes)
+   - [x] Entry: "Cestino (n)" in the library's Tutti i canti menu, only when not empty; toasts say "spostato nel cestino"
+   - [x] Tests + real run (3 songs deleted → restored one → deleted one for good); start-up budget warning 530 → 540 kB
+2. **Apple Human Interface Guidelines pass**: buttons and components consistent everywhere
+   - [ ] …
+

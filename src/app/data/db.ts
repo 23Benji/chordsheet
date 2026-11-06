@@ -1,7 +1,7 @@
 // IndexedDB schema via Dexie (SPEC §4). All user data lives here, on device.
 import { InjectionToken } from '@angular/core';
 import Dexie, { type EntityTable } from 'dexie';
-import { Annotation, Folder, Setlist, Settings, Song, SongPrefs } from '../core/models';
+import { Annotation, Folder, Setlist, Settings, Song, SongPrefs, TrashEntry } from '../core/models';
 
 export type StoredSettings = Settings & { id: 'settings' };
 
@@ -12,6 +12,8 @@ export class AppDb extends Dexie {
   setlists!: EntityTable<Setlist, 'id'>;
   folders!: EntityTable<Folder, 'id'>;
   settings!: EntityTable<StoredSettings, 'id'>;
+  /** Cestino: deleted songs, for 30 days. Device-only (not synced, not in backups). */
+  trash!: EntityTable<TrashEntry, 'songId'>;
   /** Small device-only values (last backup date, auto-backup file handle). Not in backups. */
   kv!: EntityTable<{ key: string; value: unknown }, 'key'>;
 
@@ -30,6 +32,8 @@ export class AppDb extends Dexie {
     this.version(2).stores({ kv: 'key' });
     // Version 3 adds folders ("cartelle"). Existing data is untouched.
     this.version(3).stores({ folders: 'id' });
+    // Version 4 adds the Cestino.
+    this.version(4).stores({ trash: 'songId, deletedAt' });
   }
 }
 

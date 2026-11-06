@@ -1,5 +1,5 @@
 import { Injectable, computed, inject, signal } from '@angular/core';
-import { Annotation, Folder, Song, SongPrefs } from '../core/models';
+import { Annotation, Folder, Song, SongPrefs, TrashEntry } from '../core/models';
 import { buildSearchEntry } from '../core/search';
 import { songFromChordPro, withChordPro } from '../core/song-import';
 import { SongbookEntry, nextFreeSuffix } from '../core/songbook-file';
@@ -9,6 +9,7 @@ import { DB } from '../data/db';
 import { AnnotationService } from './annotation.service';
 import { FolderService } from './folder.service';
 import { SongPrefsService } from './song-prefs.service';
+import { TrashService } from './trash.service';
 
 /**
  * Holds the song library in memory as a signal. Components read `songs()`
@@ -30,6 +31,7 @@ export class LibraryService {
   private readonly annotationService = inject(AnnotationService);
   private readonly folders = inject(FolderService);
   private readonly prefsService = inject(SongPrefsService);
+  private readonly trash = inject(TrashService);
 
   private readonly _songs = signal<Song[]>([]);
   private readonly _loaded = signal(false);
@@ -150,7 +152,8 @@ export class LibraryService {
   /**
    * Deletes several songs with their personal settings and notes. Setlists
    * keep their rows (shown as "song not found"), as for a single delete.
-   * Returns everything that was removed, so "Annulla" can put it back.
+   * Each song goes to the Cestino (with its settings, notes and folders) for
+   * 30 days; the return value lets "Annulla" put it all back right away.
    */
   async deleteSongs(ids: readonly string[]): Promise<DeletedSongs> {
     const gone = new Set(ids);
@@ -161,14 +164,18 @@ export class LibraryService {
       folders: this.folders.folders().filter((f) => f.songIds.some((id) => gone.has(id))),
     };
     if (!ids.length) return deleted;
-    // A Dexie transaction: either all the deletions happen, or none.
-    await this.db.transaction('rw', [this.db.songs, this.db.songPrefs, this.db.annotations], async () => {
+    let trashed: TrashEntry[] = [];
+    // A Dexie transaction: either all the deletions (and the Cestino entries) happen, or none.
+    await this.db.transaction('rw', [this.db.songs, this.db.songPrefs, this.db.annotations, ...(this.db.trash ? [this.db.trash] : [])], async () => {
       deleted.prefs = (await this.db.songPrefs.bulkGet([...ids])).filter((p): p is SongPrefs => !!p);
       deleted.annotations = await this.db.annotations.where('songId').anyOf([...ids]).toArray();
+      trashed = toTrash(deleted, Date.now());
+      if (this.db.trash) await this.db.trash.bulkPut(trashed);
       await this.db.songs.bulkDelete([...ids]);
       await this.db.songPrefs.bulkDelete([...ids]);
       await this.db.annotations.where('songId').anyOf([...ids]).delete();
     });
+    if (this.db.trash) this.trash.added(trashed);
     this._songs.update((songs) => songs.filter((s) => !gone.has(s.id)));
     this.annotationService.forgetSongs(ids);
     await this.folders.forgetSongs(ids);
@@ -189,6 +196,34 @@ export class LibraryService {
     // Only folders that still exist (one deleted meanwhile stays deleted).
     const folders = this.folders.byId();
     await this.folders.restore(...deleted.folders.filter((f) => folders.has(f.id)));
+    await this.trash.remove([...back]);
+  }
+
+  /**
+   * Cestino → "Ripristina": the songs come back with their settings and notes,
+   * and into the folders they were in (those that still exist; the folders'
+   * other changes since then are kept).
+   */
+  async restoreFromTrash(songIds: readonly string[]): Promise<number> {
+    const wanted = new Set(songIds);
+    const entries = this.trash.entries().filter((e) => wanted.has(e.songId));
+    if (!entries.length) return 0;
+    await this.db.transaction('rw', [this.db.songs, this.db.songPrefs, this.db.annotations], async () => {
+      await this.db.songs.bulkPut(entries.map((e) => e.song));
+      await this.db.songPrefs.bulkPut(entries.flatMap((e) => (e.prefs ? [e.prefs] : [])));
+      await this.db.annotations.bulkPut(entries.flatMap((e) => e.annotations));
+    });
+    const back = new Set(entries.map((e) => e.songId));
+    this._songs.update((songs) => [...songs.filter((s) => !back.has(s.id)), ...entries.map((e) => e.song)].sort(compareByNumber));
+    this.prefsService.remember(entries.flatMap((e) => (e.prefs ? [e.prefs] : [])));
+    this.annotationService.remember(entries.flatMap((e) => e.annotations));
+    const existing = this.folders.byId();
+    for (const e of entries) {
+      const folderIds = e.folderIds.filter((id) => existing.has(id));
+      if (folderIds.length) await this.folders.addSongs(folderIds, [e.songId]);
+    }
+    await this.trash.remove([...back]);
+    return entries.length;
   }
 
   /** The original text of a bundled song (same number + suffix), for "Ripristina originale". */
@@ -252,4 +287,16 @@ async function requestPersistentStorage(): Promise<void> {
   } catch {
     // Not supported: nothing to do.
   }
+}
+
+/** One Cestino entry per deleted song, with what belonged to it. */
+function toTrash(deleted: DeletedSongs, now: number): TrashEntry[] {
+  return deleted.songs.map((song) => ({
+    songId: song.id,
+    deletedAt: now,
+    song,
+    prefs: deleted.prefs.find((p) => p.songId === song.id) ?? null,
+    annotations: deleted.annotations.filter((a) => a.songId === song.id),
+    folderIds: deleted.folders.filter((f) => f.songIds.includes(song.id)).map((f) => f.id),
+  }));
 }

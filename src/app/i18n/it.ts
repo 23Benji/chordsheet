@@ -120,7 +120,7 @@ export const IT = {
     newSetlistEllipsis: 'Nuova scaletta…',
     songsAddedToSetlist: (n: number, setlist: string) =>
       n === 1 ? `1 canto aggiunto a “${setlist}”.` : `${n} canti aggiunti a “${setlist}”.`,
-    songsDeleted: (n: number) => (n === 1 ? '1 canto eliminato.' : `${n} canti eliminati.`),
+    songsDeleted: (n: number) => (n === 1 ? '1 canto spostato nel cestino.' : `${n} canti spostati nel cestino.`),
     addTo: 'Aggiungi a…',
     addToTitle: 'Aggiungi alla cartella',
     moveTo: 'Sposta in…',
@@ -515,6 +515,34 @@ export const IT = {
     bassOthers: 'quinta e ottava',
   },
 
+  trash: {
+    title: 'Cestino',
+    back: 'Libreria',
+    menu: 'Cestino',
+    hint: 'I canti eliminati restano qui 30 giorni, con le loro note e impostazioni. Poi spariscono.',
+    emptyTitle: 'Il cestino è vuoto',
+    empty: 'Quando elimini un canto finisce qui: per 30 giorni puoi ancora riaverlo.',
+    deletedAgo: (days: number) => (days === 0 ? 'Eliminato oggi' : days === 1 ? 'Eliminato ieri' : `Eliminato ${days} giorni fa`),
+    daysLeft: (days: number) => (days === 1 ? 'ancora 1 giorno' : `ancora ${days} giorni`),
+    restore: 'Ripristina',
+    restoreAll: 'Ripristina tutti',
+    deleteForever: 'Elimina definitivamente',
+    emptyTrash: 'Svuota',
+    cancel: 'Annulla',
+    restored: (n: number) => (n === 1 ? 'Canto ripristinato nella libreria.' : `${n} canti ripristinati nella libreria.`),
+    confirmEmpty: (n: number) => ({
+      title: 'Svuotare il cestino?',
+      message: n === 1 ? 'Il canto verrà eliminato per sempre, con le sue note.' : `${n} canti verranno eliminati per sempre, con le loro note.`,
+      confirm: 'Elimina per sempre',
+      cancel: 'Annulla',
+    }),
+    confirmDelete: (title: string) => ({
+      title: 'Eliminare per sempre?',
+      message: `“${title}” e le sue note non si potranno più recuperare.`,
+      confirm: 'Elimina per sempre',
+      cancel: 'Annulla',
+    }),
+  },
   stats: {
     title: 'Statistiche',
     back: 'Scalette',
@@ -789,7 +817,7 @@ export const IT = {
       confirm: 'Esci senza salvare',
       cancel: 'Continua a modificare',
     },
-    deleted: (title: string) => `“${title}” eliminato.`,
+    deleted: (title: string) => `“${title}” spostato nel cestino.`,
     confirmRestore: {
       title: 'Ripristinare l’originale?',
       message: 'Il testo torna quello originale incluso. Puoi ancora annullare prima di salvare.',

@@ -20,6 +20,7 @@ import { searchSongs } from '../../core/search';
 import { compareByNumber, compareByTitle, numberLabel } from '../../core/song-meta';
 import { collapseVersions, mainVersion } from '../../core/versions';
 import { IT } from '../../i18n/it';
+import { TrashService } from '../../services/trash.service';
 import { AnnotationService } from '../../services/annotation.service';
 import { FolderService } from '../../services/folder.service';
 import { ToastService, UNDO_MS } from '../../services/toast.service';
@@ -57,6 +58,7 @@ export class LibrarySidebar {
   private readonly router = inject(Router);
   private readonly toast = inject(ToastService);
   private readonly setlists = inject(SetlistService);
+  private readonly trash = inject(TrashService);
   protected readonly folderService = inject(FolderService);
   protected readonly layout = inject(LayoutService);
   protected readonly t = IT.library;
@@ -194,6 +196,10 @@ export class LibrarySidebar {
         }),
       ),
       { id: 'new', label: this.ft.newEllipsis, icon: 'folderPlus', divider: true },
+      // Cestino: only when something is in it (like "Eliminati di recente" in Notes).
+      ...(this.trash.count()
+        ? ([{ id: 'trash', label: IT.trash.menu, icon: 'trash', hint: `${this.trash.count()}` }] satisfies SheetAction[])
+        : []),
       // The open folder's own actions, spelled out (one step, no sub-menu).
       ...(folder
         ? ([
@@ -205,6 +211,10 @@ export class LibrarySidebar {
     ];
     const choice = await this.sheet().choose(this.t.showTitle, actions, this.ft.cancel);
     if (!choice) return;
+    if (choice === 'trash') {
+      void this.router.navigate(['/cestino'], { state: { canGoBack: true } });
+      return;
+    }
     if (choice === 'rename') return this.renameFolder();
     if (choice === 'share') return this.shareFolder();
     if (choice === 'delete') return this.deleteFolder();
