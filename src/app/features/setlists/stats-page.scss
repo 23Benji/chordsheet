@@ -10,17 +10,6 @@
   padding: calc(max(var(--space-5), env(safe-area-inset-top)) + var(--top-gap)) var(--page-x) var(--space-12);
 }
 
-.top {
-  display: flex;
-  align-items: center;
-  gap: var(--space-1);
-  margin-left: calc(-1 * var(--space-2));
-
-  h1 {
-    font-size: 30px;
-  }
-}
-
 section {
   margin-top: var(--space-6);
 }

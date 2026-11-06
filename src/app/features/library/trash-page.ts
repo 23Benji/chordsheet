@@ -23,13 +23,13 @@ const DAY = 24 * 60 * 60 * 1000;
   imports: [RouterLink, Icon, ActionSheet, ConfirmDialog],
   template: `
     <div class="page">
-      <nav class="top">
-        <a class="btn icon-btn back" routerLink="/" [attr.aria-label]="t.back" [title]="t.back"><app-icon name="chevronLeft" /></a>
-        <h1>{{ t.title }}</h1>
+      <nav class="nav-bar">
+        <a class="nav-back" routerLink="/"><app-icon name="chevronLeft" />{{ t.back }}</a>
         @if (trash.count()) {
           <button type="button" class="btn danger-text" (click)="emptyTrash()">{{ t.emptyTrash }}</button>
         }
       </nav>
+      <h1 class="large-title">{{ t.title }}</h1>
 
       @if (!trash.count()) {
         <div class="empty-state">
@@ -72,18 +72,8 @@ const DAY = 24 * 60 * 60 * 1000;
       margin: 0 auto;
       padding: calc(max(var(--space-5), env(safe-area-inset-top)) + var(--top-gap)) var(--page-x) var(--space-12);
     }
-    .top {
-      display: flex;
-      align-items: center;
-      gap: var(--space-1);
-      margin-left: calc(-1 * var(--space-2));
-
-      h1 {
-        flex: 1;
-        font-size: 30px;
-      }
-    }
     .danger-text {
+      margin-left: auto;
       color: var(--coral);
     }
     .hint {

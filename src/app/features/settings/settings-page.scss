@@ -291,8 +291,7 @@ label.list-row {
   }
 
   .back {
-    display: inline-flex;
-    margin-left: -10px;
+    display: flex;
   }
 
   // On phones the text gets the full width; segmented controls and steppers

@@ -1,8 +1,8 @@
 <div class="page">
-  <nav class="top">
-    <a class="btn icon-btn back" routerLink="/scalette" [attr.aria-label]="t.back" [title]="t.back"><app-icon name="chevronLeft" /></a>
-    <h1>{{ t.title }}</h1>
+  <nav class="nav-bar">
+    <a class="nav-back" routerLink="/scalette"><app-icon name="chevronLeft" />{{ t.back }}</a>
   </nav>
+  <h1 class="large-title">{{ t.title }}</h1>
 
   @if (!hasSetlists()) {
     <div class="empty-state">

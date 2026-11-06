@@ -870,3 +870,41 @@ a {
     }
   }
 }
+
+// ── Navigation bar of sub-pages (Apple HIG) ───────────────────────────────────
+// iOS style: a tinted chevron with the name of the screen you go back to, and
+// the page's large title on its own line under it. Same on every sub-page
+// (Impostazioni, Statistiche, Cestino, a setlist).
+.nav-bar {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-height: var(--tap);
+}
+
+.nav-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  min-height: var(--tap);
+  margin-left: calc(-1 * var(--space-2));
+  padding: 0 var(--space-2) 0 0;
+  color: var(--accent);
+  font-size: 17px;
+  text-decoration: none;
+
+  app-icon {
+    --icon-size: var(--icon-l);
+  }
+
+  &:hover {
+    filter: brightness(1.15);
+  }
+}
+
+.large-title {
+  margin: var(--space-1) 0 0;
+  font-size: 32px;
+  line-height: 1.15;
+}
+

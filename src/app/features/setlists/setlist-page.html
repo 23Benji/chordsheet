@@ -1,7 +1,7 @@
 <div class="page">
   <nav class="top">
     <app-sidebar-toggle />
-    <a class="back" routerLink="/scalette"><app-icon name="chevronLeft" /> {{ t.title }}</a>
+    <a class="nav-back" routerLink="/scalette"><app-icon name="chevronLeft" />{{ t.title }}</a>
     @if (setlist()) {
       <!-- iPhone: duplicate / share / delete live behind "⋯" (iOS navigation bar). -->
       <button type="button" class="btn icon-btn more phone-only" (click)="openMenu()" [attr.aria-label]="t.moreActions" [title]="t.moreActions">

@@ -58,7 +58,9 @@ export class SettingsPage implements OnInit {
   private readonly keymap = viewChild.required(KeymapDialog);
   private readonly restoreDialog = viewChild.required<ElementRef<HTMLDialogElement>>('restoreDialog');
   protected readonly t = IT.settings;
-  protected readonly backLabel = IT.song.backToLibrary;
+  /** Where "‹" goes: the tab whose gear opened this page (passed as router state), else Libreria. */
+  protected readonly back =
+    history.state?.from === 'scalette' ? { link: '/scalette', label: IT.shell.setlists } : { link: '/', label: IT.shell.library };
   protected readonly version = APP_VERSION;
   protected readonly accidentalOptions = ['auto', 'sharps', 'flats'] as const;
   protected readonly instruments = ['guitar', 'piano', 'bass'] as const;

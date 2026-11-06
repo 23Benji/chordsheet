@@ -1,8 +1,10 @@
 <div class="page">
+  <!-- iPhone: back to the tab it was opened from (the gear is in both Libreria and Scalette). -->
+  <nav class="nav-bar back">
+    <a class="nav-back" [routerLink]="back.link"><app-icon name="chevronLeft" />{{ back.label }}</a>
+  </nav>
   <div class="title-row">
     <app-sidebar-toggle />
-    <!-- iPhone: opened from the library's "+" menu, so a way back to it. -->
-    <a class="btn icon-btn back" routerLink="/" [attr.aria-label]="backLabel" [title]="backLabel"><app-icon name="chevronLeft" /></a>
     <h1>{{ t.title }}</h1>
   </div>
 
