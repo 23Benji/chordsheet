@@ -399,7 +399,7 @@ One at a time; one version for the batch.
 - [x] Impostazioni → its own red row under Dati: confirmation (says whether the Drive copy stays / a backup exists), then `EraseService` signs out of Google first (so the empty library never reaches Drive), removes this app's localStorage keys, deletes the IndexedDB database, and the app restarts at "/" (intro → start screen)
 - [x] Tests (order sign-out → delete, other sites' keys kept); real run: 166 songs imported → erased → start screen, database empty; screenshots 390 + 1280
 
-## 1.38 — Cestino + Apple HIG pass (Benji, 2026-11-06)
+## 1.38 — Cestino + Apple HIG pass (Benji, 2026-11-06) ✓
 
 One at a time; one version for the batch.
 
@@ -410,5 +410,12 @@ One at a time; one version for the batch.
    - [x] Entry: "Cestino (n)" in the library's Tutti i canti menu, only when not empty; toasts say "spostato nel cestino"
    - [x] Tests + real run (3 songs deleted → restored one → deleted one for good); start-up budget warning 530 → 540 kB
 2. **Apple Human Interface Guidelines pass**: buttons and components consistent everywhere
-   - [ ] …
+   - [x] Read the HIG pages (buttons, alerts, action sheets, sheets, menus, lists, toolbars/navigation, tab bars, toggles, segmented controls, search/text fields, feedback, layout) and screenshotted every screen at 390
+   - [x] Touch targets ≥ 44 pt on touch screens (`--tap-small` 40 → 44, search row / editor fields / hint close); switches and chord chips keep their look with a bigger invisible tap area. Left as they are: segmented controls (iOS's own are 32 pt), the 7 performance-mode buttons (38 wide: 44 doesn't fit an iPhone)
+   - [x] One navigation bar on every sub-page: orange "‹ Libreria / ‹ Scalette" + large title under it (Impostazioni — back to the tab that opened it —, Statistiche, Cestino, a setlist)
+   - [x] Scalette on iPhone like Libreria: floating "+" (Nuova scaletta, hidden while the list is empty), Importa as an icon next to the gear, card actions (Duplica, Condividi, Elimina) in a long-press menu instead of three small icons; laptop unchanged
+   - [x] Empty setlist: one "Aggiungi canti" (no disabled Suona + second Aggiungi canti)
+   - [x] Selecting songs on iPhone: the selection toolbar takes the tab bar's place (as in Photos / Mail)
+   - [x] Metronome chip "90" → "90 BPM"
+   - [x] Screenshots 390 + 1280, tests green
 

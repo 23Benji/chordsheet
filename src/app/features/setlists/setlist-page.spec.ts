@@ -76,7 +76,8 @@ describe('SetlistPage', () => {
   it('adds songs from the "Aggiungi canti" sheet (number + Enter, or a tap)', async () => {
     const { setlist, rows } = setup([]);
     const { el, settle, titles } = await render(setlist);
-    button(el.querySelector('.head')!, 'Aggiungi canti').click();
+    // An empty setlist has a single "Aggiungi canti", in its empty state.
+    button(el.querySelector('.empty-state')!, 'Aggiungi canti').click();
     await settle();
     const sheet = el.querySelector<HTMLDialogElement>('app-add-songs-sheet dialog')!;
     expect(sheet.open).toBe(true);

@@ -10,6 +10,8 @@ import { ToastService, UNDO_MS } from '../../services/toast.service';
 import { Icon } from '../../ui/icon';
 import { SidebarToggle } from '../../ui/sidebar-toggle';
 import { SwipeAction } from '../../ui/swipe-action';
+import { FabMenu } from '../../ui/fab-menu';
+import { LongPress } from '../../ui/long-press';
 import { ActionSheet } from '../../ui/action-sheet';
 import { ShareSetlistSheet } from './share-setlist-sheet';
 import { SHARED_SETLIST_PATH, linkFragment } from '../../core/setlist-link';
@@ -17,7 +19,7 @@ import { SHARED_SETLIST_PATH, linkFragment } from '../../core/setlist-link';
 /** All setlists: create, import, and quick actions. */
 @Component({
   selector: 'app-setlists-page',
-  imports: [RouterLink, Icon, SidebarToggle, ShareSetlistSheet, ActionSheet, SwipeAction],
+  imports: [RouterLink, Icon, SidebarToggle, ShareSetlistSheet, ActionSheet, SwipeAction, FabMenu, LongPress],
   templateUrl: './setlists-page.html',
   styleUrl: './setlists-page.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -78,6 +80,24 @@ export class SetlistsPage {
   protected async remove(setlist: Setlist): Promise<void> {
     const removed = await this.service.remove(setlist.id);
     if (removed) this.toast.show(this.t.deleted(removed.name), UNDO_MS, { label: IT.shell.undo, run: () => void this.service.restore(removed) });
+  }
+
+  /** Long-press (or right-click) a setlist: its actions, like a library row's. */
+  protected async cardMenu(setlist: Setlist): Promise<void> {
+    const choice = await this.menu().choose(
+      setlist.name,
+      [
+        ...(this.playable(setlist) ? [{ id: 'play', label: this.t.play, icon: 'play' as const }] : []),
+        { id: 'duplicate', label: this.t.duplicate, icon: 'copy' },
+        { id: 'share', label: this.t.share, icon: 'share' },
+        { id: 'delete', label: this.t.delete, icon: 'trash', danger: true, divider: true },
+      ],
+      this.t.cancel,
+    );
+    if (choice === 'play') this.play(setlist);
+    else if (choice === 'duplicate') this.duplicate(setlist);
+    else if (choice === 'share') this.share(setlist);
+    else if (choice === 'delete') await this.remove(setlist);
   }
 
   /**

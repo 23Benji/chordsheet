@@ -18,6 +18,8 @@ export class LayoutService {
   readonly phone = signal(false);
   /** Show the app (editor …) even with an empty library: "scrivi il primo canto". */
   readonly forceShell = signal(false);
+  /** Songs are being selected in the library (iPhone: the selection toolbar takes the tab bar's place). */
+  readonly selecting = signal(false);
   /** The opening animation is on screen (the start screen waits to animate until it's gone). */
   readonly introPlaying = signal(false);
   /**

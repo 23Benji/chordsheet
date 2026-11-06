@@ -2,10 +2,15 @@
   <header class="head">
     <div class="title">
       <app-sidebar-toggle /><h1>{{ t.title }}</h1>
-      <!-- iPhone: Impostazioni top right, in the same place as in Libreria. -->
-      <a class="btn icon-btn gear phone-only" routerLink="/impostazioni" [state]="{ from: 'scalette' }" [attr.aria-label]="settingsLabel" [title]="settingsLabel">
-        <app-icon name="settings" />
-      </a>
+      <!-- iPhone: Importa and Impostazioni top right (Libreria: Seleziona and Impostazioni); "+" floats at the bottom. -->
+      <span class="phone-tools phone-only">
+        <button type="button" class="btn icon-btn" (click)="chooseImport(file)" [attr.aria-label]="t.import" [title]="t.import">
+          <app-icon name="fileUp" />
+        </button>
+        <a class="btn icon-btn gear" routerLink="/impostazioni" [state]="{ from: 'scalette' }" [attr.aria-label]="settingsLabel" [title]="settingsLabel">
+          <app-icon name="settings" />
+        </a>
+      </span>
     </div>
     <div class="head-actions">
       <button type="button" class="btn btn-secondary" (click)="chooseImport(file)"><app-icon name="fileUp" /> {{ t.import }}</button>
@@ -37,7 +42,7 @@
 
   <ul class="list">
     @for (setlist of service.setlists(); track setlist.id) {
-      <li class="card" appSwipeAction (swipeDelete)="remove(setlist)">
+      <li class="card" appSwipeAction (swipeDelete)="remove(setlist)" appLongPress (longPress)="cardMenu(setlist)">
         <!-- Revealed by swiping the card to the left (phones). -->
         <button type="button" class="swipe-delete" tabindex="-1" aria-hidden="true"><app-icon name="trash" /> {{ t.swipeDelete }}</button>
         <a class="main" [routerLink]="['/scalette', setlist.id]">
@@ -53,13 +58,14 @@
           <button type="button" class="btn play" [disabled]="!playable(setlist)" (click)="play(setlist)">
             <app-icon name="play" /> {{ t.play }}
           </button>
-          <button type="button" class="btn icon-btn" (click)="duplicate(setlist)" [attr.aria-label]="t.duplicate" [title]="t.duplicate">
+          <!-- iPhone: these three are in the long-press menu (and delete is also a swipe), like library rows. -->
+          <button type="button" class="btn icon-btn wide-only" (click)="duplicate(setlist)" [attr.aria-label]="t.duplicate" [title]="t.duplicate">
             <app-icon name="copy" />
           </button>
-          <button type="button" class="btn icon-btn" (click)="share(setlist)" [attr.aria-label]="t.share" [title]="t.share">
+          <button type="button" class="btn icon-btn wide-only" (click)="share(setlist)" [attr.aria-label]="t.share" [title]="t.share">
             <app-icon name="share" />
           </button>
-          <button type="button" class="btn icon-btn" (click)="remove(setlist)" [attr.aria-label]="t.delete" [title]="t.delete">
+          <button type="button" class="btn icon-btn wide-only" (click)="remove(setlist)" [attr.aria-label]="t.delete" [title]="t.delete">
             <app-icon name="trash" />
           </button>
         </div>
@@ -89,3 +95,9 @@
 
 <app-share-setlist-sheet />
 <app-action-sheet />
+
+<!-- Not while the form is open, nor with no setlists (the empty state has its own "Nuova scaletta"). -->
+@if (!creating() && service.setlists().length) {
+  <app-fab-menu [link]="null" [label]="t.new" [fixed]="true" (pressed)="creating.set(true)" />
+}
+

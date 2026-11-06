@@ -31,9 +31,12 @@
   gap: var(--space-3);
 }
 
-.gear {
+.phone-tools {
   margin-left: auto;
-  color: var(--accent);
+
+  .btn {
+    color: var(--accent);
+  }
 }
 
 .head-actions {
@@ -163,6 +166,16 @@
   // The title line spans the row, so the gear sits at the far right.
   .title {
     flex: 1 1 100%;
+  }
+
+  // "Importa" is an icon next to the gear and "Nuova scaletta" the floating "+".
+  .head-actions {
+    display: none;
+  }
+
+  // Room for the floating "+" under the last card.
+  .page {
+    padding-bottom: 96px;
   }
 }
 

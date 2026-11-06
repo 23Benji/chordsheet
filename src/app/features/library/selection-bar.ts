@@ -78,11 +78,6 @@ import { Icon } from '../../ui/icon';
     .danger:not(:disabled) {
       color: var(--coral);
     }
-    @media (max-width: 600px) {
-      .bar {
-        padding-bottom: var(--space-2);
-      }
-    }
   `,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })

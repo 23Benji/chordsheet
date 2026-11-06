@@ -257,6 +257,8 @@ export class LibrarySidebar {
   // ── Selecting songs (folders, setlists, share, delete several at once) ────
 
   protected readonly selecting = signal(false);
+  // Tell the shell, which hides the iPhone tab bar meanwhile (as in Photos or Mail).
+  private readonly shareSelecting = effect(() => this.layout.selecting.set(this.selecting()));
   /** Selected library entries: entry key → the row's song (all its versions are filed). */
   protected readonly selected = signal<ReadonlyMap<string, Song>>(new Map());
   protected readonly allSelected = computed(

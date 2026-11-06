@@ -26,6 +26,11 @@
     color: var(--accent-ink);
   }
 
+  &.fixed {
+    position: fixed;
+    bottom: calc(var(--bottom-bar, 0px) + 18px);
+  }
+
   app-icon {
     --icon-size: var(--icon-l);
   }

@@ -1,7 +1,7 @@
 <app-popover [label]="t.title" triggerClass="chip">
   <span trigger class="trigger" [class.running]="running()">
     <app-icon name="metronome" />
-    <span class="tool-text"><span class="chip-value">{{ bpm() }}</span></span>
+    <span class="tool-text"><span class="chip-value">{{ bpm() }}</span> BPM</span>
     @if (running()) {
       <span class="mini-dot" [class.on]="flash() !== null" aria-hidden="true"></span>
     }

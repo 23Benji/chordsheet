@@ -50,7 +50,11 @@ export class App {
    * at the bottom (a detail page hides the tab bar, as in many iOS apps).
    */
   protected readonly bottomBarHidden = computed(
-    () => this.editing() || (this.layout.phone() && /^\/canto\/[^/?#]+\/?([?#]|$)/.test(this.url())),
+    () =>
+      this.editing() ||
+      (this.layout.phone() && /^\/canto\/[^/?#]+\/?([?#]|$)/.test(this.url())) ||
+      // Selecting songs: the selection toolbar replaces the tab bar (iOS edit mode).
+      (this.layout.phone() && this.layout.selecting() && this.libraryShown()),
   );
   /** Which bottom-bar tab is active. */
   protected readonly section = computed(() => {
