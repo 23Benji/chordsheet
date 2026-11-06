@@ -222,11 +222,11 @@
   }
 }
 
-// Touch screens: bigger targets (SPEC: 44×44 on touch).
+// Touch screens: bigger targets (SPEC and Apple's guidelines: at least 44×44 pt).
 @media (pointer: coarse) {
   :root {
     --tap: 44px;
-    --tap-small: 40px;
+    --tap-small: 44px;
   }
 }
 

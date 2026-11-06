@@ -163,7 +163,7 @@
   font-size: 13px;
 
   input {
-    height: 40px;
+    height: var(--tap);
     padding: 0 var(--space-3);
     border: 1px solid transparent;
     border-radius: var(--radius-s);

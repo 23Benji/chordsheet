@@ -69,8 +69,9 @@ type Hint = 'install' | 'backup' | 'persist';
       justify-self: start;
     }
     .close {
-      min-width: 32px;
-      min-height: 32px;
+      min-width: var(--tap-small);
+      min-height: var(--tap-small);
+      margin: calc(var(--space-2) * -1) calc(var(--space-2) * -1) 0 0; // same look, bigger target
     }
     .lead {
       color: var(--accent);

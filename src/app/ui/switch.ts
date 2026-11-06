@@ -24,6 +24,13 @@ import { ChangeDetectionStrategy, Component, input, output } from '@angular/core
       &[aria-checked='true'] {
         background: var(--accent);
       }
+
+      // The switch looks like iOS's (50 × 30) but answers to a 44 pt tall tap.
+      &::before {
+        content: '';
+        position: absolute;
+        inset: -7px -4px;
+      }
     }
     .thumb {
       position: absolute;

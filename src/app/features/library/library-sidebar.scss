@@ -81,7 +81,7 @@
 
   input {
     width: 100%;
-    height: 40px;
+    height: var(--tap); // 40 with a mouse, 44 on touch screens
     padding: 0 var(--space-8) 0 var(--space-10);
     border: 1px solid transparent;
     border-radius: var(--radius-m);
@@ -148,7 +148,7 @@
   display: inline-flex;
   flex: none;
   align-items: center;
-  height: 40px;
+  height: var(--tap);
   border: none;
   border-radius: var(--radius-m);
   background: var(--surface);
@@ -194,7 +194,7 @@
 
 .sort-btn {
   justify-content: center;
-  width: 40px;
+  width: var(--tap);
   padding: 0;
   color: var(--text-muted);
 }
