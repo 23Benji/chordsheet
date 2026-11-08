@@ -30,7 +30,7 @@ import { RecentService } from '../../services/recent.service';
 import { SetlistService } from '../../services/setlist.service';
 import { SongPrefsService } from '../../services/song-prefs.service';
 import { HintBanner } from '../../ui/hint-banner';
-import { FabMenu } from '../../ui/fab-menu';
+import { FabMenu, FabOption } from '../../ui/fab-menu';
 import { FolderNameDialog } from '../../ui/folder-name-dialog';
 import { Icon } from '../../ui/icon';
 import { ImportFlow } from '../../ui/import-flow';
@@ -599,16 +599,27 @@ export class LibrarySidebar {
   }
 
   /** The "+": write a new song, or bring in songs from files. */
+  protected readonly addOptions: readonly FabOption[] = [
+    { id: 'new', label: this.t.newSong, icon: 'edit' },
+    { id: 'import', label: this.t.importSongs, icon: 'fileUp' },
+  ];
+
+  /** Wider screens: the same two choices in a small menu (on iPhone the floating "+" offers them). */
   protected async addMenu(): Promise<void> {
     const choice = await this.sheet().choose(
       this.t.add,
-      [
-        { id: 'new', label: this.t.newSong, icon: 'edit' },
-        { id: 'import', label: this.t.importSongs, icon: 'fileUp', pressed: () => this.importFlow()?.pick() },
-      ],
+      this.addOptions.map((option) => ({
+        ...option,
+        pressed: option.id === 'import' ? () => this.add(option.id) : undefined,
+      })),
       this.ft.cancel,
     );
-    if (choice !== 'new') return;
+    if (choice === 'new') this.add(choice);
+  }
+
+  /** A browser opens a file picker only from inside a tap: this must run in it, not after a wait. */
+  protected add(choice: string): void {
+    if (choice === 'import') return this.importFlow()?.pick();
     void this.router.navigate(['/nuovo']);
     this.closeOnNarrowScreen();
   }

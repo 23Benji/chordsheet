@@ -199,9 +199,9 @@
   />
 }
 
-<!-- iPhone: the floating glass "+": Nuovo canto / Importa (hidden while selecting). -->
+<!-- iPhone: the floating glass "+" turns into Nuovo canto / Importa (hidden while selecting). -->
 @if (!selecting()) {
-  <app-fab-menu [link]="null" [label]="t.add" (pressed)="addMenu()" />
+  <app-fab-menu [link]="null" [label]="t.add" [options]="addOptions" (chosen)="add($event)" />
 }
 
 <app-folder-name-dialog />

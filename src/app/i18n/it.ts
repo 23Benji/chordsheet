@@ -2,6 +2,10 @@
 export const IT = {
   appName: 'Chordsheet',
 
+  common: {
+    close: 'Chiudi',
+  },
+
   welcome: {
     reference: 'Trasponi · Annota · Suona dal vivo',
     intro: 'La libreria è vuota. Da dove arrivano i tuoi canti?',

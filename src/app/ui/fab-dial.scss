@@ -1,0 +1,162 @@
+// ── The "+" with choices: drops of the button morph into glass buttons ───────
+// The tokens are read here and not on :root, where a var() would keep the
+// colours of the theme :root started with.
+.dial {
+  // Solid enough to stay readable where a browser can't draw the blur.
+  --glass: color-mix(in srgb, var(--bg-elev-1) 74%, transparent);
+  --glass-edge: color-mix(in srgb, var(--text) 22%, transparent);
+  // Overshoots a little before settling: gives the shapes some weight.
+  --morph: cubic-bezier(0.32, 1.28, 0.5, 1);
+  --settle: cubic-bezier(0.3, 0.9, 0.3, 1);
+
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  max-width: none;
+  height: 100%;
+  max-height: none;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  border: none;
+  background: transparent;
+
+  &:focus {
+    outline: none;
+  }
+
+  &::backdrop {
+    background: transparent;
+  }
+}
+
+.scrim {
+  position: absolute;
+  inset: 0;
+  background: color-mix(in srgb, var(--bg) 34%, transparent);
+  -webkit-backdrop-filter: blur(2.5px);
+  backdrop-filter: blur(2.5px);
+  opacity: 0;
+  transition: opacity 0.2s;
+
+  .open & {
+    opacity: 1;
+  }
+}
+
+.anchor {
+  position: fixed;
+  width: 58px;
+  height: 58px;
+}
+
+// Starts as the "+" itself: same place, size and colour, hidden behind it.
+.drop {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  width: 58px;
+  height: 58px;
+  padding: 0;
+  overflow: hidden;
+  border: 1px solid color-mix(in srgb, var(--accent) 55%, transparent);
+  border-radius: 29px;
+  background: var(--accent);
+  color: var(--text);
+  font-family: var(--font-body);
+  font-size: 17px;
+  font-weight: 700;
+  box-shadow: var(--shadow);
+  -webkit-backdrop-filter: blur(22px) saturate(1.7);
+  backdrop-filter: blur(22px) saturate(1.7);
+  opacity: 0;
+  cursor: pointer;
+  transition:
+    width 0.22s var(--settle),
+    height 0.22s var(--settle),
+    translate 0.22s var(--settle),
+    background 0.16s,
+    border-color 0.16s,
+    opacity 0.08s 0.14s;
+
+  .open & {
+    width: calc(var(--width, 120px) + var(--space-8) + 2px);
+    height: 52px;
+    border-color: var(--glass-edge);
+    background: var(--glass);
+    box-shadow: var(--shadow), inset 0 1px 0 var(--glass-edge);
+    opacity: 1;
+    // One above the other, the lowest clear of the "+".
+    translate: 0 calc(-70px - var(--i) * 62px);
+    // A moment apart, so they peel off the button one by one.
+    transition:
+      width 0.46s var(--morph) calc(var(--i) * 0.05s),
+      height 0.46s var(--morph) calc(var(--i) * 0.05s),
+      translate 0.46s var(--morph) calc(var(--i) * 0.05s),
+      background 0.3s 0.06s,
+      border-color 0.3s 0.06s,
+      opacity 0.01s;
+  }
+
+  &:active {
+    filter: brightness(1.15);
+  }
+}
+
+// The label only shows once there is room for it.
+.inner {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  white-space: nowrap;
+  opacity: 0;
+  transition: opacity 0.08s;
+
+  .open & {
+    opacity: 1;
+    transition: opacity 0.2s 0.16s;
+  }
+}
+
+.content {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+
+  app-icon {
+    --icon-size: var(--icon-m);
+    color: var(--accent);
+  }
+}
+
+.fab.close {
+  right: 0;
+  bottom: 0;
+  transition: scale 0.3s var(--morph);
+
+  app-icon {
+    transition: rotate 0.34s var(--morph);
+  }
+
+  .open & {
+    scale: 0.92;
+
+    app-icon {
+      rotate: 45deg;
+    }
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .drop,
+  .open .drop,
+  .inner,
+  .open .inner,
+  .scrim,
+  .fab.close,
+  .fab.close app-icon {
+    transition: none;
+  }
+}

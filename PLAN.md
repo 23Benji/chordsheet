@@ -424,3 +424,8 @@ One at a time; one version for the batch.
 1. [x] Share the app: "Condividi Chordsheet" in Impostazioni → QR code + Invia link + Copia link (no more going through GitHub)
 2. [x] "+" in the library offers Nuovo canto / Importa (phone and wide screens); same import flow as Impostazioni
 3. [x] "Scegli un canto" screen: follows the theme, title set like a song, recent songs, music staves around them (Benji picked "B1 Pentagramma" from the options page)
+
+## 1.40 — The phone "+" morphs into its choices (Benji, 2026-11-08) ✓
+- [x] Benji picked "Ventaglio" with morph and blur from a tappable demo: no list, the "+" becomes an × and Nuovo canto / Importa da file grow out of it as drops that turn into glass buttons; closing melts them back
+- [x] `ui/fab-dial.ts` (native dialog, above the tab bar), loaded with @defer; Scalette's "+" and wider screens unchanged
+- [x] Closes when rotated past phone width (it would be hidden and block the page), on Esc and on back

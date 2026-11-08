@@ -42,3 +42,8 @@
   -webkit-backdrop-filter: blur(14px) saturate(1.6);
   backdrop-filter: blur(14px) saturate(1.6);
 }
+
+// Under the open dial the real "+" is replaced by the × exactly over it.
+.fab.covered {
+  visibility: hidden;
+}
