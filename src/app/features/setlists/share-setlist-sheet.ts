@@ -1,18 +1,13 @@
 import { ChangeDetectionStrategy, Component, ElementRef, inject, signal, viewChild } from '@angular/core';
 import { shareOrDownload } from '../../core/export';
 import { Setlist } from '../../core/models';
+import { Qr, makeQr } from '../../core/qr';
 import { encodeSetlistLink, setlistLinkUrl } from '../../core/setlist-link';
 import { exportSetlist, setlistFileName } from '../../core/setlists';
 import { IT } from '../../i18n/it';
 import { LibraryService } from '../../services/library.service';
 import { ToastService } from '../../services/toast.service';
 import { Icon } from '../../ui/icon';
-
-interface Qr {
-  size: number;
-  /** One SVG path with a 1×1 square per dark module. */
-  path: string;
-}
 
 /**
  * "Condividi" a setlist: a QR code to scan with another phone's camera, the
@@ -47,96 +42,7 @@ interface Qr {
       <button type="button" class="btn file" (click)="shareFile()"><app-icon name="fileDown" /> {{ t.file }}</button>
     </dialog>
   `,
-  styles: `
-    .sheet {
-      width: min(400px, calc(100vw - 32px));
-      max-height: 92dvh;
-      padding: var(--space-2) var(--space-5) var(--space-5);
-      border: none;
-      border-radius: var(--radius-l);
-      background: var(--bg-elev-1);
-      color: var(--text);
-      box-shadow: var(--shadow);
-      text-align: center;
-    }
-    .sheet::backdrop {
-      background: var(--scrim);
-    }
-    .bar {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-right: calc(-1 * var(--space-3));
-
-      h2 {
-        font-size: 18px;
-      }
-    }
-    .done {
-      color: var(--accent);
-    }
-    .name {
-      margin: var(--space-1) 0 var(--space-4);
-      overflow: hidden;
-      color: var(--text-muted);
-      text-overflow: ellipsis;
-      white-space: nowrap;
-    }
-    .qr {
-      display: grid;
-      place-items: center;
-      width: min(240px, 70vw);
-      aspect-ratio: 1;
-      margin: 0 auto;
-      overflow: hidden;
-      border-radius: var(--radius-m);
-      background: var(--qr-light);
-
-      svg {
-        width: 100%;
-        height: 100%;
-      }
-    }
-    .qr-bg {
-      fill: var(--qr-light);
-    }
-    .qr-fg {
-      fill: var(--qr-dark);
-    }
-    .qr-error {
-      padding: var(--space-4);
-      color: var(--qr-dark);
-      font-size: 14px;
-    }
-    .hint {
-      margin: var(--space-4) 0;
-      color: var(--text-muted);
-      font-size: 14px;
-    }
-    .actions {
-      display: flex;
-      gap: var(--space-2);
-
-      .btn {
-        flex: 1;
-        min-height: 48px;
-      }
-    }
-    .file {
-      width: 100%;
-      margin-top: var(--space-2);
-      color: var(--text-muted);
-    }
-    @media (max-width: 600px) {
-      .sheet {
-        width: 100vw;
-        max-width: 100vw;
-        margin: auto 0 0;
-        padding-bottom: max(var(--space-5), env(safe-area-inset-bottom));
-        border-radius: var(--radius-l) var(--radius-l) 0 0;
-      }
-    }
-  `,
+  styleUrl: '../../ui/qr-sheet.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ShareSetlistSheet {
@@ -213,23 +119,4 @@ export class ShareSetlistSheet {
   protected onBackdrop(event: MouseEvent): void {
     if (event.target === this.dialog().nativeElement) this.close();
   }
-}
-
-/**
- * The QR code as one SVG path. The library ('qrcode-generator') is loaded
- * only now, the first time a QR is shown, so it never slows down start-up.
- * Error correction "M": still readable with ~15 % of the code damaged
- * (glare on the screen, a finger on the corner).
- */
-async function makeQr(text: string): Promise<Qr> {
-  const { default: qrcode } = await import('qrcode-generator');
-  const code = qrcode(0, 'M');
-  code.addData(text, 'Byte');
-  code.make();
-  const size = code.getModuleCount();
-  let path = '';
-  for (let row = 0; row < size; row++) {
-    for (let col = 0; col < size; col++) if (code.isDark(row, col)) path += `M${col} ${row}h1v1h-1z`;
-  }
-  return { size, path };
 }

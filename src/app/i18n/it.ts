@@ -576,6 +576,15 @@ export const IT = {
     empty: 'Prepara le scalette della domenica: qui vedrai quali canti cantate di più e quali parti dell’innario.',
     emptyPeriod: 'Nessuna scaletta in questo periodo.',
   },
+  shareApp: {
+    row: 'Condividi Chordsheet',
+    rowHint: 'Fallo provare a qualcuno: basta un link o un codice QR',
+    title: 'Condividi Chordsheet',
+    qrLabel: 'Codice QR di Chordsheet',
+    hint: 'Inquadra il codice con la fotocamera di un altro telefono, oppure invia il link.',
+    shareText: 'Prova Chordsheet: canti con accordi, trasposizione e scalette.',
+  },
+
   shareSetlist: {
     title: 'Condividi la scaletta',
     qrLabel: 'Codice QR della scaletta',

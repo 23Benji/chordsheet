@@ -231,6 +231,13 @@
   </div>
 
   <h2 class="list-group-title">{{ t.groups.about }}</h2>
+  <div class="list-group">
+    <button type="button" class="list-row clickable" (click)="shareApp().open()">
+      <span class="icon-tile"><app-icon name="share" /></span>
+      <span class="row-text"><span class="row-label">{{ sa.row }}</span><span class="row-hint">{{ sa.rowHint }}</span></span>
+      <app-icon name="chevronRight" class="row-chevron" />
+    </button>
+  </div>
   <div class="list-group about">
     <img class="app-icon" src="icons/icon-192.png" alt="" />
     <h3>{{ appName }}</h3>
@@ -302,3 +309,4 @@
 <app-confirm-dialog />
 <app-action-sheet />
 <app-keymap-dialog />
+<app-share-app-sheet />

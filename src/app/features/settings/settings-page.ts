@@ -19,6 +19,7 @@ import { ConfirmDialog } from '../../ui/confirm-dialog';
 import { FolderPicker } from '../../ui/folder-picker';
 import { Icon } from '../../ui/icon';
 import { KeymapDialog } from '../../ui/keymap-dialog';
+import { ShareAppSheet } from '../../ui/share-app-sheet';
 import { SidebarToggle } from '../../ui/sidebar-toggle';
 import { Switch } from '../../ui/switch';
 import { APP_VERSION } from '../../version';
@@ -29,7 +30,7 @@ const FONT_MAX = 1.6;
 /** Settings as grouped rows: icon · what it does · control on the right. */
 @Component({
   selector: 'app-settings-page',
-  imports: [RouterLink, Icon, ConfirmDialog, KeymapDialog, Switch, SidebarToggle, FolderPicker, ActionSheet],
+  imports: [RouterLink, Icon, ConfirmDialog, KeymapDialog, Switch, SidebarToggle, FolderPicker, ActionSheet, ShareAppSheet],
   templateUrl: './settings-page.html',
   styleUrl: './settings-page.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -56,6 +57,8 @@ export class SettingsPage implements OnInit {
   private readonly dialog = viewChild.required(ConfirmDialog);
   private readonly sheet = viewChild.required(ActionSheet);
   private readonly keymap = viewChild.required(KeymapDialog);
+  protected readonly shareApp = viewChild.required(ShareAppSheet);
+  protected readonly sa = IT.shareApp;
   private readonly restoreDialog = viewChild.required<ElementRef<HTMLDialogElement>>('restoreDialog');
   protected readonly t = IT.settings;
   /** Where "‹" goes: the tab whose gear opened this page (passed as router state), else Libreria. */
