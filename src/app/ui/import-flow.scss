@@ -1,0 +1,90 @@
+.restore-dialog {
+  width: min(480px, 94vw);
+  padding: 0;
+  border: none;
+  border-radius: var(--radius-l);
+  background: var(--bg-elev-1);
+  color: var(--text);
+  box-shadow: var(--shadow);
+
+  &::backdrop {
+    background: var(--scrim);
+  }
+}
+
+.dialog-body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding: var(--space-6);
+
+  h2 {
+    font-size: 22px;
+  }
+
+  p {
+    margin: 0 0 var(--space-2);
+  }
+}
+
+.option {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-3);
+  padding: var(--space-4);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-m);
+  background: none;
+  color: var(--text);
+  text-align: left;
+  cursor: pointer;
+
+  &:hover {
+    background: var(--surface);
+  }
+
+  .row-text {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1);
+  }
+
+  .row-label {
+    font-size: 16px;
+    font-weight: 700;
+  }
+
+  .row-hint {
+    color: var(--text-muted);
+    font-size: 14px;
+    line-height: 1.4;
+  }
+}
+
+.dialog-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--space-2);
+  margin-top: var(--space-2);
+}
+
+.folders-field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  margin-bottom: var(--space-2);
+}
+
+.field-label {
+  color: var(--text-muted);
+  font-size: 13px;
+}
+
+.conflict-title {
+  margin-top: var(--space-2);
+  font-size: 17px;
+}
+
+.muted {
+  color: var(--text-muted);
+}

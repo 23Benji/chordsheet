@@ -13,6 +13,11 @@ export interface SheetAction {
   checked?: boolean;
   /** A thin line above this item, to group the choices. */
   divider?: boolean;
+  /**
+   * Runs inside the tap itself. A browser opens a file picker only from a
+   * real tap, so this can't wait for the promise of choose() to come back.
+   */
+  pressed?: () => void;
 }
 
 /**
@@ -39,7 +44,7 @@ export interface SheetAction {
             [attr.aria-checked]="action.checked ?? null"
             [class.danger]="action.danger"
             [class.checked]="action.checked"
-            (click)="settle(action.id)"
+            (click)="settle(action.id); action.pressed?.()"
           >
             <app-icon [name]="action.icon" />
             <span class="label">{{ action.label }}</span>

@@ -421,6 +421,6 @@ One at a time; one version for the batch.
 
 
 ## 1.39 — First screen, share the app, "+" with Importa (Benji, 2026-11-08)
-1. [ ] Share the app: "Condividi Chordsheet" in Impostazioni → QR code + Invia link + Copia link (no more going through GitHub)
-2. [ ] "+" in the library offers Nuovo canto / Importa (phone and wide screens); same import flow as Impostazioni
+1. [x] Share the app: "Condividi Chordsheet" in Impostazioni → QR code + Invia link + Copia link (no more going through GitHub)
+2. [x] "+" in the library offers Nuovo canto / Importa (phone and wide screens); same import flow as Impostazioni
 3. [ ] "Scegli un canto" screen: title unreadable in light themes; follow the theme and look better (Benji picks from the options page)

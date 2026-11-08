@@ -57,6 +57,8 @@ export const IT = {
     expand: 'Mostra libreria',
     hasNotes: 'Ha note personali',
     newSong: 'Nuovo canto',
+    add: 'Aggiungi',
+    importSongs: 'Importa da file',
     settings: 'Impostazioni',
     versions: (n: number) => `${n} versioni`,
     versionsHint: 'Questo canto ha più versioni: scegli quale nella pagina del canto',

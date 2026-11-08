@@ -33,6 +33,7 @@ import { HintBanner } from '../../ui/hint-banner';
 import { FabMenu } from '../../ui/fab-menu';
 import { FolderNameDialog } from '../../ui/folder-name-dialog';
 import { Icon } from '../../ui/icon';
+import { ImportFlow } from '../../ui/import-flow';
 import { LongPress } from '../../ui/long-press';
 import { SwipeAction } from '../../ui/swipe-action';
 import { ActionSheet, SheetAction } from '../../ui/action-sheet';
@@ -42,7 +43,7 @@ type LibrarySort = 'number' | 'title';
 
 @Component({
   selector: 'app-library-sidebar',
-  imports: [RouterLink, NgTemplateOutlet, SelectionBar, Icon, HintBanner, FabMenu, FolderNameDialog, ActionSheet, LongPress, SwipeAction],
+  imports: [RouterLink, NgTemplateOutlet, SelectionBar, Icon, HintBanner, FabMenu, FolderNameDialog, ActionSheet, ImportFlow, LongPress, SwipeAction],
   templateUrl: './library-sidebar.html',
   styleUrl: './library-sidebar.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -74,6 +75,8 @@ export class LibrarySidebar {
   private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
   private readonly nameDialog = viewChild.required(FolderNameDialog);
   private readonly sheet = viewChild.required(ActionSheet);
+  /** By template name, not by class: naming the class here would undo the @defer in the template. */
+  private readonly importFlow = viewChild<{ pick(): void }>('importFlow');
 
   protected readonly query = signal('');
   /** The search box has the focus: with no query, "Recenti" shows above the list. */
@@ -592,6 +595,21 @@ export class LibrarySidebar {
   protected open(song: Song): void {
     if (this.selecting()) return this.toggleSelected(song);
     void this.router.navigate(['/canto', song.id]);
+    this.closeOnNarrowScreen();
+  }
+
+  /** The "+": write a new song, or bring in songs from files. */
+  protected async addMenu(): Promise<void> {
+    const choice = await this.sheet().choose(
+      this.t.add,
+      [
+        { id: 'new', label: this.t.newSong, icon: 'edit' },
+        { id: 'import', label: this.t.importSongs, icon: 'fileUp', pressed: () => this.importFlow()?.pick() },
+      ],
+      this.ft.cancel,
+    );
+    if (choice !== 'new') return;
+    void this.router.navigate(['/nuovo']);
     this.closeOnNarrowScreen();
   }
 

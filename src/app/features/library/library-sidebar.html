@@ -45,9 +45,9 @@
   }
   </span>
   @if (!selecting()) {
-    <a class="btn icon-btn new" routerLink="/nuovo" (click)="closeOnNarrowScreen()" [attr.aria-label]="t.newSong" [title]="t.newSong">
+    <button type="button" class="btn icon-btn new" (click)="addMenu()" [attr.aria-label]="t.add" [title]="t.add">
       <app-icon name="plus" />
-    </a>
+    </button>
   }
   <button
     type="button"
@@ -199,13 +199,17 @@
   />
 }
 
-<!-- iPhone: floating glass button with "Nuovo canto" and "Impostazioni" (hidden while selecting). -->
+<!-- iPhone: the floating glass "+": Nuovo canto / Importa (hidden while selecting). -->
 @if (!selecting()) {
-  <app-fab-menu />
+  <app-fab-menu [link]="null" [label]="t.add" (pressed)="addMenu()" />
 }
 
 <app-folder-name-dialog />
 <app-action-sheet />
+<!-- @defer: rarely needed, so its code is loaded right after start-up instead of slowing it down. -->
+@defer (on idle) {
+  <app-import-flow #importFlow />
+}
 
 <footer class="foot">
   <a class="btn settings" routerLink="/impostazioni" (click)="closeOnNarrowScreen()">

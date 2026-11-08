@@ -163,12 +163,11 @@
         <app-icon name="chevronRight" class="row-chevron" />
       </button>
     }
-    <label class="list-row clickable">
+    <button type="button" class="list-row clickable" (click)="importFlow().pick()">
       <span class="icon-tile sage"><app-icon name="fileUp" /></span>
       <span class="row-text"><span class="row-label">{{ t.importAll }}</span><span class="row-hint">{{ t.importAllHint }}</span></span>
       <app-icon name="chevronRight" class="row-chevron" />
-      <input #songsFile type="file" multiple [accept]="songsAccept" class="visually-hidden" (change)="chooseSongs(songsFile)" />
-    </label>
+    </button>
     <button type="button" class="list-row clickable" (click)="exportMenu()">
       <span class="icon-tile sage"><app-icon name="fileDown" /></span>
       <span class="row-text">
@@ -250,63 +249,8 @@
   </div>
 </div>
 
-<dialog #restoreDialog class="restore-dialog" aria-labelledby="restore-title" (close)="pendingRestore.set(null)">
-  <div class="dialog-body">
-    <h2 id="restore-title">{{ t.restoreDialog.title }}</h2>
-    @if (pendingRestore(); as pending) {
-      <p class="muted">{{ t.restoreDialog.file(pending.name) }}</p>
-    }
-    <button type="button" class="option" [disabled]="busy()" (click)="restore('merge')">
-      <span class="icon-tile sage"><app-icon name="layers" /></span>
-      <span class="row-text"><span class="row-label">{{ t.restoreDialog.merge }}</span><span class="row-hint">{{ t.restoreDialog.mergeHint }}</span></span>
-    </button>
-    <button type="button" class="option" [disabled]="busy()" (click)="restore('replace')">
-      <span class="icon-tile coral"><app-icon name="restore" /></span>
-      <span class="row-text"><span class="row-label">{{ t.restoreDialog.replace }}</span><span class="row-hint">{{ t.restoreDialog.replaceHint }}</span></span>
-    </button>
-    <div class="dialog-actions">
-      <button type="button" class="btn btn-secondary" (click)="closeRestore()">{{ t.restoreDialog.cancel }}</button>
-    </div>
-  </div>
-</dialog>
-
-<dialog #importDialog class="restore-dialog" aria-labelledby="import-title" (close)="pendingImport.set(null)">
-  @if (pendingImport(); as pending) {
-    <div class="dialog-body">
-      <h2 id="import-title">{{ it.title(pending.files.songs.length) }}</h2>
-      <div class="folders-field">
-        <span class="field-label">{{ ft.pickerLabel }}</span>
-        <app-folder-picker [(selected)]="importFolders" [hint]="ft.importPickerHint" />
-      </div>
-      @if (pending.conflicts) {
-        <h3 class="conflict-title">{{ it.conflictTitle }}</h3>
-        <p class="muted">{{ it.conflictMessage(pending.conflicts) }}</p>
-        <button type="button" class="option" (click)="resolveImport('replace')">
-          <span class="icon-tile"><app-icon name="restore" /></span>
-          <span class="row-text"><span class="row-label">{{ it.replace }}</span><span class="row-hint">{{ it.replaceHint }}</span></span>
-        </button>
-        <button type="button" class="option" (click)="resolveImport('keepBoth')">
-          <span class="icon-tile sage"><app-icon name="layers" /></span>
-          <span class="row-text"><span class="row-label">{{ it.keepBoth }}</span><span class="row-hint">{{ it.keepBothHint }}</span></span>
-        </button>
-        <button type="button" class="option" (click)="resolveImport('skip')">
-          <span class="icon-tile sky"><app-icon name="chevronRight" /></span>
-          <span class="row-text"><span class="row-label">{{ it.skip }}</span><span class="row-hint">{{ it.skipHint }}</span></span>
-        </button>
-        <div class="dialog-actions">
-          <button type="button" class="btn btn-secondary" (click)="resolveImport(null)">{{ it.cancel }}</button>
-        </div>
-      } @else {
-        <div class="dialog-actions">
-          <button type="button" class="btn" (click)="resolveImport(null)">{{ it.cancel }}</button>
-          <button type="button" class="btn btn-primary" (click)="resolveImport('skip')">{{ it.import }}</button>
-        </div>
-      }
-    </div>
-  }
-</dialog>
-
 <app-confirm-dialog />
 <app-action-sheet />
 <app-keymap-dialog />
 <app-share-app-sheet />
+<app-import-flow (finished)="refreshStorage()" />
