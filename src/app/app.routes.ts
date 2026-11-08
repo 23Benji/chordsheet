@@ -1,9 +1,9 @@
 import { Routes } from '@angular/router';
 import type { EditorPage } from './features/editor/editor-page';
-import { Home } from './features/home/home';
 
 export const routes: Routes = [
-  { path: '', component: Home },
+  // Loaded on its own: phones never show it (the library covers it there).
+  { path: '', loadComponent: () => import('./features/home/home').then((m) => m.Home) },
   {
     path: 'canto/:id',
     // Lazy-loaded: the song view is downloaded only when first needed.

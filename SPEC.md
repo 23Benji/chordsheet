@@ -47,7 +47,7 @@ Keep the production bundle lean (target < 500 KB gzipped initial, lazy-load the 
   - Some songs carry a **second key** written as plain text at the end of lines in parentheses, e.g. `…AL SI[Bm]GNOR.    (Am Em Am Em)`, and a header comment `Tra parentesi a fine riga: gli accordi nella seconda tonalità`. Render that parenthesised group in the muted "annotation" style, right-aligned on the line. Do not transpose it in v1 (nice-to-have later: parse and transpose it too).
   - Many older songs are entirely UPPERCASE; leave text as is.
   - **Known data issues from the PDF conversion** (fixed by hand with the visual editor, §5.7 — not automatically): many chords sit in the middle of a word (`RISCA[G#m]TTATO`); some songs contain chord lines in the old notation as plain text (`F#- D A-E`, `B- G D A — D`, `C AmDm G F C`, `Mi- Do+`; `-` = minor). Lines made only of such chords are recognised automatically, normalised (`B-` → Bm, `E7-` → Em7, Do/Re/Mi → C/D/E), shown in chord style and transposed; lines mixing chords and lyrics stay as text; songs 029, 071b, 116 and 146 have no chords at all.
-- `assets/` — `bg-dark.jpg` (calm warm blurred background, for empty states / about page only), `bg-dark-rays.jpg` (warm light rays, for the welcome screen only).
+- `assets/` — `bg-dark-rays.jpg` (warm light rays, for the welcome screen only).
 
 On first launch, if the library is empty, offer **"Importa l'innario incluso"**, which loads all files from `songs/` (bundle them as static assets). Also support importing user files (section 5.2).
 

@@ -136,9 +136,11 @@ export const IT = {
   },
 
   home: {
-    title: 'Scegli un canto',
-    hint: 'Cerca un canto a sinistra, oppure scrivi il numero e premi Invio.',
-    hintClosed: 'Apri la libreria con il pulsante in alto a sinistra, oppure premi / per cercare un canto.',
+    // Set like a song: each part is a piece of text, some with a chord above it.
+    title: [{ chord: 'G', text: 'Sce' }, { text: 'gli un ' }, { chord: 'D', text: 'can' }, { text: 'to' }],
+    hint: [{ chord: 'Am', text: 'Cer' }, { text: 'ca a sinistra per ' }, { chord: 'C', text: 'ti' }, { text: 'tolo o numero.' }],
+    hintClosed: [{ chord: 'Am', text: 'A' }, { text: 'pri la libreria con il ' }, { chord: 'C', text: 'pul' }, { text: 'sante in alto.' }],
+    keyHint: 'per cercare',
   },
 
   song: {
