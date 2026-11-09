@@ -2,6 +2,7 @@
 // segments). chordsheetjs does the parsing; we render the HTML ourselves so
 // the styling is fully ours (SPEC §2).
 import { ChordLyricsPair, ChordProParser, Comment, Song as CsSong, Tag } from 'chordsheetjs';
+import { CHORD_SPACE_DIRECTIVES, ChordSpace, chordGaps } from './chord-gap';
 import { ChordTextItem, parseChordLine, tokenizeChordText } from './chord-text';
 import { parseChord } from './transpose';
 
@@ -28,6 +29,10 @@ export interface LyricLine {
   text: string;
   /** Trailing "(Am Em Am Em)" group = chords in the second key (SPEC §3). */
   secondKey: string | null;
+  /** `{x_gap}` / `{x_glue}` written before the line (see chord-gap.ts). */
+  space?: ChordSpace;
+  /** No chords, but keeps the chord row's space (see chord-gap.ts). */
+  chordGap?: boolean;
 }
 
 export interface CommentLine {
@@ -159,6 +164,8 @@ export function parseChordPro(source: string): Sheet {
   /** Kind for the next section opened outside blocks (set by a label line). */
   let pending: SectionKind | null = null;
   let lineIndex = 0;
+  /** `{x_gap}` / `{x_glue}` waiting for the lyric line it belongs to. */
+  let space: ChordSpace | null = null;
 
   const close = () => {
     if (current && current.lines.length > 0) sections.push(current);
@@ -190,6 +197,8 @@ export function parseChordPro(source: string): Sheet {
         } else if (item.name === 'start_of_part') {
           close();
           block = kindFromLabel(restore(item.label) || null);
+        } else if (item.name in CHORD_SPACE_DIRECTIVES) {
+          space = CHORD_SPACE_DIRECTIVES[item.name];
         } else if (BLOCK_ENDS.has(item.name)) {
           close();
           block = null;
@@ -240,6 +249,8 @@ export function parseChordPro(source: string): Sheet {
         continue;
       }
       if (lyricLine) {
+        if (space && lyricLine.kind === 'lyrics') lyricLine.space = space;
+        space = null;
         open().lines.push(lyricLine);
         lineIndex++;
         continue;
@@ -249,6 +260,7 @@ export function parseChordPro(source: string): Sheet {
   }
   close();
   classifySections(sections);
+  for (const section of sections) markChordGaps(section);
 
   const meta = (name: string): string | null => {
     const value = song.getSingleMetadataValue(name);
@@ -268,6 +280,20 @@ export function parseChordPro(source: string): Sheet {
     tempo: metaNumber('tempo'),
     sections,
   };
+}
+
+/** Sets `chordGap` on the lyric lines of a section (rule in chord-gap.ts). */
+function markChordGaps(section: SheetSection): void {
+  const gaps = chordGaps(
+    section.lines.map((line) =>
+      line.kind === 'lyrics'
+        ? { lyrics: true, chorded: line.hasChords, blank: line.text === '', space: line.space }
+        : { lyrics: false, chorded: false, blank: false },
+    ),
+  );
+  section.lines.forEach((line, i) => {
+    if (line.kind === 'lyrics' && gaps[i]?.on) line.chordGap = true;
+  });
 }
 
 const isSung = (line: SheetLine) => line.kind === 'lyrics' && line.text !== '';

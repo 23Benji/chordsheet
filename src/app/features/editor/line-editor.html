@@ -1,3 +1,21 @@
+<!--
+  Chord gap (only on a line without chords inside a passage with chords): a
+  strip where the chords would go. Its label switches whether the song keeps
+  that space above the line; the rest of the strip still adds chords.
+-->
+@if (gap(); as g) {
+  <div class="gap-strip" [class.on]="g.on" aria-hidden="true"></div>
+  <button
+    type="button"
+    class="gap-label"
+    [class.on]="g.on"
+    [attr.aria-pressed]="g.on"
+    [attr.aria-label]="g.on ? t.gapOnAria : t.gapOffAria"
+    [title]="g.on ? t.gapOnAria : t.gapOffAria"
+    (mousedown)="$event.preventDefault()"
+    (click)="gapToggled.emit()"
+  >{{ g.on ? t.gapOn : t.gapOff }}</button>
+}
 <div class="scroller" #scroller>
   <div class="grid" [style.width.ch]="widthCh()">
     <span class="measure" #measure aria-hidden="true">0000000000</span>

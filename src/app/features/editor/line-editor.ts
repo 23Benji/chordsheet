@@ -1,3 +1,4 @@
+import { GapState } from '../../core/chord-gap';
 import {
   ChangeDetectionStrategy,
   Component,
@@ -61,6 +62,8 @@ export class LineEditor {
   readonly line = input.required<EditorLyricsLine>();
   readonly palette = input<string[]>([]);
   readonly focusRequest = input<FocusRequest | null>(null);
+  /** Chord gap of a line without chords (null: doesn't apply, no strip). See chord-gap.ts. */
+  readonly gap = input<GapState | null>(null);
 
   readonly changed = output<LineChange>();
   /** Enter pressed with the caret at this position. */
@@ -69,6 +72,8 @@ export class LineEditor {
   readonly mergePrevious = output<void>();
   /** ↑ / ↓: go to the previous / next line, keeping the caret column. */
   readonly navigate = output<{ delta: -1 | 1; caret: number }>();
+  /** The "spazio accordi" label was tapped. */
+  readonly gapToggled = output<void>();
 
   protected readonly t = IT.editor;
   private readonly textInput = viewChild.required<ElementRef<HTMLInputElement>>('text');

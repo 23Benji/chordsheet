@@ -824,6 +824,10 @@ export const IT = {
     rawTag: 'ChordPro',
     lyricsAria: 'Testo della riga',
     chordRow: 'Clicca qui per aggiungere un accordo',
+    gapOn: '↕ spazio accordi',
+    gapOff: '+ spazio accordi',
+    gapOnAria: 'La riga lascia lo spazio degli accordi sopra di sé: tocca per attaccarla alla riga sopra',
+    gapOffAria: 'La riga è attaccata a quella sopra: tocca per lasciare lo spazio degli accordi',
     chordAria: (chord: string) => `Accordo ${chord}: frecce per spostare, Invio per modificare, Canc per eliminare`,
 
     chordPopover: {

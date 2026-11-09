@@ -87,6 +87,8 @@
                 (split)="onSplit(section, asLyrics(line), $event)"
                 (mergePrevious)="onMergePrevious(section, li)"
                 (navigate)="onNavigate(asLyrics(line), $event.delta, $event.caret)"
+                [gap]="gaps().get(line.id) ?? null"
+                (gapToggled)="toggleGap(section, asLyrics(line))"
               />
             }
             @case ('comment') {

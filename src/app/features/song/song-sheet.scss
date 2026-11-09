@@ -214,6 +214,12 @@
   display: none;
 }
 
+// A line without chords inside a passage with chords keeps the chord row's
+// height (0.85em × line-height 1.2), so it isn't glued to the line above.
+.chord-gap {
+  padding-top: calc(0.85em * 1.2);
+}
+
 .second-key {
   flex: none;
   color: var(--text-muted);

@@ -74,7 +74,11 @@
               }
             </div>
           } @else {
-            <div class="line" [class.no-chords]="!line.hasChords && (lyricsOnly() || !hasPersonalChord(notes))">
+            <div
+              class="line"
+              [class.no-chords]="!line.hasChords && (lyricsOnly() || !hasPersonalChord(notes))"
+              [class.chord-gap]="line.chordGap && !lyricsOnly() && !hasPersonalChord(notes)"
+            >
               <span class="lyrics">
                 @for (word of line.words; track $index) {
                   <span class="word">

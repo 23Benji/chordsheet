@@ -211,3 +211,46 @@
     --mono-size: 15px;
   }
 }
+
+// ── Chord gap strip (see line-editor.html) ─────────────────────────────────
+// Drawn over the empty chord row: dashed = the line sits right under the one
+// above; orange = it keeps the chord row's space. Only the label is a button.
+.gap-strip {
+  position: absolute;
+  top: 3px;
+  right: 0;
+  left: 0;
+  z-index: 1;
+  height: calc(var(--row-h) - 6px);
+  border: 1px dashed var(--border);
+  border-radius: var(--radius-s);
+  pointer-events: none;
+
+  &.on {
+    border: 1px solid var(--accent);
+    background: var(--highlight-amber);
+  }
+}
+
+.gap-label {
+  position: absolute;
+  top: 3px;
+  right: 0;
+  z-index: 2;
+  height: calc(var(--row-h) - 6px);
+  padding: 0 var(--space-2);
+  border: none;
+  border-radius: var(--radius-s);
+  background: none;
+  color: var(--text-muted);
+  font-family: var(--font-body);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+  cursor: pointer;
+
+  &.on {
+    color: var(--accent);
+  }
+}

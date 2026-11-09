@@ -209,6 +209,17 @@ describe('editor model: old notation, sections, song-wide', () => {
     expect(serializeEditorSong(dup)).toBe('[C]a\n\n[C]a\n\n[C]b\n');
   });
 
+  it('keeps the chord gap markers on their line', () => {
+    const src = '[G]uno\n{x_glue}\ndue\n{x_gap}\ntre\n';
+    const song = parseEditorSong(src);
+    const lines = song.sections[0].lines as EditorLyricsLine[];
+    expect(lines.map((l) => [l.text, l.space])).toEqual([['uno', undefined], ['due', 'glue'], ['tre', 'gap']]);
+    expect(serializeEditorSong(song)).toBe(src);
+    // a chord added later: the marker is no longer written
+    const chorded = { ...song, sections: [{ ...song.sections[0], lines: [lines[0], { ...lines[1], chords: [{ id: 'c', pos: 0, chord: 'D' }] }] }] };
+    expect(serializeEditorSong(chorded)).toBe('[G]uno\n[D]due\n');
+  });
+
   it('drags sections and lines to a new place', () => {
     const song = parseEditorSong('a\n\nb\n\nc');
     const text = (x: typeof song) => x.sections.map((s) => (s.lines[0] as EditorLyricsLine).text);

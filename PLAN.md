@@ -437,4 +437,4 @@ Discussed one by one, built one at a time, one version bump + push at the end.
 - [x] Editor: drag sections (cards shrink while dragging) and lines; ↑/↓ buttons removed, handles take ↑ ↓ keys; moved item stays in place on screen
 - [x] Editor undo: iPhone floating ↶ ↷ pill (was scrolling away unnoticed); "Sezione/Riga eliminata · Annulla" after deleting
 - [x] Editor: "+" above/below the section being edited (menu: types + "Copia di Ritornello"); "+ Aggiungi sezione" at the end replaces the old row
-- [ ] "Invisible chord": a chordless line keeps the chord gap, optional per line (to discuss)
+- [x] Chord gap: automatic after a chord line, strip "spazio accordi" in the editor to switch it ({x_gap} / {x_glue})

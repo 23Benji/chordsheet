@@ -4,6 +4,7 @@
 // "Dio è grande", chords G@0, D@6). Every editing operation is a pure
 // function returning a new object — easy to test, and new references are
 // what Angular signals need to notice a change.
+import { CHORD_SPACE_DIRECTIVES, ChordSpace } from './chord-gap';
 import { chordLinePositions } from './chord-text';
 import { keyOf, keyUsesFlats, transposeChord, transposeKey } from './transpose';
 
@@ -20,6 +21,8 @@ export interface EditorLyricsLine {
   kind: 'lyrics';
   text: string;
   chords: EditorChord[];
+  /** Chord gap chosen for this line (`{x_gap}` / `{x_glue}` before it; see chord-gap.ts). */
+  space?: ChordSpace;
 }
 
 /** `{comment: …}`: performance notes like "x2", "basso". */
@@ -163,6 +166,9 @@ export function parseEditorSong(source: string): EditorSong {
     return current;
   };
 
+  /** `{x_gap}` / `{x_glue}`: belongs to the lyric line right after it. */
+  let space: ChordSpace | undefined;
+
   for (; i < lines.length; i++) {
     const line = lines[i];
     if (line.trim() === '') {
@@ -171,6 +177,11 @@ export function parseEditorSong(source: string): EditorSong {
     }
     const d = DIRECTIVE.exec(line);
     const name = d?.[1].toLowerCase() ?? '';
+    const nextIsLyrics = i + 1 < lines.length && lines[i + 1].trim() !== '' && !DIRECTIVE.exec(lines[i + 1]) && !/^\s*#/.test(lines[i + 1]);
+    if (d && name in CHORD_SPACE_DIRECTIVES && nextIsLyrics) {
+      space = CHORD_SPACE_DIRECTIVES[name];
+      continue;
+    }
     if (d && name in STARTS) {
       close();
       const label = directiveLabel(d[2]);
@@ -187,8 +198,11 @@ export function parseEditorSong(source: string): EditorSong {
     } else if (d || /^\s*#/.test(line)) {
       open().lines.push({ id: newId(), kind: 'raw', text: line });
     } else {
-      open().lines.push(parseLyricsLine(line));
+      const lyrics = parseLyricsLine(line);
+      if (space) lyrics.space = space;
+      open().lines.push(lyrics);
     }
+    space = undefined;
   }
   close();
   return { meta, extraHeader, sections };
@@ -229,7 +243,8 @@ function sectionWrapper(section: EditorSection): [string, string] | null {
 function lineToChordPro(line: EditorLine): string {
   switch (line.kind) {
     case 'lyrics':
-      return lyricsToChordPro(line);
+      // The gap choice only matters on a line without chords.
+      return line.space && !line.chords.length ? `{x_${line.space}}\n${lyricsToChordPro(line)}` : lyricsToChordPro(line);
     case 'comment':
       return `{comment: ${line.text}}`;
     case 'raw':

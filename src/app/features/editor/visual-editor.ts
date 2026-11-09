@@ -38,6 +38,7 @@ import {
   updateSection,
 } from '../../core/editor-model';
 import { NgTemplateOutlet } from '@angular/common';
+import { GapState, chordGaps, toggledSpace } from '../../core/chord-gap';
 import { IT } from '../../i18n/it';
 import { Popover } from '../../ui/popover';
 import { ToastService, UNDO_MS } from '../../services/toast.service';
@@ -216,6 +217,38 @@ export class VisualEditor {
       sections.splice(Math.min(index, sections.length), 0, section);
       this.emit({ ...this.song(), sections });
     });
+  }
+
+  // ── Chord gap ─────────────────────────────────────────────────────────────
+
+  /** Chord gap of each line without chords where it applies (chord-gap.ts). */
+  protected readonly gaps = computed(() => {
+    const map = new Map<string, GapState>();
+    for (const section of this.song().sections) {
+      const states = chordGaps(
+        section.lines.map((line) =>
+          line.kind === 'lyrics' && !isOldChordLine(line)
+            ? { lyrics: true, chorded: line.chords.length > 0, blank: !line.text.trim(), space: line.space }
+            : { lyrics: false, chorded: false, blank: false },
+        ),
+      );
+      section.lines.forEach((line, i) => {
+        const state = states[i];
+        if (state) map.set(line.id, state);
+      });
+    }
+    return map;
+  });
+
+  /** The strip's label: switch the gap; the choice is kept only when it differs from the rule. */
+  protected toggleGap(section: EditorSection, line: EditorLyricsLine): void {
+    const state = this.gaps().get(line.id);
+    if (!state) return;
+    const space = toggledSpace(state);
+    this.setLines(
+      section,
+      section.lines.map((l) => (l.id === line.id ? { ...line, space } : l)),
+    );
   }
 
   // ── Adding sections in place ─────────────────────────────────────────────

@@ -197,7 +197,8 @@ export function layoutSongPdf(sheet: Sheet, options: PdfOptions, measure: Measur
         },
       }));
     }
-    return chordLyricRows(line.words, line.hasChords, line.secondKey, left, width);
+    // A chord gap (chord-gap.ts) takes the chord row's height like a line with chords.
+    return chordLyricRows(line.words, line.hasChords || !!line.chordGap, line.secondKey, left, width);
   }
 
   /** Chords above lyrics: each segment is as wide as the wider of its chord and syllable. */
