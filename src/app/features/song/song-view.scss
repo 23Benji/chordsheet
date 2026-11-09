@@ -306,7 +306,7 @@
   color: var(--accent);
 }
 
-// Testo panel: [↺] [− 100% +] — ↺ only once the size differs from the standard one.
+// Testo panel: [− 100% +] [↺] — ↺ shows once the size differs from the standard one; its place is always kept.
 .font-control {
   display: inline-flex;
   align-items: center;

@@ -433,6 +433,7 @@ One at a time; one version for the batch.
 ## 1.41 — Feedback from real use (Benji, 2026-11-09) ✓
 Discussed one by one, built one at a time, one version bump + push at the end.
 - [x] Text size: 100 % = old 65 % (phone) / 85 % (computer, iPad); 50–150 %; everything back to 100 %; ↺ reset in the song view's Testo panel
+- [x] 1.41.1 (Benji: the reset button shifted the size buttons, a quick second tap on A− hit reset): ↺ moved right of the stepper, its place always kept
 - [x] Chord finder: /accordi, sideways neck, name + notes + other names, Suona; tab "Accordi" (iPhone) / sidebar link, only with Chitarra
 - [x] Editor: drag sections (cards shrink while dragging) and lines; ↑/↓ buttons removed, handles take ↑ ↓ keys; moved item stays in place on screen
 - [x] Editor undo: iPhone floating ↶ ↷ pill (was scrolling away unnoticed); "Sezione/Riga eliminata · Annulla" after deleting
