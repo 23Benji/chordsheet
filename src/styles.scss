@@ -519,6 +519,37 @@ a {
   background: var(--border);
 }
 
+// Editor: the round "+" in the gap between two sections, and "+ Aggiungi
+// sezione" after the last one (popover triggers, see visual-editor).
+.btn.add-btn {
+  position: relative;
+  width: 32px;
+  min-width: 32px;
+  height: 32px;
+  min-height: 32px;
+  padding: 0;
+  border: 1px solid var(--border);
+  border-radius: 50%;
+  background: var(--bg-elev-1);
+  color: var(--accent);
+  box-shadow: var(--shadow);
+
+  app-icon {
+    --icon-size: var(--icon-s);
+  }
+
+  // A finger-sized target (44 px) around the small circle.
+  &::after {
+    content: '';
+    position: absolute;
+    inset: -6px;
+  }
+}
+
+.btn.add-end-btn {
+  color: var(--accent);
+}
+
 // Stepper: − value + (transpose, capo, size …).
 .stepper {
   display: inline-flex;

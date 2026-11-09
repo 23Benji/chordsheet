@@ -12,7 +12,10 @@ import {
   lyricsToChordPro,
   mergeLines,
   moveChord,
+  insertCopy,
+  insertSection,
   moveLineTo,
+  newSection,
   moveSection,
   moveSectionTo,
   newSongTemplate,
@@ -218,6 +221,20 @@ describe('editor model: old notation, sections, song-wide', () => {
     const lines = (s: typeof section) => s.lines.map((l) => (l as EditorLyricsLine).text);
     expect(lines(moveLineTo(section, section.lines[2].id, 0))).toEqual(['tre', 'uno', 'due']);
     expect(moveLineTo(section, section.lines[0].id, 5)).toBe(section);
+  });
+
+  it('inserts a section or a copy of one at a given place', () => {
+    const song = parseEditorSong('a\n\n{start_of_chorus}\n[G]rit\n{end_of_chorus}\n\nb');
+    const kinds = (x: typeof song) => x.sections.map((s) => s.kind);
+    const withBridge = insertSection(song, 1, newSection('bridge'));
+    expect(kinds(withBridge)).toEqual(['auto', 'bridge', 'chorus', 'auto']);
+    expect(kinds(insertSection(song, 99, newSection('outro'))).at(-1)).toBe('outro');
+
+    const copied = insertCopy(song, song.sections[1].id, 3);
+    expect(kinds(copied)).toEqual(['auto', 'chorus', 'auto', 'chorus']);
+    expect(copied.sections[3].id).not.toBe(song.sections[1].id);
+    expect(lyricsToChordPro(copied.sections[3].lines[0] as EditorLyricsLine)).toBe('[G]rit');
+    expect(insertCopy(song, 'missing', 0)).toBe(song);
   });
 
   it('transposes permanently, spelling for the new key', () => {

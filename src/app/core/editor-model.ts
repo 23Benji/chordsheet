@@ -506,8 +506,17 @@ export function newSection(kind: EditorKind): EditorSection {
   return { id: newId(), kind, label: '', lines: [emptyLyrics()] };
 }
 
-export function addSection(song: EditorSong, kind: EditorKind): EditorSong {
-  return { ...song, sections: [...song.sections, newSection(kind)] };
+/** Puts a section at position `index` (0 = first; past the end = last). */
+export function insertSection(song: EditorSong, index: number, section: EditorSection): EditorSong {
+  const sections = [...song.sections];
+  sections.splice(Math.max(0, Math.min(index, sections.length)), 0, section);
+  return { ...song, sections };
+}
+
+/** "Copia del ritornello": a full copy (fresh ids) of section `sourceId` at position `index`. */
+export function insertCopy(song: EditorSong, sourceId: string, index: number): EditorSong {
+  const source = song.sections.find((s) => s.id === sourceId);
+  return source ? insertSection(song, index, cloneSection(source)) : song;
 }
 
 /** Template for "Nuovo canto": a verse and a chorus, each with one empty line. */

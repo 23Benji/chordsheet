@@ -9,7 +9,9 @@
 }
 
 .card {
-  margin-bottom: var(--space-3);
+  position: relative;
+  // Room for the "+" in the gap between two sections.
+  margin-bottom: var(--space-5);
   padding: var(--space-3) var(--space-3) var(--space-2) var(--space-4);
   border-radius: var(--radius-l);
   background: var(--bg-elev-1);
@@ -183,18 +185,59 @@
   font-weight: 400;
 }
 
-.add-sections {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: var(--space-1);
-  padding: var(--space-2) 0 var(--space-6);
+// ── Adding sections ────────────────────────────────────────────────────────
+// A round "+" centred in the gap under a card (or above the first one). It is
+// there only around the section last worked in (.shown), or under the card
+// the mouse is over — never a "+" between every pair at once.
+.add-gap {
+  position: absolute;
+  bottom: calc(var(--space-5) / -2);
+  left: 50%;
+  z-index: 2;
+  translate: -50% 50%;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.15s;
+
+  // Above the first card: a zero-height row whose "+" sits on the gap above it.
+  &.first {
+    position: relative;
+    bottom: auto;
+    left: auto;
+    display: flex;
+    justify-content: center;
+    height: 0;
+    top: calc(var(--space-4) / -2);
+    translate: none;
+
+    app-popover {
+      translate: 0 -50%;
+    }
+  }
+
+  &.shown,
+  &:focus-within {
+    opacity: 1;
+    pointer-events: auto;
+  }
 }
 
-.add-label {
-  margin-right: var(--space-1);
-  color: var(--text-muted);
-  font-size: 14px;
+@media (hover: hover) {
+  .card:hover > .add-gap {
+    opacity: 1;
+    pointer-events: auto;
+  }
+}
+
+// (The buttons themselves, .add-btn / .add-end-btn, are styled in styles.scss:
+// they are drawn by the popover component, outside this one's styles.)
+.add-end {
+  padding: 0 0 var(--space-6);
+}
+
+// No "+" while a section is being dragged.
+.sections.collapsed .add-gap {
+  display: none;
 }
 
 // ── Drag & drop ────────────────────────────────────────────────────────────

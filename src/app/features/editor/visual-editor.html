@@ -5,12 +5,24 @@
   header, lines by the small handle among their actions. While a section is
   dragged every card shrinks to its header (see onSectionDragStart).
 -->
+<!--
+  Adding a section in place: a small "+" in the gap above and below the
+  section you last worked in (not between every pair, which would be a lot of
+  pluses); on computers also when the pointer is over a card. After the last
+  section, "+ Aggiungi sezione" is always there.
+-->
 <div class="sections" #sectionList cdkDropList (cdkDropListDropped)="dropSection($event)">
-@for (section of song().sections; track section.id) {
+@if (song().sections.length) {
+  <div class="add-gap first" [class.shown]="activeIndex() === 0" (mousedown)="keepFocus($event)">
+    <ng-container *ngTemplateOutlet="addMenu; context: { $implicit: 0 }" />
+  </div>
+}
+@for (section of song().sections; track section.id; let i = $index, last = $last) {
   <section
     class="card"
     [class]="section.kind"
     [attr.data-section]="section.id"
+    (focusin)="active.set(section.id)"
     cdkDrag
     cdkDragLockAxis="y"
     [cdkDragData]="section"
@@ -135,13 +147,47 @@
         <app-icon name="plus" /> {{ t.addNote }}
       </button>
     </footer>
+    @if (!last) {
+      <!-- In the gap under this card (moves with it when dragged). -->
+      <div class="add-gap" [class.shown]="activeIndex() === i || activeIndex() === i + 1" (mousedown)="keepFocus($event)">
+        <ng-container *ngTemplateOutlet="addMenu; context: { $implicit: i + 1 }" />
+      </div>
+    }
   </section>
 }
 </div>
 
-<div class="add-sections">
-  <span class="add-label">{{ t.addSection }}:</span>
-  @for (kind of kinds; track kind) {
-    <button type="button" class="btn small" (click)="add(kind)"><app-icon name="plus" /> {{ t.kinds[kind] }}</button>
-  }
+<div class="add-end" (mousedown)="keepFocus($event)">
+  <app-popover [label]="t.addSectionEnd" triggerClass="btn-secondary add-end-btn" [menu]="true">
+    <span trigger><app-icon name="plus" /> {{ t.addSectionEnd }}</span>
+    <ng-container *ngTemplateOutlet="addItems; context: { $implicit: song().sections.length }" />
+  </app-popover>
 </div>
+
+<!-- The round "+" in a gap, with its menu. -->
+<ng-template #addMenu let-index>
+  <app-popover [label]="t.addSectionHere" triggerClass="icon-btn add-btn" [menu]="true">
+    <app-icon trigger name="plus" />
+    <ng-container *ngTemplateOutlet="addItems; context: { $implicit: index }" />
+  </app-popover>
+</ng-template>
+
+<!-- Strofa, Ritornello … and a full copy of each chorus already in the song. -->
+<ng-template #addItems let-index>
+  @for (kind of kinds; track kind) {
+    <button type="button" class="menu-item" role="menuitem" (click)="insertAt(index, kind)">
+      <app-icon name="plus" /> {{ t.kinds[kind] }}
+    </button>
+  }
+  @if (choruses().length) {
+    <div class="menu-separator"></div>
+    @for (chorus of choruses(); track chorus.section.id) {
+      <button type="button" class="menu-item" role="menuitem" (click)="copyAt(index, chorus.section)">
+        <app-icon name="copy" /> {{ t.copyOf(chorus.name) }}
+        @if (chorus.firstLine) {
+          <span class="menu-hint">{{ chorus.firstLine }}</span>
+        }
+      </button>
+    }
+  }
+</ng-template>

@@ -436,5 +436,5 @@ Discussed one by one, built one at a time, one version bump + push at the end.
 - [x] Chord finder: /accordi, sideways neck, name + notes + other names, Suona; tab "Accordi" (iPhone) / sidebar link, only with Chitarra
 - [x] Editor: drag sections (cards shrink while dragging) and lines; ↑/↓ buttons removed, handles take ↑ ↓ keys; moved item stays in place on screen
 - [x] Editor undo: iPhone floating ↶ ↷ pill (was scrolling away unnoticed); "Sezione/Riga eliminata · Annulla" after deleting
-- [ ] Editor: add a section where you want it, not only at the end (to discuss)
+- [x] Editor: "+" above/below the section being edited (menu: types + "Copia di Ritornello"); "+ Aggiungi sezione" at the end replaces the old row
 - [ ] "Invisible chord": a chordless line keeps the chord gap, optional per line (to discuss)

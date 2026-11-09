@@ -19,7 +19,9 @@ import {
   EditorLyricsLine,
   EditorSection,
   EditorSong,
-  addSection,
+  insertCopy,
+  insertSection,
+  newSection,
   chordPalette,
   cleanNote,
   convertOldChordLine,
@@ -35,7 +37,9 @@ import {
   splitLine,
   updateSection,
 } from '../../core/editor-model';
+import { NgTemplateOutlet } from '@angular/common';
 import { IT } from '../../i18n/it';
+import { Popover } from '../../ui/popover';
 import { ToastService, UNDO_MS } from '../../services/toast.service';
 import { Icon } from '../../ui/icon';
 import { FocusRequest, LineChange, LineEditor } from './line-editor';
@@ -50,7 +54,7 @@ const KINDS: EditorKind[] = ['auto', 'chorus', 'bridge', 'intro', 'interlude', '
 /** The section cards. Stateless: every edit is emitted as a new EditorSong. */
 @Component({
   selector: 'app-visual-editor',
-  imports: [LineEditor, Icon, CdkDropList, CdkDrag, CdkDragHandle, CdkDragPreview, CdkDragPlaceholder],
+  imports: [LineEditor, Icon, Popover, NgTemplateOutlet, CdkDropList, CdkDrag, CdkDragHandle, CdkDragPreview, CdkDragPlaceholder],
   templateUrl: './visual-editor.html',
   styleUrl: './visual-editor.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -214,11 +218,56 @@ export class VisualEditor {
     });
   }
 
-  protected add(kind: EditorKind): void {
-    const song = addSection(this.song(), kind);
+  // ── Adding sections in place ─────────────────────────────────────────────
+
+  /** The section last worked in (focus inside it): its gaps show a "+". */
+  protected readonly active = signal<string | null>(null);
+  protected readonly activeIndex = computed(() => {
+    const id = this.active();
+    return id ? this.song().sections.findIndex((s) => s.id === id) : -1;
+  });
+
+  /** The choruses already in the song, for "Copia di Ritornello" in the add menu. */
+  protected readonly choruses = computed(() => {
+    const list = this.song().sections.filter((s) => s.kind === 'chorus');
+    return list.map((section, n) => {
+      const first = section.lines.find((l) => l.kind === 'lyrics' && l.text.trim());
+      return {
+        section,
+        name: section.label.trim() || (list.length > 1 ? `${this.t.kinds.chorus} ${n + 1}` : this.t.kinds.chorus),
+        firstLine: first ? first.text.trim().slice(0, 16) + (first.text.trim().length > 16 ? '…' : '') : '',
+      };
+    });
+  });
+
+  /**
+   * Pressing a "+" doesn't take the cursor out of the line being edited. On
+   * a phone that line's buttons would fold away, everything below would jump
+   * up and the tap would land beside the "+" instead of on it.
+   */
+  protected keepFocus(event: MouseEvent): void {
+    event.preventDefault();
+  }
+
+  /** A new, empty section at `index`, with the cursor in its first line. */
+  protected insertAt(index: number, kind: EditorKind): void {
+    const section = newSection(kind);
+    this.emit(insertSection(this.song(), index, section));
+    this.active.set(section.id);
+    this.focusRequest.set({ lineId: section.lines[0].id, caret: 0 });
+  }
+
+  /** A full copy of a chorus at `index` (lyrics and chords, to change if needed). */
+  protected copyAt(index: number, source: EditorSection): void {
+    const song = insertCopy(this.song(), source.id, index);
+    if (song === this.song()) return;
+    const copy = song.sections[index];
     this.emit(song);
-    const line = song.sections[song.sections.length - 1].lines[0];
-    this.focusRequest.set({ lineId: line.id, caret: 0 });
+    this.active.set(copy.id);
+    afterNextRender(
+      { write: () => this.sectionList().nativeElement.querySelector(`[data-section="${copy.id}"]`)?.scrollIntoView({ block: 'nearest', behavior: 'smooth' }) },
+      { injector: this.injector },
+    );
   }
 
   // ── Lines ────────────────────────────────────────────────────────────────
