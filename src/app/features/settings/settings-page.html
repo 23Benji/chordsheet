@@ -46,11 +46,11 @@
       <span class="icon-tile"><app-icon name="type" /></span>
       <span class="row-text"><span class="row-label">{{ t.fontSize }}</span><span class="row-hint">{{ t.fontSizeHint }}</span></span>
       <span class="stepper">
-        <button type="button" class="btn icon-btn" (click)="changeFont(-0.1)" [disabled]="settings().fontScale <= fontMin" [attr.aria-label]="t.fontDown">
+        <button type="button" class="btn icon-btn" (click)="changeFont(-0.1)" [disabled]="(settings().textSize ?? 1) <= fontMin" [attr.aria-label]="t.fontDown">
           <app-icon name="minus" />
         </button>
         <span class="stepper-value">{{ fontPercent() }}%</span>
-        <button type="button" class="btn icon-btn" (click)="changeFont(0.1)" [disabled]="settings().fontScale >= fontMax" [attr.aria-label]="t.fontUp">
+        <button type="button" class="btn icon-btn" (click)="changeFont(0.1)" [disabled]="(settings().textSize ?? 1) >= fontMax" [attr.aria-label]="t.fontUp">
           <app-icon name="plus" />
         </button>
       </span>

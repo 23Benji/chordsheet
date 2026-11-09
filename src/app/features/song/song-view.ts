@@ -38,7 +38,8 @@ import { Icon } from '../../ui/icon';
 import { Pager } from '../../ui/pager';
 import { Swipe } from '../../ui/swipe';
 import { Pinch } from '../../ui/pinch';
-import { FONT_SCALE_MAX, FONT_SCALE_MIN, pinchFontScale } from '../../core/gestures';
+import { pinchFontScale } from '../../core/gestures';
+import { TEXT_SIZE_MAX, TEXT_SIZE_MIN, lyricsPx, stepTextSize } from '../../core/text-size';
 import { Popover } from '../../ui/popover';
 import { Switch } from '../../ui/switch';
 import { BassDiagram } from '../../ui/bass-diagram';
@@ -53,9 +54,6 @@ import { IntroPanel } from './intro-panel';
 import { sectionLabel } from './section-label';
 import { SongSheet } from './song-sheet';
 
-const FONT_MIN = FONT_SCALE_MIN;
-const FONT_MAX = FONT_SCALE_MAX;
-const BASE_LYRICS_PX = 22;
 /** From this width up the song is shown in two columns, flipped page by page. */
 const WIDE_QUERY = '(min-width: 900px)';
 
@@ -116,9 +114,12 @@ export class SongView {
   /** Half-page turns in the two-column layout (Impostazioni → Esibizione, on by default). */
   protected readonly halfPage = computed(() => this.settings.settings().halfPageTurn ?? true);
   protected readonly fontScale = computed(
-    () => this.prefs().fontScale ?? this.settings.settings().fontScale,
+    () => this.prefs().textSize ?? this.defaultFontScale(),
   );
-  protected readonly lyricsPx = computed(() => Math.round(BASE_LYRICS_PX * this.fontScale()));
+  /** The size from Impostazioni (100 % unless changed there): where "Ripristina" goes back to. */
+  private readonly defaultFontScale = computed(() => this.settings.settings().textSize ?? 1);
+  protected readonly isDefaultFont = computed(() => this.fontScale() === this.defaultFontScale());
+  protected readonly lyricsPx = computed(() => lyricsPx(this.fontScale(), this.layout.phoneScreen));
 
   protected readonly keys = computed(() =>
     keyView(
@@ -351,11 +352,12 @@ export class SongView {
   }
 
   protected changeFont(delta: number): void {
-    const next = Math.round((this.fontScale() + delta) * 10) / 10;
-    void this.prefsService.update(this.id(), {
-      fontScale: Math.min(FONT_MAX, Math.max(FONT_MIN, next)),
-      capo: this.capo(),
-    });
+    void this.prefsService.update(this.id(), { textSize: stepTextSize(this.fontScale(), delta), capo: this.capo() });
+  }
+
+  /** "Ripristina": back to the standard size (this song stops having its own). */
+  protected resetFont(): void {
+    void this.prefsService.update(this.id(), { textSize: undefined, capo: this.capo() });
   }
 
   protected readonly fontPercent = computed(() => Math.round(this.fontScale() * 100));
@@ -365,7 +367,7 @@ export class SongView {
     const fontScale = pinchFontScale(this.fontScale(), ratio);
     if (fontScale === this.fontScale()) return;
     const at = scroller && scroller.scrollHeight > scroller.clientHeight ? scroller.scrollTop / scroller.scrollHeight : null;
-    void this.prefsService.update(this.id(), { fontScale, capo: this.capo() });
+    void this.prefsService.update(this.id(), { textSize: fontScale, capo: this.capo() });
     // After Angular has re-drawn the text at the new size, scroll back to
     // the same point (the lines are now taller or shorter).
     if (scroller && at !== null) afterNextRender(() => (scroller.scrollTop = at * scroller.scrollHeight), { injector: this.injector });
@@ -383,8 +385,8 @@ export class SongView {
     void this.prefsService.update(this.id(), { preferSharps: value, capo: this.capo() });
   }
 
-  protected readonly fontMin = FONT_MIN;
-  protected readonly fontMax = FONT_MAX;
+  protected readonly fontMin = TEXT_SIZE_MIN;
+  protected readonly fontMax = TEXT_SIZE_MAX;
   protected readonly numberLabel = numberLabel;
 
   // ── Two-column pages ────────────────────────────────────────────────────

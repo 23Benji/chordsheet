@@ -20,7 +20,8 @@ export interface SongPrefs {
   transpose: number; // semitones, -11..+11
   capo: number; // 0..11 (display shape chords: sounding = shape + capo)
   preferSharps?: boolean;
-  fontScale?: number;
+  /** Text size, 1 = 100 % (see core/text-size). Was `fontScale` before 1.41, on a different scale: old values are ignored. */
+  textSize?: number;
   columns?: 1 | 2;
   autoscrollSpeed?: number;
   /** "Promemoria": free song-level note shown at the top of the song. */
@@ -136,7 +137,8 @@ export const resolveTheme = (choice: ThemeChoice, systemDark: boolean): Theme =>
 
 export interface Settings {
   theme: ThemeChoice;
-  fontScale: number;
+  /** Default text size, 1 = 100 % (was `fontScale` before 1.41). */
+  textSize: number;
   chordStyle: 'above' | 'inline';
   showChordDiagrams: boolean;
   keyboardMap: Record<string, string>;

@@ -171,7 +171,8 @@ export const IT = {
     },
     fontDown: 'Testo più piccolo',
     fontUp: 'Testo più grande',
-    fontLabel: 'Dimensione testo',
+    fontLabel: 'Dimensione', // under the panel title "Testo"
+    fontReset: 'Dimensione standard (100%)',
     sections: {
       verse: (n: number) => `Strofa ${n}`,
       chorus: 'Ritornello',

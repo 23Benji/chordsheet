@@ -1,4 +1,5 @@
 import { Injectable, signal } from '@angular/core';
+import { isPhoneScreen } from '../core/text-size';
 
 /** UI layout state shared between the sidebar and the song view. */
 @Injectable({ providedIn: 'root' })
@@ -16,6 +17,11 @@ export class LayoutService {
    * library is a page, not a drawer: it shows exactly when the URL is "/".
    */
   readonly phone = signal(false);
+  /**
+   * The device is a phone (by screen size, not window size: an iPhone turned
+   * sideways is still a phone, an iPad never is). Sets what 100 % text means.
+   */
+  readonly phoneScreen = isPhoneScreen(window.screen?.width ?? innerWidth, window.screen?.height ?? innerHeight);
   /** Show the app (editor …) even with an empty library: "scrivi il primo canto". */
   readonly forceShell = signal(false);
   /** Songs are being selected in the library (iPhone: the selection toolbar takes the tab bar's place). */

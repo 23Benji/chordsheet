@@ -429,3 +429,12 @@ One at a time; one version for the batch.
 - [x] Benji picked "Ventaglio" with morph and blur from a tappable demo: no list, the "+" becomes an × and Nuovo canto / Importa da file grow out of it as drops that turn into glass buttons; closing melts them back
 - [x] `ui/fab-dial.ts` (native dialog, above the tab bar), loaded with @defer; Scalette's "+" and wider screens unchanged
 - [x] Closes when rotated past phone width (it would be hidden and block the page), on Esc and on back
+
+## 1.41 — Feedback from real use (Benji, 2026-11-09)
+Discussed one by one, built one at a time, one version bump + push at the end.
+- [x] Text size: 100 % = old 65 % (phone) / 85 % (computer, iPad); 50–150 %; everything back to 100 %; ↺ reset in the song view's Testo panel
+- [ ] Chord finder (guitar): tap the frets → chord name — own page in the app (to discuss)
+- [ ] Editor: drag sections instead of ↑/↓ (to discuss)
+- [ ] Editor: undo — already exists (top bar / iPhone second row); check what was missing
+- [ ] Editor: add a section where you want it, not only at the end (to discuss)
+- [ ] "Invisible chord": a chordless line keeps the chord gap, optional per line (to discuss)

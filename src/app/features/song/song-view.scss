@@ -306,6 +306,13 @@
   color: var(--accent);
 }
 
+// Testo panel: [↺] [− 100% +] — ↺ only once the size differs from the standard one.
+.font-control {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+}
+
 .small-btn {
   min-height: var(--tap-small);
   padding: 0 var(--space-3);

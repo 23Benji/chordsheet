@@ -40,12 +40,13 @@ import { KeymapDialog } from '../../ui/keymap-dialog';
 import { Pager, PagerMode } from '../../ui/pager';
 import { Swipe } from '../../ui/swipe';
 import { Pinch } from '../../ui/pinch';
-import { FONT_SCALE_MAX, FONT_SCALE_MIN, pinchFontScale } from '../../core/gestures';
+import { pinchFontScale } from '../../core/gestures';
+import { TEXT_SIZE_MAX, TEXT_SIZE_MIN, lyricsPx, stepTextSize } from '../../core/text-size';
+import { LayoutService } from '../../services/layout.service';
 import { SongSheet } from '../song/song-sheet';
 
 /** Performance font = song font × this. */
 const STAGE_SCALE = 1.25;
-const BASE_LYRICS_PX = 22;
 const BAR_HIDE_MS = 3000;
 /** Two columns only on screens wide enough and in landscape. */
 const LANDSCAPE_QUERY = '(min-width: 900px) and (orientation: landscape)';
@@ -173,8 +174,9 @@ export class PerformanceView {
   /** Half-page turns (Impostazioni → Esibizione, on by default). */
   protected readonly halfPage = computed(() => this.settings.settings().halfPageTurn ?? true);
   protected readonly intro = computed(() => introView(this.prefs().intro, this.keys().mapChord));
-  private readonly fontScale = computed(() => this.prefs().fontScale ?? this.settings.settings().fontScale);
-  protected readonly lyricsPx = computed(() => Math.round(BASE_LYRICS_PX * STAGE_SCALE * this.fontScale()));
+  private readonly phoneScreen = inject(LayoutService).phoneScreen;
+  private readonly fontScale = computed(() => this.prefs().textSize ?? this.settings.settings().textSize ?? 1);
+  protected readonly lyricsPx = computed(() => lyricsPx(this.fontScale(), this.phoneScreen, STAGE_SCALE));
 
   // ── Layout ──────────────────────────────────────────────────────────────────
 
@@ -385,18 +387,17 @@ export class PerformanceView {
   // ── Bar actions ───────────────────────────────────────────────────────────
 
   protected changeFont(delta: number): void {
-    const next = Math.round((this.fontScale() + delta) * 10) / 10;
-    void this.prefsService.update(this.id(), { fontScale: Math.min(FONT_SCALE_MAX, Math.max(FONT_SCALE_MIN, next)), capo: this.capo() });
+    void this.prefsService.update(this.id(), { textSize: stepTextSize(this.fontScale(), delta), capo: this.capo() });
   }
 
   /** The text that grows while pinching (inside an @if, so read from code). */
   protected readonly pagerEl = viewChild('pagerEl', { read: ElementRef<HTMLElement> });
-  protected readonly pinchLimits = computed(() => ({ min: FONT_SCALE_MIN / this.fontScale(), max: FONT_SCALE_MAX / this.fontScale() }));
+  protected readonly pinchLimits = computed(() => ({ min: TEXT_SIZE_MIN / this.fontScale(), max: TEXT_SIZE_MAX / this.fontScale() }));
 
   /** Two-finger pinch on the stage: the new text size (the pages re-flow). */
   protected onPinch(ratio: number): void {
     const fontScale = pinchFontScale(this.fontScale(), ratio);
-    if (fontScale !== this.fontScale()) void this.prefsService.update(this.id(), { fontScale, capo: this.capo() });
+    if (fontScale !== this.fontScale()) void this.prefsService.update(this.id(), { textSize: fontScale, capo: this.capo() });
   }
 
   protected setColumns(columns: 1 | 2): void {

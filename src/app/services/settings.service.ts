@@ -4,7 +4,7 @@ import { DB } from '../data/db';
 
 export const DEFAULT_SETTINGS: Settings = {
   theme: 'dark',
-  fontScale: 1,
+  textSize: 1,
   chordStyle: 'above',
   showChordDiagrams: true,
   keyboardMap: {},

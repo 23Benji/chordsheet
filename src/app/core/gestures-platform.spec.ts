@@ -20,8 +20,8 @@ describe('gestures', () => {
     expect(pinchFontScale(1, 1.5)).toBe(1.5);
     expect(pinchFontScale(1, 1.13)).toBe(1.15); // 5 % steps
     expect(pinchFontScale(1.2, 0.5)).toBe(0.6);
-    expect(pinchFontScale(1.5, 3)).toBe(2); // never above the maximum
-    expect(pinchFontScale(0.8, 0.2)).toBe(0.6); // nor below the minimum
+    expect(pinchFontScale(1.5, 3)).toBe(1.5); // never above the maximum
+    expect(pinchFontScale(0.8, 0.2)).toBe(0.5); // nor below the minimum
   });
 });
 

@@ -14,8 +14,7 @@ export function detectSwipe(dx: number, dy: number, ms: number): Swipe {
 
 // Pinch to zoom the song text.
 
-export const FONT_SCALE_MIN = 0.6;
-export const FONT_SCALE_MAX = 2;
+import { TEXT_SIZE_MAX, TEXT_SIZE_MIN } from './text-size';
 
 /** Distance between two fingers, px. */
 export function fingerDistance(a: { clientX: number; clientY: number }, b: { clientX: number; clientY: number }): number {
@@ -27,7 +26,7 @@ export function fingerDistance(a: { clientX: number; clientY: number }, b: { cli
  * spread (ratio), kept within the limits and rounded to 5 % steps (so the
  * A−/A+ buttons, which move by 10 %, stay on round numbers).
  */
-export function pinchFontScale(current: number, ratio: number, min = FONT_SCALE_MIN, max = FONT_SCALE_MAX): number {
+export function pinchFontScale(current: number, ratio: number, min = TEXT_SIZE_MIN, max = TEXT_SIZE_MAX): number {
   const next = Math.round(current * ratio * 20) / 20;
   return Math.min(max, Math.max(min, next));
 }

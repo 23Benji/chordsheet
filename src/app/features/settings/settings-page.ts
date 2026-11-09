@@ -20,9 +20,8 @@ import { ShareAppSheet } from '../../ui/share-app-sheet';
 import { SidebarToggle } from '../../ui/sidebar-toggle';
 import { Switch } from '../../ui/switch';
 import { APP_VERSION } from '../../version';
+import { TEXT_SIZE_MAX, TEXT_SIZE_MIN, stepTextSize } from '../../core/text-size';
 
-const FONT_MIN = 0.8;
-const FONT_MAX = 1.6;
 
 /** Settings as grouped rows: icon · what it does · control on the right. */
 @Component({
@@ -60,12 +59,12 @@ export class SettingsPage implements OnInit {
   protected readonly accidentalOptions = ['auto', 'sharps', 'flats'] as const;
   protected readonly instruments = ['guitar', 'piano', 'bass'] as const;
   protected readonly themes = THEMES;
-  protected readonly fontMin = FONT_MIN;
-  protected readonly fontMax = FONT_MAX;
+  protected readonly fontMin = TEXT_SIZE_MIN;
+  protected readonly fontMax = TEXT_SIZE_MAX;
 
   protected readonly settings = this.settingsService.settings;
   protected readonly darkTheme = computed(() => isDarkTheme(this.settingsService.theme()));
-  protected readonly fontPercent = computed(() => Math.round(this.settings().fontScale * 100));
+  protected readonly fontPercent = computed(() => Math.round((this.settings().textSize ?? 1) * 100));
   protected readonly appName = IT.appName;
   protected readonly autoStatus = this.backup.autoStatus;
   protected readonly autoFileName = this.backup.autoFileName;
@@ -93,8 +92,7 @@ export class SettingsPage implements OnInit {
   }
 
   protected changeFont(delta: number): void {
-    const next = Math.round((this.settings().fontScale + delta) * 10) / 10;
-    this.set('fontScale', Math.min(FONT_MAX, Math.max(FONT_MIN, next)));
+    this.set('textSize', stepTextSize(this.settings().textSize ?? 1, delta));
   }
 
   /** The Google Drive row: sign in, or (when connected) "Sincronizza ora" / "Esci". */

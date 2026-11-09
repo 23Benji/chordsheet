@@ -135,6 +135,13 @@
         <p class="panel-title">{{ t.textPanel }}</p>
         <div class="panel-row">
           <span class="panel-label">{{ t.fontLabel }}</span>
+          <!-- ↺ sits left of the stepper, so the stepper stays in line with the rows below. -->
+          <span class="font-control">
+          @if (!isDefaultFont()) {
+            <button type="button" class="btn icon-btn reset-key" (click)="resetFont()" [attr.aria-label]="t.fontReset" [title]="t.fontReset">
+              <app-icon name="reset" />
+            </button>
+          }
           <span class="stepper">
             <button type="button" class="btn icon-btn" (click)="changeFont(-0.1)" [disabled]="fontScale() <= fontMin" [attr.aria-label]="t.fontDown">
               <app-icon name="textSmaller" />
@@ -143,6 +150,7 @@
             <button type="button" class="btn icon-btn" (click)="changeFont(0.1)" [disabled]="fontScale() >= fontMax" [attr.aria-label]="t.fontUp">
               <app-icon name="textLarger" />
             </button>
+          </span>
           </span>
         </div>
         <div class="panel-row">
