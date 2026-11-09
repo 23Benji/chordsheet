@@ -430,7 +430,7 @@ One at a time; one version for the batch.
 - [x] `ui/fab-dial.ts` (native dialog, above the tab bar), loaded with @defer; Scalette's "+" and wider screens unchanged
 - [x] Closes when rotated past phone width (it would be hidden and block the page), on Esc and on back
 
-## 1.41 — Feedback from real use (Benji, 2026-11-09)
+## 1.41 — Feedback from real use (Benji, 2026-11-09) ✓
 Discussed one by one, built one at a time, one version bump + push at the end.
 - [x] Text size: 100 % = old 65 % (phone) / 85 % (computer, iPad); 50–150 %; everything back to 100 %; ↺ reset in the song view's Testo panel
 - [x] Chord finder: /accordi, sideways neck, name + notes + other names, Suona; tab "Accordi" (iPhone) / sidebar link, only with Chitarra
