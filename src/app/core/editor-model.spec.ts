@@ -12,7 +12,9 @@ import {
   lyricsToChordPro,
   mergeLines,
   moveChord,
+  moveLineTo,
   moveSection,
+  moveSectionTo,
   newSongTemplate,
   parseEditorSong,
   parseLyricsLine,
@@ -202,6 +204,20 @@ describe('editor model: old notation, sections, song-wide', () => {
     expect(dup.sections.length).toBe(3);
     expect(dup.sections[1].id).not.toBe(dup.sections[0].id);
     expect(serializeEditorSong(dup)).toBe('[C]a\n\n[C]a\n\n[C]b\n');
+  });
+
+  it('drags sections and lines to a new place', () => {
+    const song = parseEditorSong('a\n\nb\n\nc');
+    const text = (x: typeof song) => x.sections.map((s) => (s.lines[0] as EditorLyricsLine).text);
+    expect(text(moveSectionTo(song, song.sections[0].id, 2))).toEqual(['b', 'c', 'a']);
+    expect(text(moveSectionTo(song, song.sections[2].id, 0))).toEqual(['c', 'a', 'b']);
+    expect(moveSectionTo(song, song.sections[1].id, 1)).toBe(song); // dropped where it was
+    expect(moveSection(song, song.sections[0].id, -1)).toBe(song); // already first
+
+    const section = parseEditorSong('uno\ndue\ntre').sections[0];
+    const lines = (s: typeof section) => s.lines.map((l) => (l as EditorLyricsLine).text);
+    expect(lines(moveLineTo(section, section.lines[2].id, 0))).toEqual(['tre', 'uno', 'due']);
+    expect(moveLineTo(section, section.lines[0].id, 5)).toBe(section);
   });
 
   it('transposes permanently, spelling for the new key', () => {

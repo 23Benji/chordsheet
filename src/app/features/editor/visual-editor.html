@@ -1,7 +1,23 @@
 <p class="help">{{ help }}</p>
 
-@for (section of song().sections; track section.id; let si = $index, first = $first, last = $last) {
-  <section class="card" [class]="section.kind">
+<!--
+  Drag & drop (Angular CDK): sections by the handle at the right of their
+  header, lines by the small handle among their actions. While a section is
+  dragged every card shrinks to its header (see onSectionDragStart).
+-->
+<div class="sections" #sectionList cdkDropList (cdkDropListDropped)="dropSection($event)">
+@for (section of song().sections; track section.id) {
+  <section
+    class="card"
+    [class]="section.kind"
+    [attr.data-section]="section.id"
+    cdkDrag
+    cdkDragLockAxis="y"
+    [cdkDragData]="section"
+    (cdkDragStarted)="onSectionDragStart($event)"
+  >
+    <ng-template cdkDragPreview><div class="drag-anchor"><div class="drag-chip" [class]="section.kind">{{ sectionName(section) }}</div></div></ng-template>
+    <ng-template cdkDragPlaceholder><div class="drop-line"></div></ng-template>
     <header class="card-head">
       <span class="select kind-select">
         <select
@@ -26,23 +42,28 @@
         (input)="setLabel(section, label.value)"
       />
       <div class="card-actions">
-        <button type="button" class="btn icon-btn" [disabled]="first" (click)="move(section, -1)" [attr.aria-label]="t.sectionUp" [title]="t.sectionUp">
-          <app-icon name="arrowUp" />
-        </button>
-        <button type="button" class="btn icon-btn" [disabled]="last" (click)="move(section, 1)" [attr.aria-label]="t.sectionDown" [title]="t.sectionDown">
-          <app-icon name="arrowDown" />
-        </button>
         <button type="button" class="btn icon-btn" (click)="duplicate(section)" [attr.aria-label]="t.sectionDuplicate" [title]="t.sectionDuplicate">
           <app-icon name="copy" />
         </button>
         <button type="button" class="btn icon-btn" (click)="remove(section)" [attr.aria-label]="t.sectionDelete" [title]="t.sectionDelete">
           <app-icon name="trash" />
         </button>
+        <button
+          type="button"
+          class="btn icon-btn grip"
+          cdkDragHandle
+          (keydown)="onSectionKey($event, section)"
+          [attr.aria-label]="t.sectionDrag"
+          [title]="t.sectionDrag"
+        >
+          <app-icon name="grip" />
+        </button>
       </div>
     </header>
 
+    <div class="lines" cdkDropList [cdkDropListData]="section" (cdkDropListDropped)="dropLine($event)">
     @for (line of section.lines; track line.id; let li = $index) {
-      <div class="row">
+      <div class="row" [attr.data-line]="line.id" cdkDrag cdkDragLockAxis="y" [cdkDragData]="line">
         <div class="row-main">
           @switch (line.kind) {
             @case ('lyrics') {
@@ -89,9 +110,22 @@
           <button type="button" class="btn icon-btn" (click)="removeLine(section, line)" [attr.aria-label]="t.lineDelete" [title]="t.lineDelete">
             <app-icon name="trash" />
           </button>
+          @if (section.lines.length > 1) {
+            <button
+              type="button"
+              class="btn icon-btn line-grip"
+              cdkDragHandle
+              (keydown)="onLineKey($event, section, line)"
+              [attr.aria-label]="t.lineDrag"
+              [title]="t.lineDrag"
+            >
+              <app-icon name="grip" />
+            </button>
+          }
         </div>
       </div>
     }
+    </div>
 
     <footer class="card-foot">
       <button type="button" class="btn small" (click)="insertBelow(section, section.lines.length - 1, 'lyrics')">
@@ -103,6 +137,7 @@
     </footer>
   </section>
 }
+</div>
 
 <div class="add-sections">
   <span class="add-label">{{ t.addSection }}:</span>

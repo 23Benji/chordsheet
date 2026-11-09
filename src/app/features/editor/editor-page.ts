@@ -1,3 +1,4 @@
+import { CdkScrollable } from '@angular/cdk/scrolling';
 import {
   ChangeDetectionStrategy,
   Component,
@@ -47,7 +48,7 @@ const COALESCE_MS = 1500;
 
 @Component({
   selector: 'app-editor-page',
-  imports: [Icon, VisualEditor, SourceEditor, SongSheet, ConfirmDialog, Popover, FolderPicker, NgTemplateOutlet],
+  imports: [CdkScrollable, Icon, VisualEditor, SourceEditor, SongSheet, ConfirmDialog, Popover, FolderPicker, NgTemplateOutlet],
   templateUrl: './editor-page.html',
   styleUrl: './editor-page.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

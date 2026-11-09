@@ -1,4 +1,17 @@
-import { ChangeDetectionStrategy, Component, computed, input, output, signal } from '@angular/core';
+import { CdkDrag, CdkDragDrop, CdkDragHandle, CdkDragPlaceholder, CdkDragPreview, CdkDragStart, CdkDropList } from '@angular/cdk/drag-drop';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  ElementRef,
+  Injector,
+  afterNextRender,
+  computed,
+  inject,
+  input,
+  output,
+  signal,
+  viewChild,
+} from '@angular/core';
 import {
   EditorKind,
   EditorLine,
@@ -14,7 +27,9 @@ import {
   emptyNote,
   isOldChordLine,
   mergeLines,
+  moveLineTo,
   moveSection,
+  moveSectionTo,
   removeSection,
   splitLine,
   updateSection,
@@ -33,7 +48,7 @@ const KINDS: EditorKind[] = ['auto', 'chorus', 'bridge', 'intro', 'interlude', '
 /** The section cards. Stateless: every edit is emitted as a new EditorSong. */
 @Component({
   selector: 'app-visual-editor',
-  imports: [LineEditor, Icon],
+  imports: [LineEditor, Icon, CdkDropList, CdkDrag, CdkDragHandle, CdkDragPreview, CdkDragPlaceholder],
   templateUrl: './visual-editor.html',
   styleUrl: './visual-editor.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -49,6 +64,9 @@ export class VisualEditor {
   protected readonly isOldChordLine = isOldChordLine;
   protected readonly palette = computed(() => chordPalette(this.song()));
   protected readonly focusRequest = signal<FocusRequest | null>(null);
+
+  private readonly injector = inject(Injector);
+  private readonly sectionList = viewChild.required<ElementRef<HTMLElement>>('sectionList');
 
   private emit(song: EditorSong, coalesce?: string): void {
     this.changed.emit({ song, coalesce });
@@ -68,8 +86,98 @@ export class VisualEditor {
     this.emit(updateSection(this.song(), section.id, (s) => ({ ...s, label })), `label:${section.id}`);
   }
 
-  protected move(section: EditorSection, delta: number): void {
-    this.emit(moveSection(this.song(), section.id, delta));
+  // ── Moving sections and lines ──────────────────────────────────────────────
+  // After a move the screen follows: the moved section (or line) is scrolled
+  // back to where it was on screen, and the others move around it.
+
+  /** Name on the chip that follows the finger: the section's own label, or its kind. */
+  protected sectionName(section: EditorSection): string {
+    return section.label.trim() || this.t.kinds[section.kind];
+  }
+
+  /**
+   * A section is picked up: every card shrinks to its header so the whole
+   * song fits on screen. This runs synchronously inside CDK's drag start,
+   * after it has swapped the card for the placeholder line and before it
+   * measures the other cards — so it measures the small ones. The class is
+   * set on the element directly (not through a signal) for that reason:
+   * Angular would only re-render later.
+   */
+  protected onSectionDragStart(event: CdkDragStart): void {
+    const list = this.sectionList().nativeElement;
+    list.classList.add('collapsed');
+    // The cards above just got shorter: scroll so the drop line is under the finger.
+    const y = pointerY(event.event);
+    const scroller = scrollParent(list);
+    if (scroller && y !== null) {
+      scroller.scrollTop += event.source.getPlaceholderElement().getBoundingClientRect().top - y;
+    }
+  }
+
+  protected dropSection(event: CdkDragDrop<unknown, unknown, EditorSection>): void {
+    const id = event.item.data.id;
+    const song = moveSectionTo(this.song(), id, event.currentIndex);
+    if (song === this.song()) {
+      this.expandSections(id, event.dropPoint.y);
+      return;
+    }
+    this.emit(song);
+    afterNextRender({ write: () => this.expandSections(id, event.dropPoint.y) }, { injector: this.injector });
+  }
+
+  /** Cards back to full size, with the dropped one's header where the finger let go. */
+  private expandSections(id: string, y: number): void {
+    const list = this.sectionList().nativeElement;
+    list.classList.remove('collapsed');
+    this.keepOnScreen(`[data-section="${id}"]`, y - 24);
+  }
+
+  /** ↑ / ↓ on a focused handle: one place up or down, and the handle keeps the focus. */
+  protected onSectionKey(event: KeyboardEvent, section: EditorSection): void {
+    const delta = arrowDelta(event);
+    if (!delta) return;
+    event.preventDefault();
+    const song = moveSection(this.song(), section.id, delta);
+    if (song !== this.song()) this.moveAndFollow(song, `[data-section="${section.id}"]`, '.grip');
+  }
+
+  protected dropLine(event: CdkDragDrop<EditorSection, unknown, EditorLine>): void {
+    const section = event.container.data;
+    const moved = moveLineTo(section, event.item.data.id, event.currentIndex);
+    if (moved !== section) this.setLines(section, moved.lines);
+  }
+
+  protected onLineKey(event: KeyboardEvent, section: EditorSection, line: EditorLine): void {
+    const delta = arrowDelta(event);
+    if (!delta) return;
+    event.preventDefault();
+    const moved = moveLineTo(section, line.id, section.lines.indexOf(line) + delta);
+    if (moved === section) return;
+    this.moveAndFollow(updateSection(this.song(), section.id, () => moved), `[data-line="${line.id}"]`, '.line-grip');
+  }
+
+  /** Emits the move, then puts the moved element back at the same height on screen and the focus on its handle. */
+  private moveAndFollow(song: EditorSong, selector: string, handle: string): void {
+    const before = this.sectionList().nativeElement.querySelector(selector)?.getBoundingClientRect().top;
+    this.emit(song);
+    afterNextRender(
+      {
+        write: () => {
+          const el = this.sectionList().nativeElement.querySelector<HTMLElement>(selector);
+          if (before !== undefined) this.keepOnScreen(selector, before);
+          el?.querySelector<HTMLElement>(handle)?.focus({ preventScroll: true });
+        },
+      },
+      { injector: this.injector },
+    );
+  }
+
+  /** Scrolls the editor so the element's top is at `top` (px from the top of the window). */
+  private keepOnScreen(selector: string, top: number): void {
+    const list = this.sectionList().nativeElement;
+    const el = list.querySelector<HTMLElement>(selector);
+    const scroller = scrollParent(list);
+    if (el && scroller) scroller.scrollTop += el.getBoundingClientRect().top - top;
   }
 
   protected duplicate(section: EditorSection): void {
@@ -152,4 +260,23 @@ export class VisualEditor {
   protected asLyrics(line: EditorLine): EditorLyricsLine {
     return line as EditorLyricsLine;
   }
+}
+
+/** Arrow up / down → -1 / +1; anything else 0. */
+function arrowDelta(event: KeyboardEvent): -1 | 0 | 1 {
+  return event.key === 'ArrowUp' ? -1 : event.key === 'ArrowDown' ? 1 : 0;
+}
+
+function pointerY(event: MouseEvent | TouchEvent): number | null {
+  if ('touches' in event) return event.touches[0]?.clientY ?? event.changedTouches[0]?.clientY ?? null;
+  return event.clientY;
+}
+
+/** The nearest ancestor that scrolls (the editor pane; on some layouts the page). */
+function scrollParent(el: HTMLElement): HTMLElement | null {
+  for (let node = el.parentElement; node; node = node.parentElement) {
+    const overflow = getComputedStyle(node).overflowY;
+    if ((overflow === 'auto' || overflow === 'scroll') && node.scrollHeight > node.clientHeight) return node;
+  }
+  return document.scrollingElement as HTMLElement | null;
 }

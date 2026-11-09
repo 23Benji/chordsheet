@@ -450,14 +450,31 @@ export function updateSection(song: EditorSong, id: string, fn: (s: EditorSectio
   return { ...song, sections: song.sections.map((s) => (s.id === id ? fn(s) : s)) };
 }
 
+/** The list with the item at `from` moved to `to`; the same list when either is out of range or they match. */
+function moveTo<T>(items: readonly T[], from: number, to: number): readonly T[] {
+  if (from === to || from < 0 || to < 0 || from >= items.length || to >= items.length) return items;
+  const result = [...items];
+  const [moved] = result.splice(from, 1);
+  result.splice(to, 0, moved);
+  return result;
+}
+
+/** ↑ / ↓ on a section's handle: one place up (-1) or down (+1). */
 export function moveSection(song: EditorSong, id: string, delta: number): EditorSong {
-  const sections = [...song.sections];
-  const from = sections.findIndex((s) => s.id === id);
-  const to = from + delta;
-  if (from < 0 || to < 0 || to >= sections.length) return song;
-  const [moved] = sections.splice(from, 1);
-  sections.splice(to, 0, moved);
-  return { ...song, sections };
+  const from = song.sections.findIndex((s) => s.id === id);
+  return moveSectionTo(song, id, from + delta);
+}
+
+/** Drag & drop: the section ends up at position `to`. */
+export function moveSectionTo(song: EditorSong, id: string, to: number): EditorSong {
+  const sections = moveTo(song.sections, song.sections.findIndex((s) => s.id === id), to);
+  return sections === song.sections ? song : { ...song, sections: [...sections] };
+}
+
+/** A line dragged (or moved with ↑ / ↓) to position `to` inside its section. */
+export function moveLineTo(section: EditorSection, id: string, to: number): EditorSection {
+  const lines = moveTo(section.lines, section.lines.findIndex((l) => l.id === id), to);
+  return lines === section.lines ? section : { ...section, lines: [...lines] };
 }
 
 /** A copy with fresh ids (e.g. to repeat a chorus). */

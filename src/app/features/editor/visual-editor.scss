@@ -197,6 +197,105 @@
   font-size: 14px;
 }
 
+// ── Drag & drop ────────────────────────────────────────────────────────────
+// Handles: touch-action none so a finger on them drags instead of scrolling.
+.grip,
+.line-grip {
+  cursor: grab;
+  touch-action: none;
+}
+
+// The line handle is quieter: smaller and paler, among the line's buttons.
+.line-grip {
+  opacity: 0.6;
+
+  app-icon {
+    --icon-size: var(--icon-s);
+  }
+}
+
+// While a section is dragged: every card is just its header (set by
+// onSectionDragStart, removed after the drop).
+.sections.collapsed {
+  .card {
+    padding-bottom: var(--space-3);
+
+    > :not(.card-head) {
+      display: none;
+    }
+  }
+
+  .card-head {
+    margin-bottom: 0;
+  }
+}
+
+// Where the section will land.
+.drop-line {
+  height: 4px;
+  margin: var(--space-2) 0 var(--space-4);
+  border-radius: 2px;
+  background: var(--accent);
+}
+
+// What follows the finger: the section's name, up and to the left of the
+// pointer so the finger doesn't cover it. CDK puts the preview's corner on the
+// pointer and resets its margin, so the preview is a zero-size anchor and the
+// chip hangs off it.
+.drag-anchor {
+  width: 0;
+  height: 0;
+  overflow: visible;
+}
+
+.drag-chip {
+  position: absolute;
+  right: 8px;
+  bottom: 16px;
+  box-sizing: border-box;
+  width: 200px;
+  padding: var(--space-3) var(--space-4);
+  overflow: hidden;
+  border-radius: var(--radius-m);
+  background: var(--bg-elev-1);
+  box-shadow: var(--shadow), inset 0 0 0 1px var(--border);
+  color: var(--text);
+  font-size: 14px;
+  font-weight: 700;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+
+  &.chorus {
+    color: var(--accent);
+  }
+  &.bridge {
+    color: var(--coral);
+  }
+  &.intro,
+  &.interlude,
+  &.outro {
+    color: var(--sage);
+  }
+}
+
+// A dragged line: the line itself, lifted.
+.row.cdk-drag-preview {
+  border-radius: var(--radius-s);
+  background: var(--bg-elev-1);
+  box-shadow: var(--shadow);
+}
+.row.cdk-drag-placeholder {
+  opacity: 0.25;
+}
+
+// The others slide out of the way.
+.cdk-drop-list-dragging > .card:not(.cdk-drag-placeholder),
+.cdk-drop-list-dragging > .row:not(.cdk-drag-placeholder),
+.card.cdk-drag-animating,
+.row.cdk-drag-animating {
+  transition: transform 0.2s ease;
+}
+
 // Phones: lyric lines get the full width of the card. The line buttons (+,
 // delete) take room only on the line being edited, underneath it, instead of
 // an invisible column next to every line that squeezed the text.

@@ -33,7 +33,8 @@
 }
 
 <div class="body" [class.show-preview]="narrowPreview()">
-  <div class="edit-pane">
+  <!-- cdkScrollable: drag & drop scrolls this pane when a section is dragged to its top or bottom edge. -->
+  <div class="edit-pane" cdkScrollable>
     <div class="tools">
       @if (mode() === 'visual') {
         <div class="group" role="group" [attr.aria-label]="t.tools.transpose">
