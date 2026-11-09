@@ -2,6 +2,7 @@ import { CdkDrag, CdkDragDrop, CdkDragHandle, CdkDragPlaceholder, CdkDragPreview
 import {
   ChangeDetectionStrategy,
   Component,
+  DestroyRef,
   ElementRef,
   Injector,
   afterNextRender,
@@ -35,6 +36,7 @@ import {
   updateSection,
 } from '../../core/editor-model';
 import { IT } from '../../i18n/it';
+import { ToastService, UNDO_MS } from '../../services/toast.service';
 import { Icon } from '../../ui/icon';
 import { FocusRequest, LineChange, LineEditor } from './line-editor';
 
@@ -66,6 +68,22 @@ export class VisualEditor {
   protected readonly focusRequest = signal<FocusRequest | null>(null);
 
   private readonly injector = inject(Injector);
+  private readonly toast = inject(ToastService);
+  /** The "Annulla" of the last delete made here (to take it away when the editor closes). */
+  private undoDelete: (() => void) | null = null;
+
+  constructor() {
+    // Leaving the editor: an "Annulla" from it would have nowhere to put the section back.
+    inject(DestroyRef).onDestroy(() => {
+      if (this.undoDelete && this.toast.toast()?.action?.run === this.undoDelete) this.toast.dismiss();
+    });
+  }
+
+  /** "Sezione eliminata · Annulla" — only when what was deleted had something in it. */
+  private offerUndo(message: string, run: () => void): void {
+    this.undoDelete = run;
+    this.toast.show(message, UNDO_MS, { label: IT.shell.undo, run });
+  }
   private readonly sectionList = viewChild.required<ElementRef<HTMLElement>>('sectionList');
 
   private emit(song: EditorSong, coalesce?: string): void {
@@ -185,7 +203,15 @@ export class VisualEditor {
   }
 
   protected remove(section: EditorSection): void {
+    const index = this.song().sections.indexOf(section);
     this.emit(removeSection(this.song(), section.id));
+    if (!section.label.trim() && section.lines.every(isEmptyLine)) return;
+    // Put back into the song as it is then (other edits made meanwhile stay).
+    this.offerUndo(this.t.sectionDeleted, () => {
+      const sections = [...this.song().sections];
+      sections.splice(Math.min(index, sections.length), 0, section);
+      this.emit({ ...this.song(), sections });
+    });
   }
 
   protected add(kind: EditorKind): void {
@@ -222,10 +248,20 @@ export class VisualEditor {
   }
 
   protected removeLine(section: EditorSection, line: EditorLine): void {
+    const index = section.lines.indexOf(line);
     this.setLines(
       section,
       section.lines.filter((l) => l.id !== line.id),
     );
+    if (isEmptyLine(line)) return;
+    this.offerUndo(this.t.lineDeleted, () => {
+      // The section as it is now (it may have been edited since).
+      const current = this.song().sections.find((s) => s.id === section.id);
+      if (!current) return;
+      const lines = [...current.lines];
+      lines.splice(Math.min(index, lines.length), 0, line);
+      this.setLines(current, lines);
+    });
   }
 
   protected onSplit(section: EditorSection, line: EditorLyricsLine, caret: number): void {
@@ -279,4 +315,9 @@ function scrollParent(el: HTMLElement): HTMLElement | null {
     if ((overflow === 'auto' || overflow === 'scroll') && node.scrollHeight > node.clientHeight) return node;
   }
   return document.scrollingElement as HTMLElement | null;
+}
+
+/** Nothing typed: no text, no chords. Deleting it needs no "Annulla". */
+function isEmptyLine(line: EditorLine): boolean {
+  return line.kind === 'lyrics' ? !line.text.trim() && !line.chords.length : !line.text.trim();
 }

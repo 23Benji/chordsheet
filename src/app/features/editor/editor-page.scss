@@ -204,8 +204,7 @@
 
 .narrow-only,
 .short,
-.tools-undo,
-.tools-break {
+.undo-pill {
   display: none;
 }
 
@@ -218,9 +217,6 @@
   display: inline;
 }
 
-.tools-undo {
-  align-items: center;
-}
 
 // Narrow screens: editor or preview, chosen with the tabs.
 @media (max-width: 1099px) {
@@ -332,13 +328,52 @@
     gap: var(--space-2);
   }
 
-  // Undo / redo move to the tools row; the paste button gets a short label.
+  // Undo / redo leave the top bar for the floating pill; the paste button gets a short label.
   .bar-actions > .icon-btn {
     display: none;
   }
 
-  .tools-undo {
-    display: inline-flex;
+  .undo-pill {
+    position: fixed;
+    right: max(18px, env(safe-area-inset-right));
+    bottom: max(18px, env(safe-area-inset-bottom));
+    z-index: 15;
+    display: flex;
+    gap: 2px;
+    padding: var(--space-1);
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    // Glass: see-through colour + blur of the text behind.
+    background: color-mix(in srgb, var(--bg-elev-1) 72%, transparent);
+    -webkit-backdrop-filter: blur(14px) saturate(1.6);
+    backdrop-filter: blur(14px) saturate(1.6);
+    box-shadow: var(--shadow);
+    transition: bottom 0.2s var(--settle, ease);
+
+    .icon-btn {
+      width: 48px;
+      height: 48px;
+      color: var(--accent);
+
+      &:disabled {
+        color: var(--text-muted);
+        opacity: 0.4;
+      }
+    }
+
+    &.hidden {
+      display: none;
+    }
+
+    // Above the "Sezione eliminata · Annulla" message.
+    &.raised {
+      bottom: calc(max(18px, env(safe-area-inset-bottom)) + 64px);
+    }
+  }
+
+  // The last lines can scroll up above the pill.
+  .edit-pane {
+    padding-bottom: 104px;
   }
 
   .tools .long {
@@ -349,13 +384,7 @@
     display: inline;
   }
 
-  // Second row: ↶ ↷ on the left, ⋯ on the right.
-  .tools-break {
-    display: block;
-    flex-basis: 100%;
-    height: 0;
-  }
-
+  // One row: Trasponi · Incolla · ⋯ on the right.
   .tools .more {
     margin-left: auto;
   }

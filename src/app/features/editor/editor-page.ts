@@ -103,6 +103,8 @@ export class EditorPage implements OnInit, OnDestroy {
   private lastCoalesce: { key: string; time: number } | null = null;
   protected readonly canUndo = computed(() => this.cursor() > 0);
   protected readonly canRedo = computed(() => this.cursor() < this.history().length - 1);
+  /** An "Annulla" message is at the bottom: the iPhone undo pill moves up out of its way. */
+  protected readonly toastShown = computed(() => this.toast.toast() !== null);
 
   /**
    * New song: folders to put it in. Starts with the folder open in the

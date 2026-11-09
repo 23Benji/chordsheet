@@ -50,11 +50,6 @@
       <button type="button" class="chip" (click)="openPaste()" [title]="t.tools.paste">
         <app-icon name="paste" /> <span class="long">{{ t.tools.paste }}</span><span class="short">{{ t.tools.pasteShort }}</span>
       </button>
-      <!-- iPhone: undo / redo live here (no room in the top bar), on a second row with ⋯. -->
-      <span class="tools-break" aria-hidden="true"></span>
-      <span class="tools-undo">
-        <ng-container *ngTemplateOutlet="undoRedo" />
-      </span>
       <app-popover class="more" [label]="t.tools.more" [menu]="true">
         <app-icon trigger name="more" />
         <button type="button" class="menu-item" role="menuitem" (click)="exportCho()"><app-icon name="download" /> {{ t.tools.export }}</button>
@@ -111,6 +106,17 @@
     }
   </aside>
 </div>
+
+<!--
+  iPhone: undo / redo float at the bottom right (glass, like the "+"), so they
+  stay under the thumb wherever you are in the song. Only once there is
+  something to undo; not on the Anteprima tab; above an "Annulla" message.
+-->
+@if (canUndo() || canRedo()) {
+  <div class="undo-pill" [class.hidden]="narrowPreview()" [class.raised]="toastShown()">
+    <ng-container *ngTemplateOutlet="undoRedo" />
+  </div>
+}
 
 <ng-template #undoRedo>
   <button type="button" class="btn icon-btn" [disabled]="!canUndo()" (click)="undo()" [attr.aria-label]="t.undo" [title]="t.undo">
