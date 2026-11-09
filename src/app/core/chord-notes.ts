@@ -4,7 +4,7 @@ import { Quality, chordQuality } from './chord-diagrams';
 import { mod12, noteName, parseChord } from './transpose';
 
 /** Semitones above the root for each chord type (14 = the ninth, an octave + a tone). */
-const INTERVALS: Record<Quality, number[]> = {
+export const INTERVALS: Record<Quality, number[]> = {
   '': [0, 4, 7], m: [0, 3, 7], '7': [0, 4, 7, 10], m7: [0, 3, 7, 10], maj7: [0, 4, 7, 11],
   sus2: [0, 2, 7], sus4: [0, 5, 7], '7sus4': [0, 5, 7, 10], add9: [0, 4, 7, 14],
   '6': [0, 4, 7, 9], m6: [0, 3, 7, 9], '9': [0, 4, 7, 10, 14],

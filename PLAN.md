@@ -433,7 +433,7 @@ One at a time; one version for the batch.
 ## 1.41 — Feedback from real use (Benji, 2026-11-09)
 Discussed one by one, built one at a time, one version bump + push at the end.
 - [x] Text size: 100 % = old 65 % (phone) / 85 % (computer, iPad); 50–150 %; everything back to 100 %; ↺ reset in the song view's Testo panel
-- [ ] Chord finder (guitar): tap the frets → chord name — own page in the app (to discuss)
+- [x] Chord finder: /accordi, sideways neck, name + notes + other names, Suona; tab "Accordi" (iPhone) / sidebar link, only with Chitarra
 - [ ] Editor: drag sections instead of ↑/↓ (to discuss)
 - [ ] Editor: undo — already exists (top bar / iPhone second row); check what was missing
 - [ ] Editor: add a section where you want it, not only at the end (to discuss)

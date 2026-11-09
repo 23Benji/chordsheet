@@ -28,6 +28,7 @@ import { LayoutService } from '../../services/layout.service';
 import { LibraryService } from '../../services/library.service';
 import { RecentService } from '../../services/recent.service';
 import { SetlistService } from '../../services/setlist.service';
+import { SettingsService } from '../../services/settings.service';
 import { SongPrefsService } from '../../services/song-prefs.service';
 import { HintBanner } from '../../ui/hint-banner';
 import { FabMenu, FabOption } from '../../ui/fab-menu';
@@ -66,6 +67,8 @@ export class LibrarySidebar {
   protected readonly ft = IT.folders;
   protected readonly st = IT.setlists;
   protected readonly ss = IT.settings;
+  protected readonly cf = IT.chordFinder;
+  protected readonly guitar = inject(SettingsService).guitar;
   protected readonly numberLabel = numberLabel;
 
   private readonly searchInput = viewChild.required<ElementRef<HTMLInputElement>>('search');

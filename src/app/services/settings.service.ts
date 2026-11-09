@@ -21,6 +21,8 @@ export class SettingsService {
   private readonly db = inject(DB);
   private readonly _settings = signal<Settings>(DEFAULT_SETTINGS);
   readonly settings = this._settings.asReadonly();
+  /** Strumento = Chitarra (the default): shows "Trova accordo" in the tab bar and the library. */
+  readonly guitar = computed(() => (this._settings().instrument ?? 'guitar') === 'guitar');
 
   /** The phone/computer is in dark mode (follows the system switch live). */
   private readonly systemDark = signal(false);

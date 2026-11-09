@@ -1,0 +1,90 @@
+<div class="page">
+  <header class="head">
+    <div class="title">
+      <app-sidebar-toggle /><h1>{{ t.title }}</h1>
+    </div>
+
+    <div class="result" aria-live="polite">
+      @if (best(); as chord) {
+        <span class="name">{{ chord.name }}</span>
+        <span class="details">
+          <span class="notes">{{ noteNames() }}@if (!chord.complete) { · {{ t.noFifth }}}</span>
+          @if (others().length) {
+            <span class="others">{{ t.alsoCalled }} {{ others().join(' · ') }}</span>
+          }
+        </span>
+      } @else if (played() > 1) {
+        <span class="name muted">?</span>
+        <span class="details">
+          <span class="notes">{{ noteNames() }}</span>
+          <span class="others">{{ t.unknown }}</span>
+        </span>
+      } @else {
+        <span class="details">
+          <span class="prompt">{{ t.start }}</span>
+          <span class="others">{{ t.startHint }}</span>
+        </span>
+      }
+    </div>
+
+    <div class="actions">
+      <button type="button" class="btn btn-secondary" (click)="clear()" [disabled]="!played()">
+        <app-icon name="reset" /> {{ t.clear }}
+      </button>
+      <button type="button" class="btn btn-primary" (click)="play()" [disabled]="!played()">
+        <app-icon name="play" /> {{ t.play }}
+      </button>
+    </div>
+  </header>
+
+  <p class="rotate">{{ t.rotate }}</p>
+
+  <!-- One grid: column 1 string names, 2 the nut (○ / ×), 3…14 frets 1…12; rows 1…6 strings (high e on top), 7 fret numbers. -->
+  <div class="neck-scroll">
+    <div class="neck" role="group" [attr.aria-label]="t.neck">
+      <span class="board" aria-hidden="true"></span>
+      @for (fret of fretNumbers; track fret) {
+        <span class="wire" [style.grid-column]="fret + 2" aria-hidden="true"></span>
+        @if (markers.has(fret)) {
+          <span class="inlay" [class.double]="fret === 12" [style.grid-column]="fret + 2" aria-hidden="true"></span>
+        }
+      }
+      @for (r of rows; track r.string) {
+        <span class="string-name" [style.grid-row]="r.row" aria-hidden="true">{{ r.name }}</span>
+        <span class="string" [class]="'s' + r.string" [style.grid-row]="r.row" aria-hidden="true"></span>
+        <button
+          type="button"
+          class="nut-cell"
+          [style.grid-row]="r.row"
+          [class.open]="frets()[r.string] === 0"
+          (click)="toggleOpen(r.string)"
+          [attr.aria-label]="frets()[r.string] === 0 ? t.stringOpen(r.name) : t.stringMuted(r.name)"
+        >
+          @if (frets()[r.string] === 0) {
+            <span class="dot open" [class.root]="isRoot(r.string, 0)">{{ noteAt(r.string, 0) }}</span>
+          } @else if (frets()[r.string] === null) {
+            <span class="mute">×</span>
+          }
+        </button>
+        @for (fret of fretNumbers; track fret) {
+          <button
+            type="button"
+            class="fret-cell"
+            [style.grid-row]="r.row"
+            [style.grid-column]="fret + 2"
+            [attr.aria-pressed]="frets()[r.string] === fret"
+            [attr.aria-label]="t.fret(r.name, fret)"
+            (click)="press(r.string, fret)"
+          >
+            @if (frets()[r.string] === fret) {
+              <span class="dot" [class.root]="isRoot(r.string, fret)">{{ noteAt(r.string, fret) }}</span>
+            }
+          </button>
+        }
+      }
+      @for (fret of fretNumbers; track fret) {
+        <span class="fret-number" [style.grid-column]="fret + 2" aria-hidden="true">{{ markers.has(fret) ? fret : '' }}</span>
+      }
+    </div>
+  </div>
+</div>

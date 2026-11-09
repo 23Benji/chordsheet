@@ -43,6 +43,11 @@ export const routes: Routes = [
     loadComponent: () => import('./features/setlists/shared-setlist-page').then((m) => m.SharedSetlistPage),
   },
   {
+    // "Trova accordo" (guitar): its tab/link shows only with Strumento = Chitarra.
+    path: 'accordi',
+    loadComponent: () => import('./features/chords/chord-finder-page').then((m) => m.ChordFinderPage),
+  },
+  {
     path: 'cestino',
     loadComponent: () => import('./features/library/trash-page').then((m) => m.TrashPage),
   },

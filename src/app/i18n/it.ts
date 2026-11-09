@@ -243,6 +243,8 @@ export const IT = {
     nav: 'Navigazione',
     library: 'Libreria',
     setlists: 'Scalette',
+    /** Bottom-bar tab of "Trova accordo" (only with Strumento = Chitarra). */
+    chords: 'Accordi',
     settings: 'Impostazioni',
     updateReady: 'Nuova versione disponibile.',
     update: 'Aggiorna',
@@ -522,6 +524,24 @@ export const IT = {
     bassAria: (chord: string, note: string) => `Accordo ${chord} al basso: fondamentale ${note}`,
     bassRoot: (note: string) => `fondamentale ${note}`,
     bassOthers: 'quinta e ottava',
+  },
+
+  chordFinder: {
+    title: 'Trova accordo',
+    /** Library sidebar link (computer, iPad). */
+    link: 'Trova accordo',
+    start: 'Tocca i tasti dove metti le dita',
+    startHint: 'Tocca ○ / × a sinistra per una corda a vuoto o da non suonare.',
+    unknown: 'Accordo non riconosciuto',
+    noFifth: 'senza quinta',
+    alsoCalled: 'Anche:',
+    play: 'Suona',
+    clear: 'Ricomincia',
+    rotate: 'Gira il telefono per vedere tutto il manico.',
+    neck: 'Manico della chitarra',
+    stringOpen: (string: string) => `Corda ${string}: a vuoto (tocca per non suonarla)`,
+    stringMuted: (string: string) => `Corda ${string}: non suonata (tocca per suonarla a vuoto)`,
+    fret: (string: string, fret: number) => `Corda ${string}, tasto ${fret}`,
   },
 
   trash: {

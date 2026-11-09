@@ -215,4 +215,9 @@
   <a class="btn settings" routerLink="/impostazioni" (click)="closeOnNarrowScreen()">
     <app-icon name="settings" /> {{ ss.link }}
   </a>
+  @if (guitar()) {
+    <a class="btn settings" routerLink="/accordi" (click)="closeOnNarrowScreen()">
+      <app-icon name="guitar" /> {{ cf.link }}
+    </a>
+  }
 </footer>

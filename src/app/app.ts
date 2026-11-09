@@ -9,6 +9,7 @@ import { Welcome } from './features/welcome/welcome';
 import { IT } from './i18n/it';
 import { LayoutService } from './services/layout.service';
 import { LibraryService } from './services/library.service';
+import { SettingsService } from './services/settings.service';
 import { ToastService } from './services/toast.service';
 import { Icon } from './ui/icon';
 
@@ -24,6 +25,7 @@ export class App {
   protected readonly library = inject(LibraryService);
   protected readonly layout = inject(LayoutService);
   protected readonly toast = inject(ToastService);
+  protected readonly settings = inject(SettingsService);
   private readonly router = inject(Router);
   protected readonly t = IT.shell;
 
@@ -61,6 +63,7 @@ export class App {
     const url = this.url();
     if (url.startsWith('/scalette') || url.startsWith('/scaletta-condivisa')) return 'setlists';
     if (url.startsWith('/impostazioni')) return 'settings';
+    if (url.startsWith('/accordi')) return 'chords';
     return 'library';
   });
 

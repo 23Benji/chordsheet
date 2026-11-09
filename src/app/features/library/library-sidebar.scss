@@ -337,6 +337,9 @@
 }
 
 .foot {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
   padding: var(--space-2) var(--space-3) max(var(--space-3), env(safe-area-inset-bottom));
   border-top: 1px solid var(--border);
 }

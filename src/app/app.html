@@ -20,6 +20,11 @@
     <a class="tab" routerLink="/scalette" [class.selected]="section() === 'setlists'" (click)="layout.sidebarOpen.set(false)">
       <app-icon name="list" /><span>{{ t.setlists }}</span>
     </a>
+    @if (settings.guitar()) {
+      <a class="tab" routerLink="/accordi" [class.selected]="section() === 'chords'" (click)="layout.sidebarOpen.set(false)">
+        <app-icon name="guitar" /><span>{{ t.chords }}</span>
+      </a>
+    }
   </nav>
 }
 
