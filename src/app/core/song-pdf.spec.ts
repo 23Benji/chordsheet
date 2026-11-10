@@ -83,12 +83,14 @@ describe('song PDF layout', () => {
 });
 
 describe('song PDF: repeated sections', () => {
-  it('writes "×2" after the label of a section shown once', () => {
+  it('writes "×2" at the bottom right of a section shown once', () => {
     const sheet = collapseRepeats(parseChordPro(`${SONG}\n{start_of_chorus}\n[G]IO LODO [F]TE SI[G]GNOR\n{end_of_chorus}\n`));
     const ops = layoutSongPdf(sheet, { ...options('chords'), times: (n) => `×${n}` }, measure).ops;
     const tag = ops.find((o): o is PdfText => o.kind === 'text' && o.text === 'RITORNELLO')!;
     const times = ops.find((o): o is PdfText => o.kind === 'text' && o.text === '×2')!;
-    expect(times.y).toBe(tag.y);
+    const lyric = ops.filter((o): o is PdfText => o.kind === 'text' && o.text.includes('GNOR'));
+    expect(times.y).toBeGreaterThan(Math.max(...lyric.map((o) => o.y)));
+    expect(times.align).toBe('right');
     expect(times.x).toBeGreaterThan(tag.x);
   });
 

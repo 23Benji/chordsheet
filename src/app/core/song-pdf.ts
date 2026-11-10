@@ -128,8 +128,7 @@ export function layoutSongPdf(sheet: Sheet, options: PdfOptions, measure: Measur
     const name = options.label(section);
     if (name) {
       const tag = name.toUpperCase();
-      const times = section.repeat && options.times ? options.times(section.repeat) : '';
-      const extra = [times, section.type === 'chorusRepeat' ? options.repeat : ''].filter(Boolean).join(' ');
+      const extra = section.type === 'chorusRepeat' ? options.repeat : '';
       rows.push({
         height: lh('tag', 1.9),
         draw: (top, p, out) => {
@@ -145,6 +144,14 @@ export function layoutSongPdf(sheet: Sheet, options: PdfOptions, measure: Measur
 
     for (const line of section.lines) rows.push(...lineRows(line, left, width));
     if (!rows.length || (name && rows.length === 1)) continue; // nothing left to show in this mode
+    // "×2" at the bottom right of the section, as in the app.
+    const times = section.repeat && options.times ? options.times(section.repeat) : '';
+    if (times) {
+      rows.push({
+        height: lh('tag', 1.6),
+        draw: (top, p, out) => out.push({ kind: 'text', page: p, x: left + width, y: top + lh('tag', 1.1), text: times, font: 'tag', align: 'right' }),
+      });
+    }
 
     // Keep the section on one page when it fits on one; otherwise break between rows.
     const height = rows.reduce((sum, r) => sum + r.height, 0);
