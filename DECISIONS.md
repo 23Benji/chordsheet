@@ -147,3 +147,6 @@ The trailing "( … )" group no longer means only "chords in the second key". It
 
 ## 2026-11-10 — Metronome tempo saved in the song
 Changing the tempo or beat in the metronome writes `{tempo: N}` (and `{time: 3/4}` when not 4/4, or when the song already had one) into the song's ChordPro text, automatically, 600 ms after the last change. Why: Benji wants each song to keep its own speed and to pass it on whenever the song is shared or exported, always — so it lives in the song itself, not in personal prefs (which are optional to export). The directive goes at the end of the header, so personal notes stay anchored. Songs without a tempo show "BPM" without a number.
+
+## 2026-11-10 — "Tutto da capo" is a section mark, not a line
+A line that is only "(tutto da capo)" / "…tutto da capo" / "{comment: da capo}" (or a "(da capo)" note at the end of a line) leaves the lyrics and becomes the section's `daCapo`, drawn at its bottom right (short coral line + words, look C2 chosen by Benji). On its own after a section (its own paragraph or chorus block, as in song 48) it belongs to the section before, and the empty section is dropped. Section indexes are not renumbered, so personal notes stay anchored. "da capo" inside a sung line (song 137) is left alone.

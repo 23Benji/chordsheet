@@ -72,9 +72,9 @@ describe('parseChordPro', () => {
   });
 
   it('leaves a line that is only a text group alone', () => {
-    const [line] = lyricLines('(tutto da capo)');
+    const [line] = lyricLines('(solo donne)');
     expect(line.sideNote).toBeNull();
-    expect(line.text).toBe('(tutto da capo)');
+    expect(line.text).toBe('(solo donne)');
   });
 
   it('does not transpose a text note, and keeps it in "Solo testo"', () => {
@@ -362,6 +362,42 @@ describe.skipIf(!HAS_SONGS)('collapseRepeats on the bundled songs', () => {
     it('drops sections with nothing to sing (Intro), keeps the rest', () => {
       const sheet = lyricsOnlySheet(parseChordPro(song));
       expect(sheet.sections.map((s) => s.type)).toEqual(['verse', 'chorus']);
+    });
+  });
+
+  describe('tutto da capo', () => {
+    it('a "(tutto da capo)" block after a section becomes that section\'s mark (song 48)', () => {
+      const sheet = parseChordPro(
+        'IO SON FELI[F]CE, COSÌ FELI[C]CE\n\n{start_of_chorus}\n(tutto da capo)\n{end_of_chorus}\n\n{start_of_chorus}\n*PACE\n{end_of_chorus}\n',
+      );
+      expect(sheet.sections.map((s) => [s.type, s.daCapo ?? null])).toEqual([
+        ['verse', 'Tutto da capo'],
+        ['chorus', null],
+      ]);
+    });
+
+    it('as the last line of a section, written in any of the songbook\'s ways', () => {
+      for (const line of ['(tutto da capo)', '…tutto da capo', '{comment: da capo}']) {
+        const [section] = parseChordPro(`[C]LODE A TE\n${line}\n`).sections;
+        expect(section.lines).toHaveLength(1);
+        expect(section.daCapo).toBe(line.includes('tutto') ? 'Tutto da capo' : 'Da capo');
+      }
+    });
+
+    it('"(da capo)" at the end of a line becomes the mark, not a note (song 99)', () => {
+      const [section] = parseChordPro('[F]LA MIA LODE A TE OFFR[C]IRÒ (da capo)\n').sections;
+      expect(section.daCapo).toBe('Da capo');
+      expect((section.lines[0] as LyricLine).sideNote).toBeNull();
+    });
+
+    it('leaves "da capo" inside the lyrics alone', () => {
+      const [section] = parseChordPro('[C]Gesù è il Re dei re, …tutto da capo\n').sections;
+      expect(section.daCapo).toBeUndefined();
+    });
+
+    it('does not merge a repeat that ends with da capo into the one before', () => {
+      const sheet = collapseRepeats(parseChordPro('[C]LODE\n\n[C]LODE\n(tutto da capo)\n'));
+      expect(sheet.sections).toHaveLength(2);
     });
   });
 });

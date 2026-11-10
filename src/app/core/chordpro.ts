@@ -77,6 +77,8 @@ export interface SheetSection {
   lines: SheetLine[];
   /** Set by collapseRepeats(): the section is played this many times in a row (shown "×2"). */
   repeat?: number;
+  /** "Tutto da capo" / "Da capo" written at the end of the section (see `attachDaCapo`). */
+  daCapo?: string;
 }
 
 export interface Sheet {
@@ -263,6 +265,7 @@ export function parseChordPro(source: string): Sheet {
     if (line.items.length === 0) close(); // blank line = end of paragraph
   }
   close();
+  attachDaCapo(sections);
   classifySections(sections);
   for (const section of sections) markChordGaps(section);
 
@@ -302,6 +305,49 @@ function markChordGaps(section: SheetSection): void {
 
 const isSung = (line: SheetLine) => line.kind === 'lyrics' && line.text !== '';
 const isMusic = (line: SheetLine) => line.kind === 'lyrics' || line.kind === 'chords';
+
+/** "(tutto da capo)", "…tutto da capo", "Da capo." — the whole line, any brackets/dots. */
+const DA_CAPO_RE = /^[\s(.…—–-]*((?:tutto\s+)?da\s+capo)[\s).…!]*$/i;
+
+function daCapoText(line: SheetLine): string | null {
+  const text =
+    line.kind === 'comment' ? line.text : line.kind === 'lyrics' && !line.hasChords ? line.text : null;
+  const match = text === null ? null : DA_CAPO_RE.exec(text);
+  if (!match) return null;
+  const words = match[1].replace(/\s+/g, ' ').toLowerCase();
+  return words[0].toUpperCase() + words.slice(1);
+}
+
+/**
+ * "(tutto da capo)" is an instruction, not something to sing: it leaves the
+ * lyrics and becomes the section's `daCapo` mark (shown at its bottom right).
+ * Written on its own after a section (its own paragraph or {start_of_chorus}
+ * block, as in song 48) it belongs to the section before. "(da capo)" at the
+ * end of a line — a note on the right — becomes the mark too. Section
+ * indexes are kept as they were, so personal notes stay anchored.
+ */
+function attachDaCapo(sections: SheetSection[]): void {
+  for (let i = 0; i < sections.length; i++) {
+    const section = sections[i];
+    section.lines = section.lines.filter((line) => {
+      const text = daCapoText(line);
+      if (text) {
+        section.daCapo = text;
+        return false;
+      }
+      if (line.kind === 'lyrics' && line.sideNote && DA_CAPO_RE.test(line.sideNote)) {
+        section.daCapo = daCapoText({ kind: 'comment', index: line.index, text: line.sideNote })!;
+        line.sideNote = null;
+      }
+      return true;
+    });
+    const previous = sections[i - 1];
+    if (section.lines.length === 0 && section.daCapo && previous) {
+      previous.daCapo = section.daCapo;
+      sections.splice(i--, 1);
+    }
+  }
+}
 
 /**
  * Fills in what can be derived from the whole song: chord-only paragraphs
@@ -405,7 +451,7 @@ function trimEnd(segments: Segment[], count: number): Segment[] {
  * Sung echoes stay in the lyrics: the songbook writes them in capitals
  * ("GLORIA A DIO (GLORIA A DIO)") or repeating the words just before
  * ("SE CREDERAI… (se crederai)"). So does a group with a chord over it, and a
- * line that is only a text group ("(tutto da capo)").
+ * line that is only a text group ("(solo donne)").
  */
 function isSideNote(content: string, segments: Segment[], open: number): boolean {
   if (isChordGroup(content)) return true;
@@ -514,7 +560,7 @@ export function lyricsOnlySheet(sheet: Sheet): Sheet {
 /** What a section looks like on the page, without its line indexes. */
 function sectionKey(section: SheetSection): string {
   const lines = section.lines.map(({ index: _index, ...line }) => line);
-  return JSON.stringify([section.type, section.label, section.role, lines]);
+  return JSON.stringify([section.type, section.label, section.role, section.daCapo ?? null, lines]);
 }
 
 /**

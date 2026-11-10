@@ -121,5 +121,9 @@
         <span class="times" [attr.aria-label]="t.sections.timesLabel(section.repeat)">{{ t.sections.times(section.repeat) }}</span>
       </p>
     }
+    @if (section.daCapo) {
+      <!-- "Tutto da capo": a short coral line closing the section, then the words. -->
+      <p class="da-capo"><app-icon name="reset" />{{ section.daCapo }}</p>
+    }
   </section>
 }

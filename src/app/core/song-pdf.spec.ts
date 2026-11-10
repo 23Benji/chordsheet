@@ -94,6 +94,15 @@ describe('song PDF: repeated sections', () => {
     expect(times.x).toBeGreaterThan(tag.x);
   });
 
+  it('writes "TUTTO DA CAPO" after a short line at the bottom right of its section', () => {
+    const sheet = parseChordPro(`${SONG}\n(tutto da capo)\n`);
+    const ops = layoutSongPdf(sheet, options('chords'), measure).ops;
+    const mark = ops.find((o): o is PdfText => o.kind === 'text' && o.text === 'TUTTO DA CAPO')!;
+    expect(mark).toBeDefined();
+    expect(ops.some((o) => o.kind === 'line' && o.x2 < mark.x && Math.abs(o.y1 - mark.y) < 3)).toBe(true);
+    expect(ops.some((o) => o.kind === 'text' && /da capo/i.test(o.text) && o !== mark)).toBe(false);
+  });
+
   it('setlist booklet: cover with the numbered list, then each song from a new page', () => {
     const sheet = parseChordPro(SONG);
     const layout = layoutBookletPdf(

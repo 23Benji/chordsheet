@@ -3,6 +3,7 @@ import { Segment, Sheet, isChordNote, lyricsOnlySheet } from '../../core/chordpr
 import { IntroView } from '../../core/intro';
 import { Annotation } from '../../core/models';
 import { IT } from '../../i18n/it';
+import { Icon } from '../../ui/icon';
 import { sectionLabel } from './section-label';
 
 const NO_ANNOTATIONS: Annotation[] = [];
@@ -14,6 +15,7 @@ const NO_ANNOTATIONS: Annotation[] = [];
  */
 @Component({
   selector: 'app-song-sheet',
+  imports: [Icon],
   templateUrl: './song-sheet.html',
   styleUrl: './song-sheet.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

@@ -152,6 +152,20 @@ export function layoutSongPdf(sheet: Sheet, options: PdfOptions, measure: Measur
         draw: (top, p, out) => out.push({ kind: 'text', page: p, x: left + width, y: top + lh('tag', 1.1), text: times, font: 'tag', align: 'right' }),
       });
     }
+    // "TUTTO DA CAPO" at the bottom right, after a short line (as in the app).
+    if (section.daCapo) {
+      const text = section.daCapo.toUpperCase();
+      const textWidth = measure(text, 'tag') + text.length * 0.35;
+      rows.push({
+        height: lh('tag', 1.8),
+        draw: (top, p, out) => {
+          const base = top + lh('tag', 1.2);
+          const x = left + width - textWidth;
+          out.push({ kind: 'text', page: p, x, y: base, text, font: 'tag', charSpace: 0.35 });
+          out.push({ kind: 'line', page: p, x1: x - 14, y1: base - 1.1, x2: x - 2.5, y2: base - 1.1, width: 0.35 });
+        },
+      });
+    }
 
     // Keep the section on one page when it fits on one; otherwise break between rows.
     const height = rows.reduce((sum, r) => sum + r.height, 0);
