@@ -261,4 +261,16 @@ describe('editor model: old notation, sections, song-wide', () => {
   it('new song template has a verse and a chorus', () => {
     expect(newSongTemplate().sections.map((s) => s.kind)).toEqual(['auto', 'chorus']);
   });
+
+  it('keeps the intro mark ({x_intro}) on its line, ahead of a chord gap', () => {
+    const source = '{start_of_chorus}\n[A]SIGNORE NOI\n{x_intro}\nPER[D]CHÉ SOLTANTO TU\n{x_intro}\n{x_gap}\nREGNI IN TERRA\n{end_of_chorus}\n';
+    const song = parseEditorSong(source);
+    const lines = song.sections[0].lines.map((l) => (l.kind === 'lyrics' ? [l.text, !!l.intro, l.space ?? null] : null));
+    expect(lines).toEqual([
+      ['SIGNORE NOI', false, null],
+      ['PERCHÉ SOLTANTO TU', true, null],
+      ['REGNI IN TERRA', true, 'gap'],
+    ]);
+    expect(serializeEditorSong(song)).toBe(source);
+  });
 });

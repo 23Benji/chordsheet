@@ -5,6 +5,7 @@
 // function returning a new object — easy to test, and new references are
 // what Angular signals need to notice a change.
 import { CHORD_SPACE_DIRECTIVES, ChordSpace } from './chord-gap';
+import { INTRO_DIRECTIVE } from './chordpro';
 import { chordLinePositions } from './chord-text';
 import { keyOf, keyUsesFlats, transposeChord, transposeKey } from './transpose';
 
@@ -23,6 +24,8 @@ export interface EditorLyricsLine {
   chords: EditorChord[];
   /** Chord gap chosen for this line (`{x_gap}` / `{x_glue}` before it; see chord-gap.ts). */
   space?: ChordSpace;
+  /** Part of the intro (`{x_intro}` before it; see intro-mark.ts). */
+  intro?: boolean;
 }
 
 /** `{comment: …}`: performance notes like "x2", "basso". */
@@ -168,6 +171,14 @@ export function parseEditorSong(source: string): EditorSong {
 
   /** `{x_gap}` / `{x_glue}`: belongs to the lyric line right after it. */
   let space: ChordSpace | undefined;
+  /** `{x_intro}`: also belongs to the lyric line after it (ahead of a `{x_gap}`). */
+  let intro = false;
+  /** The next line that isn't a `{x_gap}` / `{x_glue}` is a lyric line. */
+  const lyricsAfter = (from: number): boolean => {
+    let j = from;
+    while (j < lines.length && (DIRECTIVE.exec(lines[j])?.[1].toLowerCase() ?? '') in CHORD_SPACE_DIRECTIVES) j++;
+    return j < lines.length && lines[j].trim() !== '' && !DIRECTIVE.exec(lines[j]) && !/^\s*#/.test(lines[j]);
+  };
 
   for (; i < lines.length; i++) {
     const line = lines[i];
@@ -180,6 +191,10 @@ export function parseEditorSong(source: string): EditorSong {
     const nextIsLyrics = i + 1 < lines.length && lines[i + 1].trim() !== '' && !DIRECTIVE.exec(lines[i + 1]) && !/^\s*#/.test(lines[i + 1]);
     if (d && name in CHORD_SPACE_DIRECTIVES && nextIsLyrics) {
       space = CHORD_SPACE_DIRECTIVES[name];
+      continue;
+    }
+    if (d && name === INTRO_DIRECTIVE && lyricsAfter(i + 1)) {
+      intro = true;
       continue;
     }
     if (d && name in STARTS) {
@@ -200,7 +215,9 @@ export function parseEditorSong(source: string): EditorSong {
     } else {
       const lyrics = parseLyricsLine(line);
       if (space) lyrics.space = space;
+      if (intro) lyrics.intro = true;
       open().lines.push(lyrics);
+      intro = false;
     }
     space = undefined;
   }
@@ -243,8 +260,14 @@ function sectionWrapper(section: EditorSection): [string, string] | null {
 function lineToChordPro(line: EditorLine): string {
   switch (line.kind) {
     case 'lyrics':
-      // The gap choice only matters on a line without chords.
-      return line.space && !line.chords.length ? `{x_${line.space}}\n${lyricsToChordPro(line)}` : lyricsToChordPro(line);
+      // The gap choice only matters on a line without chords; the intro mark goes first.
+      return [
+        line.intro ? `{${INTRO_DIRECTIVE}}` : null,
+        line.space && !line.chords.length ? `{x_${line.space}}` : null,
+        lyricsToChordPro(line),
+      ]
+        .filter((l) => l !== null)
+        .join('\n');
     case 'comment':
       return `{comment: ${line.text}}`;
     case 'raw':

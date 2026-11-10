@@ -251,6 +251,14 @@ export class VisualEditor {
     );
   }
 
+  /** Marks / unmarks a line as part of the intro (`{x_intro}`, see intro-mark.ts). */
+  protected toggleIntro(section: EditorSection, line: EditorLyricsLine): void {
+    this.setLines(
+      section,
+      section.lines.map((l) => (l.id === line.id ? { ...line, intro: !line.intro || undefined } : l)),
+    );
+  }
+
   // ── Adding sections in place ─────────────────────────────────────────────
 
   /** The section last worked in (focus inside it): its gaps show a "+". */

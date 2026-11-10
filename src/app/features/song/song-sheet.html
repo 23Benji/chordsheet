@@ -41,10 +41,17 @@
     }
     @for (line of section.lines; track line.index) {
       @let notes = annotationsOf(line.index);
+      @let intro = introAt(section.lines, $index);
+      @if (intro && !introAt(section.lines, $index - 1)) {
+        <!-- Lines that are also the intro: a green bracket with "INTRO" on top. -->
+        <p class="intro-head"><span class="intro-tag">{{ t.sections.intro }}</span></p>
+      }
       <!-- A row = the line + its personal notes; clickable to select the line. -->
       <div
         class="row"
         [class]="highlightClass(notes)"
+        [class.intro-line]="intro"
+        [class.intro-end]="intro && !introAt(section.lines, $index + 1)"
         [class.selectable]="selectable()"
         [class.selected]="selectedLine() === line.index"
         [attr.tabindex]="selectable() ? 0 : null"

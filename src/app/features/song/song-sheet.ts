@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, computed, input, output } from '@angular/core';
-import { Segment, Sheet, isChordNote, lyricsOnlySheet } from '../../core/chordpro';
+import { Segment, Sheet, SheetLine, isChordNote, lyricsOnlySheet } from '../../core/chordpro';
 import { IntroView } from '../../core/intro';
 import { Annotation } from '../../core/models';
 import { IT } from '../../i18n/it';
@@ -55,6 +55,12 @@ export class SongSheet {
 
   protected readonly t = IT.song;
   protected readonly isChordNote = isChordNote;
+
+  /** Line `i` is part of the marked intro (not shown in "Solo testo"). */
+  protected introAt(lines: SheetLine[], i: number): boolean {
+    const line = lines[i];
+    return !!line && line.kind !== 'comment' && !!line.intro && !this.lyricsOnly();
+  }
 
   /**
    * Personal chords ("Cadd9 instead of C") by the segment they sit on. A

@@ -3,6 +3,13 @@
 // the styling is fully ours (SPEC §2).
 import { ChordLyricsPair, ChordProParser, Comment, Song as CsSong, Tag } from 'chordsheetjs';
 import { CHORD_SPACE_DIRECTIVES, ChordSpace, chordGaps } from './chord-gap';
+
+/**
+ * `{x_intro}` on the line before a line: that line is part of the intro.
+ * ChordPro tells other apps to ignore "x_" directives, so the song stays
+ * portable, and being in the song text the mark is always shared with it.
+ */
+export const INTRO_DIRECTIVE = 'x_intro';
 import { ChordTextItem, parseChordLine, tokenizeChordText } from './chord-text';
 import { parseChord } from './transpose';
 
@@ -37,6 +44,8 @@ export interface LyricLine {
   space?: ChordSpace;
   /** No chords, but keeps the chord row's space (see chord-gap.ts). */
   chordGap?: boolean;
+  /** Part of the intro: `{x_intro}` written before the line (see intro-mark.ts). */
+  intro?: boolean;
 }
 
 export interface CommentLine {
@@ -51,6 +60,8 @@ export interface ChordsLine {
   index: number;
   items: ChordTextItem[];
   sideNote?: string | null;
+  /** Part of the intro (`{x_intro}` before the line). */
+  intro?: boolean;
 }
 
 export type SheetLine = LyricLine | CommentLine | ChordsLine;
@@ -172,6 +183,8 @@ export function parseChordPro(source: string): Sheet {
   let lineIndex = 0;
   /** `{x_gap}` / `{x_glue}` waiting for the lyric line it belongs to. */
   let space: ChordSpace | null = null;
+  /** `{x_intro}` waiting for the line it marks. */
+  let intro = false;
 
   const close = () => {
     if (current && current.lines.length > 0) sections.push(current);
@@ -205,6 +218,8 @@ export function parseChordPro(source: string): Sheet {
           block = kindFromLabel(restore(item.label) || null);
         } else if (item.name in CHORD_SPACE_DIRECTIVES) {
           space = CHORD_SPACE_DIRECTIVES[item.name];
+        } else if (item.name === INTRO_DIRECTIVE) {
+          intro = true;
         } else if (BLOCK_ENDS.has(item.name)) {
           close();
           block = null;
@@ -256,7 +271,9 @@ export function parseChordPro(source: string): Sheet {
       }
       if (lyricLine) {
         if (space && lyricLine.kind === 'lyrics') lyricLine.space = space;
+        if (intro) lyricLine.intro = true;
         space = null;
+        intro = false;
         open().lines.push(lyricLine);
         lineIndex++;
         continue;

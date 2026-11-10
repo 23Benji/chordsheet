@@ -19,7 +19,7 @@ interface AnchorLine {
 }
 
 /** Text that identifies a line: lyrics, a note, or the chords of a chord line. */
-function lineText(line: SheetLine): string {
+export function lineText(line: SheetLine): string {
   switch (line.kind) {
     case 'lyrics':
       return line.text;

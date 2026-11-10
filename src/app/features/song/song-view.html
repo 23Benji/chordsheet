@@ -376,6 +376,8 @@
       [showOrphans]="showOrphans()"
       [toDisplay]="toDisplay()"
       [toOriginal]="toOriginal()"
+      [introMarked]="selectedIntro()"
+      (introToggled)="toggleIntro()"
       (closed)="closePanel()"
       (relink)="startRelink($event)"
     />

@@ -93,8 +93,21 @@
   }
 
   &:focus-within .row-actions,
-  .row-actions:has(.convert) {
+  .row-actions:has(.convert),
+  .row-actions:has(.intro-toggle.on) {
     opacity: 1;
+  }
+
+  // Part of the intro: the same green bracket as in the song view.
+  &.intro-line {
+    margin-left: calc(-1 * var(--space-2));
+    padding-left: var(--space-2);
+    box-shadow: inset 3px 0 0 var(--sage);
+  }
+
+  .intro-toggle.on {
+    background: var(--highlight-sage);
+    color: var(--sage);
   }
 
   // Only with a mouse: on iOS a :hover that reveals something turns the first

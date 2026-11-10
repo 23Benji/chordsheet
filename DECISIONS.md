@@ -150,3 +150,6 @@ Changing the tempo or beat in the metronome writes `{tempo: N}` (and `{time: 3/4
 
 ## 2026-11-10 — "Tutto da capo" is a section mark, not a line
 A line that is only "(tutto da capo)" / "…tutto da capo" / "{comment: da capo}" (or a "(da capo)" note at the end of a line) leaves the lyrics and becomes the section's `daCapo`, drawn at its bottom right (short coral line + words, look C2 chosen by Benji). On its own after a section (its own paragraph or chorus block, as in song 48) it belongs to the section before, and the empty section is dropped. Section indexes are not renumbered, so personal notes stay anchored. "da capo" inside a sung line (song 137) is left alone.
+
+## 2026-11-10 — Intro marked in the song ({x_intro})
+Lines that are also the intro carry `{x_intro}` on the line before them (like `{x_gap}`; "x_" directives are ignored by other ChordPro apps). Benji wants it to be part of the song, always shared — unlike the personal Intro card, which stays for intros that aren't a part of the lyrics. Marking from the song view (line menu → Intro) edits only that spot of the text (intro-mark.ts finds the source line by its text and occurrence), so the rest of the song is never reformatted. Being in the song and not a personal note, it never shows the note symbol in the library. Drawn as a green bracket with "INTRO" (look B), hidden in "Solo testo".

@@ -75,7 +75,7 @@
 
     <div class="lines" cdkDropList [cdkDropListData]="section" (cdkDropListDropped)="dropLine($event)">
     @for (line of section.lines; track line.id; let li = $index) {
-      <div class="row" [attr.data-line]="line.id" cdkDrag cdkDragLockAxis="y" [cdkDragData]="line">
+      <div class="row" [class.intro-line]="line.kind === 'lyrics' && line.intro" [attr.data-line]="line.id" cdkDrag cdkDragLockAxis="y" [cdkDragData]="line">
         <div class="row-main">
           @switch (line.kind) {
             @case ('lyrics') {
@@ -116,6 +116,19 @@
           @if (isOldChordLine(line)) {
             <button type="button" class="btn convert" (click)="convert(section, li)" [title]="t.convertHint">
               <app-icon name="wand" /> {{ t.convert }}
+            </button>
+          }
+          @if (line.kind === 'lyrics') {
+            <button
+              type="button"
+              class="btn icon-btn intro-toggle"
+              [class.on]="line.intro"
+              [attr.aria-pressed]="!!line.intro"
+              [attr.aria-label]="line.intro ? t.introOn : t.introOff"
+              [title]="line.intro ? t.introOn : t.introOff"
+              (click)="toggleIntro(section, asLyrics(line))"
+            >
+              <app-icon name="intro" />
             </button>
           }
           <button type="button" class="btn icon-btn" (click)="insertBelow(section, li, 'lyrics')" [attr.aria-label]="t.lineBelow" [title]="t.lineBelow">

@@ -35,6 +35,9 @@ export class AnnotationPanel {
   readonly toDisplay = input<(chord: string) => string>((c) => c);
   readonly toOriginal = input<(chord: string) => string>((c) => c);
 
+  /** Intro mark of the line: true/false, or null when the line can't be marked (a note). */
+  readonly introMarked = input<boolean | null>(null);
+  readonly introToggled = output<void>();
   readonly closed = output<void>();
   readonly relink = output<Annotation>();
 

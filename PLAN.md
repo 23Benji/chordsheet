@@ -447,6 +447,6 @@ Discuss one at a time, build one at a time, one version bump + push at the end.
 - [x] Repeats: "×2" as a coral pill in the bottom-right corner of the section (look B), also in the PDF — only the "Parti ripetute" repeats
 - [x] Tempo per song: changing BPM or beat in the metronome saves {tempo} / {time} in the song text (automatic, 600 ms after the last change, "Salvato per questo canto"), so it always travels with the song; chip says just "BPM" until a song has a tempo
 - [x] "Tutto da capo": short coral line + "↺ TUTTO DA CAPO" at the bottom right of its section (look C2), also in the PDF. Read from "(tutto da capo)", "…tutto da capo", "{comment: da capo}", "(da capo)" at a line's end — 21 songbook songs
-- [ ] Intro: mark (underline / green highlight) the part of the song that is the intro, instead of a text line above; keep the separate intro card for songs whose intro is different
-- [ ] Intro marks don't show the note/highlight symbol in the sidebar (all other notes/highlights still do)
+- [x] Intro: lines marked with {x_intro} (part of the song, always shared) get a green bracket + "INTRO" (look B). Mark from the line menu (tap a line → Intro) or in the editor (Intro switch on each line). The Intro card stays for intros that aren't a part of the lyrics
+- [x] Intro marks don't show the note symbol in the sidebar — they live in the song, not in personal notes
 - [ ] Editor: copy a line's chords (with their spacing) and paste them onto another line or section of the same song

@@ -52,6 +52,19 @@
             <button type="button" class="btn small" (click)="setHighlight(null)">{{ t.noHighlight }}</button>
           }
         </div>
+        @if (introMarked() !== null) {
+          <!-- Not a personal note: switches {x_intro} in the song itself (intro-mark.ts). -->
+          <button
+            type="button"
+            class="btn action intro"
+            [class.on]="introMarked()"
+            [attr.aria-pressed]="introMarked()"
+            [title]="t.introHint"
+            (click)="introToggled.emit()"
+          >
+            <app-icon name="intro" /> {{ t.actions.intro }}
+          </button>
+        }
         <button type="button" class="btn action" (click)="open('tab')"><app-icon name="tab" /> {{ t.actions.tab }}</button>
         <button
           type="button"

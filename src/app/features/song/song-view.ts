@@ -24,6 +24,7 @@ import { currentPlatform, isIos } from '../../core/platform';
 import { numberLabel, readDirective } from '../../core/song-meta';
 import { meterFromTime, withSongTempo } from '../../core/metronome';
 import { withChordPro } from '../../core/song-import';
+import { toggleIntroMark } from '../../core/intro-mark';
 import { clampTranspose, keyUsesFlats, keyView, transposeChord } from '../../core/transpose';
 import { IT } from '../../i18n/it';
 import { CAPO_TIP_SNOOZE_MS, sheetChords, suggestCapo } from '../../core/capo';
@@ -255,6 +256,24 @@ export class SongView {
     const line = this.selectedLine();
     return this.sheet()?.sections.flatMap((s) => s.lines).find((l) => l.index === line) ?? null;
   });
+  /** Intro mark of the selected line (null: a note, it can't be marked). */
+  protected readonly selectedIntro = computed(() => {
+    const line = this.selectedSheetLine();
+    return !line || line.kind === 'comment' ? null : !!line.intro;
+  });
+
+  /** Marks / unmarks the selected line as intro, in the song text (always shared). */
+  protected async toggleIntro(): Promise<void> {
+    const song = this.song();
+    const line = this.selectedLine();
+    if (!song || line === null) return;
+    const text = toggleIntroMark(song.chordpro, line);
+    if (text === null) return;
+    const wasOn = this.selectedIntro();
+    await this.library.saveSong(withChordPro(song, text));
+    this.toast.show(wasOn ? this.nt.introOff : this.nt.introOn);
+  }
+
   protected readonly selectedText = computed(() => {
     const line = this.selectedSheetLine();
     if (!line) return '';
