@@ -481,6 +481,7 @@ export const IT = {
 
   metronome: {
     title: 'Metronomo',
+    saved: 'Salvato per questo canto',
     bpm: 'Battiti al minuto',
     slower: 'Più lento',
     faster: 'Più veloce',

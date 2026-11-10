@@ -1,14 +1,20 @@
 <app-popover [label]="t.title" triggerClass="chip">
   <span trigger class="trigger" [class.running]="running()">
     <app-icon name="metronome" />
-    <span class="tool-text"><span class="chip-value">{{ bpm() }}</span> BPM</span>
+    <!-- No tempo saved yet: just "BPM", so songs still without one stand out. -->
+    <span class="tool-text">@if (showBpm()) {<span class="chip-value">{{ bpm() }}</span>&ngsp;}BPM</span>
     @if (running()) {
       <span class="mini-dot" [class.on]="flash() !== null" aria-hidden="true"></span>
     }
   </span>
   <div class="panel">
     <div class="head">
-      <p class="panel-title">{{ t.title }}</p>
+      <p class="panel-title">
+        {{ t.title }}
+        @if (saved()) {
+          <span class="saved" role="status">{{ t.saved }}</span>
+        }
+      </p>
       <button
         type="button"
         class="btn icon-btn sound"

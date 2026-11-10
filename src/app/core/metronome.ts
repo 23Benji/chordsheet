@@ -1,3 +1,4 @@
+import { readDirective, setDirective } from './song-meta';
 // Metronome maths (the sound itself is in ui/metronome.ts, with Web Audio).
 
 export const BPM_MIN = 30;
@@ -60,4 +61,26 @@ export function beatAccent(beat: number, meter: Meter): 'strong' | 'medium' | 'w
  */
 export function tempoMarking(bpm: number, table: readonly { upTo: number; name: string }[]): string {
   return (table.find((m) => bpm < m.upTo) ?? table[table.length - 1]).name;
+}
+
+/** `{time: 3/4}` → 3, `{time: 6/8}` → 6; anything the metronome can't play → null. */
+export function meterFromTime(time: string | null | undefined): Meter | null {
+  const beats = parseInt(time ?? '', 10);
+  return (METERS as readonly number[]).includes(beats) ? (beats as Meter) : null;
+}
+
+/** 3 → "3/4", 6 → "6/8" (how the time signature is written in the song). */
+export function timeOfMeter(meter: Meter): string {
+  return meter === 6 ? '6/8' : `${meter}/4`;
+}
+
+/**
+ * The song text with the metronome's tempo (and beat) saved in it, so it
+ * travels with the song when it is shared, exported or synced. 4/4 is the
+ * default and is only written when the song already had a {time}.
+ */
+export function withSongTempo(chordpro: string, bpm: number, meter: Meter): string {
+  let text = setDirective(chordpro, 'tempo', String(bpm));
+  if (meter !== 4 || readDirective(chordpro, 'time') !== null) text = setDirective(text, 'time', timeOfMeter(meter));
+  return text;
 }

@@ -38,6 +38,13 @@
   .panel-title {
     margin: 0;
   }
+
+  .saved {
+    margin-left: var(--space-2);
+    color: var(--text-muted);
+    font-size: 0.8em;
+    font-weight: 400;
+  }
 }
 
 .sound {

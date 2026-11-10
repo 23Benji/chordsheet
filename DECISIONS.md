@@ -144,3 +144,6 @@ Gaps in or deviations from SPEC.md, newest last.
 
 ## 2026-11-10 — Notes on the right ("( … )" at the end of a line)
 The trailing "( … )" group no longer means only "chords in the second key". It goes to the right of the line (brackets not shown) when it is chords only (old second key, still transposed, hidden in "Solo testo") or text with lowercase letters and no chord inside ("poi pace, poi amore", "due volte", "donne": grey italics, never transposed, kept in "Solo testo"). Text in capitals stays in the lyrics because the songbook writes sung echoes that way ("GLORIA A DIO (GLORIA A DIO)"), and so does a line that is only a bracket. Why: Benji needs short notes like song 48's changing chorus word; with transpose he doesn't need the second key itself.
+
+## 2026-11-10 — Metronome tempo saved in the song
+Changing the tempo or beat in the metronome writes `{tempo: N}` (and `{time: 3/4}` when not 4/4, or when the song already had one) into the song's ChordPro text, automatically, 600 ms after the last change. Why: Benji wants each song to keep its own speed and to pass it on whenever the song is shared or exported, always — so it lives in the song itself, not in personal prefs (which are optional to export). The directive goes at the end of the header, so personal notes stay anchored. Songs without a tempo show "BPM" without a number.

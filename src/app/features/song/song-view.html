@@ -207,7 +207,7 @@
         <app-icon name="intro" /><span class="tool-text">{{ t.intro.title }}</span>
       </button>
 
-      <app-metronome [tempo]="song.tempo" />
+      <app-metronome [songId]="song.id" [tempo]="song.tempo" [songMeter]="meter()" [save]="saveTempo" />
 
       <app-popover [label]="t.notesPanel" triggerClass="chip">
         <span trigger>

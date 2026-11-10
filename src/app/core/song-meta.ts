@@ -32,6 +32,27 @@ export function readDirective(chordpro: string, name: string): string | null {
   return re.exec(chordpro)?.[1] ?? null;
 }
 
+/**
+ * Writes `{name: value}` into the song text: replaces the directive where it
+ * is, or adds it at the end of the header (the directives at the top), so
+ * the rest of the song — and the lines personal notes point at — stay put.
+ */
+export function setDirective(chordpro: string, name: string, value: string): string {
+  const line = `{${name}: ${value}}`;
+  const re = new RegExp(`^[ \\t]*\\{\\s*${name}\\s*:[^\\n]*\\}[ \\t]*$`, 'im');
+  if (re.test(chordpro)) return chordpro.replace(re, line);
+  const lines = chordpro.split('\n');
+  let end = 0; // index after the last directive of the header
+  for (let i = 0; i < lines.length; i++) {
+    const text = lines[i].trim();
+    if (text === '') continue;
+    if (!/^\{\s*[a-z_]+\s*:[^}]*\}$/i.test(text) || /^\{\s*(c|comment|ci|cb|comment_\w+)\s*:/i.test(text)) break;
+    end = i + 1;
+  }
+  lines.splice(end, 0, line);
+  return lines.join('\n');
+}
+
 /** Reads {meta: numero 12b} (also accepts {numero: 12b}). */
 export function readNumeroMeta(chordpro: string): string | null {
   const meta = /^\s*\{\s*meta\s*:\s*numero\s+(.*?)\s*\}\s*$/im.exec(chordpro);

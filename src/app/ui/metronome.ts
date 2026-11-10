@@ -6,6 +6,12 @@ import { Popover } from './popover';
 
 /** How far ahead (s) beats are scheduled on the audio clock, and how often we check. */
 const LOOKAHEAD = 0.12;
+
+export interface TempoChange {
+  songId: string;
+  bpm: number;
+  meter: Meter;
+}
 const TIMER_MS = 25;
 
 /**
@@ -25,8 +31,20 @@ const TIMER_MS = 25;
 export class Metronome {
   protected readonly t = IT.metronome;
 
-  /** {tempo} of the song, the starting BPM. */
+  /** The song: a new one stops the metronome and starts from its tempo. */
+  readonly songId = input<string>();
+  /** {tempo} of the song, the starting BPM (none yet: the chip says just "BPM"). */
   readonly tempo = input<number | undefined>();
+  /** Beats per bar from the song's {time}. */
+  readonly songMeter = input<Meter | null>(null);
+  /**
+   * Called when the player changed tempo or beat, 600 ms after the last
+   * change (dragging the slider saves once); the song view saves it in the
+   * song. A function input rather than an output() because a pending change
+   * is also sent while the metronome is being destroyed (leaving the song),
+   * when an output can no longer emit.
+   */
+  readonly save = input<(change: TempoChange) => void>();
 
   protected readonly running = signal(false);
   protected readonly bpm = signal(BPM_DEFAULT);
@@ -46,6 +64,16 @@ export class Metronome {
   protected readonly flash = signal<number | null>(null);
   /** Beat of the bar we're on (stays lit until the next one), or null when stopped. */
   protected readonly current = signal<number | null>(null);
+  /** "Salvato per questo canto" shows for a moment after a change. */
+  protected readonly saved = signal(false);
+  /** The chip shows a number only once the song has a tempo (or while playing). */
+  protected readonly showBpm = computed(() => this.tempo() != null || this.running());
+
+  private saveTimer: ReturnType<typeof setTimeout> | undefined;
+  private savedTimer: ReturnType<typeof setTimeout> | undefined;
+  private lastSong: string | undefined;
+  /** The song the pending change belongs to. */
+  private pendingSong: string | undefined;
 
   private ctx: AudioContext | null = null;
   private timer: ReturnType<typeof setInterval> | undefined;
@@ -56,30 +84,67 @@ export class Metronome {
   private taps: number[] = [];
 
   constructor() {
-    // A new song: start from its {tempo}.
+    // Start from the song's {tempo} and {time}. A new song also stops the
+    // click; our own save coming back (same song) leaves it playing.
     effect(() => {
+      const songId = this.songId();
       const tempo = this.tempo();
+      const meter = this.songMeter();
       untracked(() => {
-        this.stop();
+        if (songId !== this.lastSong) {
+          this.lastSong = songId;
+          this.stop();
+          this.flushSave();
+        } else if (this.saveTimer !== undefined) {
+          return; // the player is still changing it: their value wins
+        }
         this.bpm.set(tempo ? clampBpm(tempo) : BPM_DEFAULT);
+        this.meter.set(meter ?? 4);
       });
     });
-    inject(DestroyRef).onDestroy(() => this.stop());
+    inject(DestroyRef).onDestroy(() => {
+      this.stop();
+      this.flushSave();
+      clearTimeout(this.savedTimer);
+    });
   }
 
   protected setBpm(value: number): void {
-    if (Number.isFinite(value)) this.bpm.set(clampBpm(value));
+    if (!Number.isFinite(value)) return;
+    this.bpm.set(clampBpm(value));
+    this.scheduleSave();
   }
 
   protected setMeter(meter: Meter): void {
     this.meter.set(meter);
     this.beatCount = 0; // restart the bar on its first beat
+    this.scheduleSave();
   }
 
   protected tap(): void {
     const result = tapTempo(this.taps, performance.now());
     this.taps = result.taps;
-    if (result.bpm) this.bpm.set(result.bpm);
+    if (result.bpm) {
+      this.bpm.set(result.bpm);
+      this.scheduleSave();
+    }
+  }
+
+  private scheduleSave(): void {
+    this.pendingSong = this.songId();
+    clearTimeout(this.saveTimer);
+    this.saveTimer = setTimeout(() => this.flushSave(), 600);
+  }
+
+  /** Sends a pending change now (leaving the song must not lose it). */
+  private flushSave(): void {
+    if (this.saveTimer === undefined) return;
+    clearTimeout(this.saveTimer);
+    this.saveTimer = undefined;
+    if (this.pendingSong) this.save()?.({ songId: this.pendingSong, bpm: this.bpm(), meter: this.meter() });
+    this.saved.set(true);
+    clearTimeout(this.savedTimer);
+    this.savedTimer = setTimeout(() => this.saved.set(false), 2000);
   }
 
   protected toggle(): void {

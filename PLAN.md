@@ -445,7 +445,7 @@ Discuss one at a time, build one at a time, one version bump + push at the end.
 - [x] Notes on the right: "(poi pace, poi amore)" at the end of a line → grey italics on the right (look A). Lowercase text or chords only; capitals and repeated words stay in the lyrics (sung echoes). Also fixed: "(GLORIA A DIO)" was taken for chords
 - [ ] Later: a note above the chords for who sings ("donne", "uomini")
 - [x] Repeats: "×2" as a coral pill in the bottom-right corner of the section (look B), also in the PDF — only the "Parti ripetute" repeats
-- [ ] Tempo per song: the metronome remembers each song's BPM; saved in the song and always exported/shared with it (not optional like notes)
+- [x] Tempo per song: changing BPM or beat in the metronome saves {tempo} / {time} in the song text (automatic, 600 ms after the last change, "Salvato per questo canto"), so it always travels with the song; chip says just "BPM" until a song has a tempo
 - [ ] "Tutto da capo": a mark more visible than a normal note, bottom-right like the ×2
 - [ ] Intro: mark (underline / green highlight) the part of the song that is the intro, instead of a text line above; keep the separate intro card for songs whose intro is different
 - [ ] Intro marks don't show the note/highlight symbol in the sidebar (all other notes/highlights still do)

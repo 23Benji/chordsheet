@@ -21,7 +21,9 @@ import { Annotation, SongIntro, preferSharpsFor } from '../../core/models';
 import { actionFor, effectiveKeymap } from '../../core/keymap';
 import { choFileName, shareBuiltFile } from '../../core/export';
 import { currentPlatform, isIos } from '../../core/platform';
-import { numberLabel } from '../../core/song-meta';
+import { numberLabel, readDirective } from '../../core/song-meta';
+import { meterFromTime, withSongTempo } from '../../core/metronome';
+import { withChordPro } from '../../core/song-import';
 import { clampTranspose, keyUsesFlats, keyView, transposeChord } from '../../core/transpose';
 import { IT } from '../../i18n/it';
 import { CAPO_TIP_SNOOZE_MS, sheetChords, suggestCapo } from '../../core/capo';
@@ -45,7 +47,7 @@ import { Switch } from '../../ui/switch';
 import { BassDiagram } from '../../ui/bass-diagram';
 import { ChordDiagram } from '../../ui/chord-diagram';
 import { PianoDiagram } from '../../ui/piano-diagram';
-import { Metronome } from '../../ui/metronome';
+import { Metronome, TempoChange } from '../../ui/metronome';
 import { AddToSetlist } from './add-to-setlist';
 import { SongFolders } from './song-folders';
 import { ExportMenu } from './export-menu';
@@ -89,6 +91,20 @@ export class SongView {
   readonly id = input.required<string>();
 
   protected readonly song = computed(() => this.library.byId().get(this.id()) ?? null);
+  /** Beats per bar from the song's {time: 3/4}, for the metronome. */
+  protected readonly meter = computed(() => meterFromTime(readDirective(this.song()?.chordpro ?? '', 'time')));
+
+  /**
+   * The metronome's tempo and beat are saved in the song text ({tempo},
+   * {time}), so they go with the song when it's shared, exported or synced.
+   * An arrow function so the metronome can call it with `this` bound.
+   */
+  protected readonly saveTempo = (change: TempoChange): void => {
+    const song = this.library.byId().get(change.songId);
+    if (!song) return;
+    const text = withSongTempo(song.chordpro, change.bpm, change.meter);
+    if (text !== song.chordpro) void this.library.saveSong(withChordPro(song, text));
+  };
   protected readonly label = computed(() => {
     const song = this.song();
     return song ? numberLabel(song) : '';
