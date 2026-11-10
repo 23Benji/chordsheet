@@ -54,8 +54,11 @@
         (input)="setLabel(section, label.value)"
       />
       <div class="card-actions">
+        <button type="button" class="btn icon-btn" (click)="copySectionChords(section)" [attr.aria-label]="t.copySectionChords" [title]="t.copySectionChords">
+          <app-icon name="music" />
+        </button>
         <button type="button" class="btn icon-btn" (click)="duplicate(section)" [attr.aria-label]="t.sectionDuplicate" [title]="t.sectionDuplicate">
-          <app-icon name="copy" />
+          <app-icon name="layers" />
         </button>
         <button type="button" class="btn icon-btn" (click)="remove(section)" [attr.aria-label]="t.sectionDelete" [title]="t.sectionDelete">
           <app-icon name="trash" />
@@ -119,6 +122,15 @@
             </button>
           }
           @if (line.kind === 'lyrics') {
+            <!-- Copy / paste chords: shown, like the other line buttons, only on the line being edited. -->
+            <button type="button" class="btn icon-btn" (click)="copyLineChords(asLyrics(line))" [attr.aria-label]="t.copyLineChords" [title]="t.copyLineChords">
+              <app-icon name="copy" />
+            </button>
+            @if (copied()) {
+              <button type="button" class="btn icon-btn paste" (click)="pasteChordsAt(section, li)" [attr.aria-label]="t.pasteChords" [title]="t.pasteChords">
+                <app-icon name="paste" />
+              </button>
+            }
             <button
               type="button"
               class="btn icon-btn intro-toggle"

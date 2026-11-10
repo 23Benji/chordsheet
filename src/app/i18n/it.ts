@@ -817,6 +817,12 @@ export const IT = {
     addSectionHere: 'Aggiungi una sezione qui',
     copyOf: (name: string) => `Copia di ${name}`,
     lineBelow: 'Aggiungi una riga sotto',
+    copyLineChords: 'Copia gli accordi di questa riga',
+    copySectionChords: 'Copia gli accordi di questa sezione',
+    pasteChords: 'Incolla gli accordi qui (sostituiscono quelli della riga)',
+    chordsCopied: (lines: number) =>
+      lines === 1 ? 'Accordi copiati: tocca Incolla su un’altra riga' : `Accordi di ${lines} righe copiati: tocca Incolla sulla prima riga`,
+    chordsPasted: 'Accordi incollati',
     introOn: 'Fa parte dell’intro: tocca per togliere',
     introOff: 'Segna questa riga come intro',
     lineDelete: 'Elimina riga',

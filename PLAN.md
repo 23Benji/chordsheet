@@ -449,4 +449,4 @@ Discuss one at a time, build one at a time, one version bump + push at the end.
 - [x] "Tutto da capo": short coral line + "↺ TUTTO DA CAPO" at the bottom right of its section (look C2), also in the PDF. Read from "(tutto da capo)", "…tutto da capo", "{comment: da capo}", "(da capo)" at a line's end — 21 songbook songs
 - [x] Intro: lines marked with {x_intro} (part of the song, always shared) get a green bracket + "INTRO" (look B). Mark from the line menu (tap a line → Intro) or in the editor (Intro switch on each line). The Intro card stays for intros that aren't a part of the lyrics
 - [x] Intro marks don't show the note symbol in the sidebar — they live in the song, not in personal notes
-- [ ] Editor: copy a line's chords (with their spacing) and paste them onto another line or section of the same song
+- [x] Editor: copy chords — line button (copy) and section button (♪); "paste" shows on the line being edited once something is copied, replaces that line's chords at the same positions (past the end of a shorter line too); a section pastes line by line. "Duplica" got the layers icon

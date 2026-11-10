@@ -25,6 +25,8 @@ import {
   chordPalette,
   cleanNote,
   convertOldChordLine,
+  CopiedChords,
+  copyChords,
   duplicateSection,
   emptyLyrics,
   emptyNote,
@@ -34,6 +36,7 @@ import {
   moveSection,
   moveSectionTo,
   removeSection,
+  pasteChords,
   splitLine,
   updateSection,
 } from '../../core/editor-model';
@@ -249,6 +252,30 @@ export class VisualEditor {
       section,
       section.lines.map((l) => (l.id === line.id ? { ...line, space } : l)),
     );
+  }
+
+  // ── Copying chords ────────────────────────────────────────────────────────
+
+  /** Chords copied from a line or a whole section; the "paste" buttons show while set. */
+  protected readonly copied = signal<CopiedChords[] | null>(null);
+
+  protected copyLineChords(line: EditorLyricsLine): void {
+    this.copied.set(copyChords([line]));
+    this.toast.show(this.t.chordsCopied(1));
+  }
+
+  protected copySectionChords(section: EditorSection): void {
+    const copied = copyChords(section.lines);
+    this.copied.set(copied);
+    this.toast.show(this.t.chordsCopied(copied.length));
+  }
+
+  /** Pastes onto this line (and the next ones, for a section), replacing their chords. One undo step. */
+  protected pasteChordsAt(section: EditorSection, index: number): void {
+    const copied = this.copied();
+    if (!copied) return;
+    this.setLines(section, pasteChords(section.lines, index, copied));
+    this.toast.show(this.t.chordsPasted);
   }
 
   /** Marks / unmarks a line as part of the intro (`{x_intro}`, see intro-mark.ts). */

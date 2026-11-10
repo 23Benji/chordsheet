@@ -364,6 +364,31 @@ export function splitLine(line: EditorLyricsLine, at: number): [EditorLyricsLine
   ];
 }
 
+// ── Copying chords ─────────────────────────────────────────────────────────
+
+/** Chords of one line, as copied: each at its character position. */
+export type CopiedChords = { pos: number; chord: string }[];
+
+/** The chords of the lyric lines (a line without chords gives []), for pasting. */
+export function copyChords(lines: readonly EditorLine[]): CopiedChords[] {
+  return lines.flatMap((l) => (l.kind === 'lyrics' ? [l.chords.map(({ pos, chord }) => ({ pos, chord }))] : []));
+}
+
+/**
+ * Pastes copied chords from line `at` on: the first copied line onto line
+ * `at`, the next onto the next lyric line, and so on (notes in between are
+ * skipped). The chords *replace* the line's own, at the same positions — so
+ * the spacing stays — even past the end of a shorter line.
+ */
+export function pasteChords(lines: readonly EditorLine[], at: number, copied: readonly CopiedChords[]): EditorLine[] {
+  let next = 0;
+  return lines.map((line, i) => {
+    if (i < at || line.kind !== 'lyrics' || next >= copied.length) return line;
+    const chords = copied[next++].map((c) => ({ id: newId(), pos: c.pos, chord: c.chord }));
+    return { ...line, chords };
+  });
+}
+
 /** Backspace at the start of `second`: append it to `first`. */
 export function mergeLines(first: EditorLyricsLine, second: EditorLyricsLine): EditorLyricsLine {
   const offset = first.text.length;

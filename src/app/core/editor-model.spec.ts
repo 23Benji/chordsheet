@@ -7,6 +7,8 @@ import {
   addChord,
   chordPalette,
   convertOldChordLine,
+  copyChords,
+  pasteChords,
   duplicateSection,
   layoutChips,
   lyricsToChordPro,
@@ -272,5 +274,25 @@ describe('editor model: old notation, sections, song-wide', () => {
       ['REGNI IN TERRA', true, 'gap'],
     ]);
     expect(serializeEditorSong(song)).toBe(source);
+  });
+
+  describe('copying chords', () => {
+    const song = parseEditorSong('[G]Dio è [D]grande\nnote\n\n{comment: x2}\nil Suo amore\npiù corto\n');
+
+    it('pastes one line onto another, replacing its chords, at the same positions', () => {
+      const lines = [...song.sections[0].lines, ...song.sections[1].lines];
+      const copied = copyChords([lines[0]]);
+      const pasted = pasteChords(lines, 1, copied);
+      expect(lyricsToChordPro(pasted[1] as EditorLyricsLine)).toBe('[G]note  [D]');
+      expect(pasted[0]).toBe(lines[0]);
+    });
+
+    it('pastes a whole section line by line, skipping notes in between', () => {
+      const source = parseEditorSong('[G]uno [D]due\n[C]tre\n').sections[0].lines;
+      const target = song.sections[1].lines; // note, "il Suo amore", "più corto"
+      const pasted = pasteChords(target, 0, copyChords(source));
+      expect(pasted[0]).toBe(target[0]);
+      expect(pasted.slice(1).map((l) => lyricsToChordPro(l as EditorLyricsLine))).toEqual(['[G]il S[D]uo amore', '[C]più corto']);
+    });
   });
 });
