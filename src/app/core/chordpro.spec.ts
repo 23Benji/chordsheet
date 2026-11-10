@@ -1,5 +1,5 @@
 import { readdirSync, readFileSync } from 'node:fs';
-import { ChordsLine, CommentLine, LyricLine, collapseRepeats, lyricsOnlySheet, mapSecondKey, mapSheetChords, parseChordPro } from './chordpro';
+import { ChordsLine, CommentLine, LyricLine, collapseRepeats, lyricsOnlySheet, mapSideNote, mapSheetChords, parseChordPro } from './chordpro';
 import { keyView } from './transpose';
 import { numberLabel, parseFileName, parseSongNumber, readNumeroMeta } from './song-meta';
 import { HAS_SONGS } from '../../testing/bundled-songs';
@@ -38,18 +38,53 @@ describe('parseChordPro', () => {
     expect(sheet.sections.flatMap((s) => s.lines).map((l) => l.index)).toEqual([0, 1, 2, 3]);
   });
 
-  it('detects second-key groups at the end of a line', () => {
+  it('detects side-note groups at the end of a line', () => {
     const [line] = lyricLines('[Bm]CANTA ALLE[D]LUIA AL SI[F#m]GNOR[F#].    (Am C Em E)');
-    expect(line.secondKey).toBe('(Am C Em E)');
+    expect(line.sideNote).toBe('Am C Em E');
     expect(line.text).toBe('CANTA ALLELUIA AL SIGNOR.');
     const segments = line.words.flatMap((w) => w.segments);
     expect(segments[segments.length - 1].chord).toBe('F#');
   });
 
-  it('does not treat ordinary parentheses as second key', () => {
-    const [line] = lyricLines('[C]Lode a Te (bis)');
-    expect(line.secondKey).toBeNull();
-    expect(line.text).toBe('Lode a Te (bis)');
+  it('puts a lowercase note at the end of a line on the right (song 48)', () => {
+    const [line] = lyricLines('[C]IO SENTO *GIOIA, *GIOIA, *GIOIA, (poi pace, poi amore)');
+    expect(line.sideNote).toBe('poi pace, poi amore');
+    expect(line.text).toBe('IO SENTO *GIOIA, *GIOIA, *GIOIA,');
+    expect(lyricLines('[D]LUI LO RACCOGLIERÀ PER [D]TE. (due volte)')[0].sideNote).toBe('due volte');
+  });
+
+  it('keeps sung echoes in capitals and groups with a chord inside in the lyrics', () => {
+    const [echo] = lyricLines('[D]GLORIA A DIO (GLORIA A DIO)');
+    expect(echo.sideNote).toBeNull();
+    expect(echo.text).toBe('GLORIA A DIO (GLORIA A DIO)');
+    const [inside] = lyricLines('[A]CREDO [E]FIANCO (credo che sia al mio f[A]ianco)');
+    expect(inside.sideNote).toBeNull();
+    expect(inside.text).toContain('(credo che sia al mio fianco)');
+    const [lower] = lyricLines('[E]VEDRAI MIRACOLI SE CREDERAI… (se crederai)');
+    expect(lower.sideNote).toBeNull();
+  });
+
+  it('a chord just before the brackets is not inside them (song 99)', () => {
+    const [line] = lyricLines('[C]NOI TI [Am]LODE[F]REM[G] (tutti)');
+    expect(line.sideNote).toBe('tutti');
+    const segments = line.words.flatMap((w) => w.segments);
+    expect(segments[segments.length - 1].chord).toBe('G');
+  });
+
+  it('leaves a line that is only a text group alone', () => {
+    const [line] = lyricLines('(tutto da capo)');
+    expect(line.sideNote).toBeNull();
+    expect(line.text).toBe('(tutto da capo)');
+  });
+
+  it('does not transpose a text note, and keeps it in "Solo testo"', () => {
+    const sheet = parseChordPro('[C]IO TI LODERÒ (donne e uomini)\n[C]LODE    (Am Em)');
+    const up = mapSheetChords(sheet, keyView('C', 2, 0).mapChord);
+    const [text, chords] = up.sections[0].lines as LyricLine[];
+    expect(text.sideNote).toBe('donne e uomini');
+    expect(chords.sideNote).toBe('Bm F#m');
+    const sung = lyricsOnlySheet(sheet).sections[0].lines as LyricLine[];
+    expect(sung.map((l) => l.sideNote)).toEqual(['donne e uomini', null]);
   });
 
   it('reads key, capo and tempo', () => {
@@ -216,10 +251,10 @@ describe('# in song text', () => {
     ]);
   });
 
-  it('keeps a second-key group on a chord line (song 069)', () => {
+  it('keeps a side-note group on a chord line (song 069)', () => {
     const line = parseChordPro('G7 C F#,F#7,B(E)').sections[0].lines[0] as ChordsLine;
     expect(line.items.map((i) => ('chord' in i ? i.chord : i.text))).toEqual(['G7', 'C', 'F#', 'F#7', 'B']);
-    expect(line.secondKey).toBe('(E)');
+    expect(line.sideNote).toBe('E');
   });
 
   it('still ignores real ChordPro comment lines and reads {key: F#}', () => {
@@ -270,26 +305,27 @@ describe.skipIf(!HAS_SONGS)('collapseRepeats on the bundled songs', () => {
     expect(sheet.sections.map((s) => [s.type, s.number, s.repeat])).toEqual([['verse', 1, 2]]);
   });
 
-  describe('second key in parentheses', () => {
+  describe('chords on the right in parentheses', () => {
     it('is transposed together with the song', () => {
       const parsed = parseChordPro('[Bm]CANTA ALLE[F#m]LUIA AL SI[Bm]GNOR.    (Am Em Am Em)');
       const up = mapSheetChords(parsed, keyView('Bm', 2, 0).mapChord);
       const line = up.sections[0].lines[0] as LyricLine;
       expect(line.words[0].segments[0].chord).toBe('C#m');
-      expect(line.secondKey).toBe('(Bm F#m Bm F#m)');
+      expect(line.sideNote).toBe('Bm F#m Bm F#m');
     });
 
     it('keeps separators, slash chords and non-chord text', () => {
       const up = (c: string) => keyView('C', 2, 0).mapChord(c);
-      expect(mapSecondKey('(Am, C/G - F)', up)).toBe('(Bm, D/A - G)');
-      expect(mapSecondKey('(E)', up)).toBe('(F#)');
-      expect(mapSecondKey(null, up)).toBeNull();
+      expect(mapSideNote('Am, C/G - F', up)).toBe('Bm, D/A - G');
+      expect(mapSideNote('E', up)).toBe('F#');
+      expect(mapSideNote('donne e uomini', up)).toBe('donne e uomini');
+      expect(mapSideNote(null, up)).toBeNull();
     });
 
     it('also on plain chord lines', () => {
       const parsed = parseChordPro('Am G F E    (Dm C Bb A)');
       const line = mapSheetChords(parsed, (c) => c + '!').sections[0].lines[0] as ChordsLine;
-      expect(line.secondKey).toBe('(Dm! C! Bb! A!)');
+      expect(line.sideNote).toBe('Dm! C! Bb! A!');
     });
   });
 
@@ -315,7 +351,7 @@ describe.skipIf(!HAS_SONGS)('collapseRepeats on the bundled songs', () => {
       expect(lines.every((l) => l.kind !== 'chords')).toBe(true);
       const lyrics = lines.filter((l): l is LyricLine => l.kind === 'lyrics');
       expect(lyrics.map((l) => l.text)).toEqual(['Quando guardo la tua santità', 'Io ti adoro']);
-      expect(lyrics.every((l) => !l.hasChords && l.secondKey === null)).toBe(true);
+      expect(lyrics.every((l) => !l.hasChords && l.sideNote === null)).toBe(true);
       expect(lyrics.flatMap((l) => l.words.flatMap((w) => w.segments)).every((seg) => seg.chord === null)).toBe(true);
       // Same line numbers as in the full song (notes stay anchored).
       const fullIndex = full.sections.flatMap((s) => s.lines).find((l) => l.kind === 'lyrics' && l.text.startsWith('Io'))!.index;

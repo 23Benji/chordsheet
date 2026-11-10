@@ -185,7 +185,7 @@ export function layoutSongPdf(sheet: Sheet, options: PdfOptions, measure: Measur
     if (line.kind === 'comment') return textRows(line.text, 'comment', left, width, lh('comment', 1.35));
     if (line.kind === 'chords') {
       if (options.mode === 'lyrics') return [];
-      return [chordItemsRow(line.items, line.secondKey ?? null, left, width)];
+      return [chordItemsRow(line.items, line.sideNote ?? null, left, width)];
     }
     if (options.mode === 'lyrics') {
       const words = line.words.map((w) => w.segments.map((s) => s.lyric).join(''));
@@ -198,16 +198,16 @@ export function layoutSongPdf(sheet: Sheet, options: PdfOptions, measure: Measur
       }));
     }
     // A chord gap (chord-gap.ts) takes the chord row's height like a line with chords.
-    return chordLyricRows(line.words, line.hasChords || !!line.chordGap, line.secondKey, left, width);
+    return chordLyricRows(line.words, line.hasChords || !!line.chordGap, line.sideNote, left, width);
   }
 
   /** Chords above lyrics: each segment is as wide as the wider of its chord and syllable. */
-  function chordLyricRows(words: Word[], hasChords: boolean, secondKey: string | null, left: number, width: number): Row[] {
+  function chordLyricRows(words: Word[], hasChords: boolean, sideNote: string | null, left: number, width: number): Row[] {
     const pad = f.lyric.size * PT * 0.3; // space after a chord (0.3em, as on screen)
     const advance = (lyric: string, chord: string | null) =>
       Math.max(measure(lyric, 'lyric'), chord ? measure(chord, 'chord') + pad : 0);
     const wordWidth = (w: Word) => w.segments.reduce((sum, s) => sum + advance(s.lyric, s.chord), 0);
-    const keyWidth = secondKey ? measure(secondKey, 'muted') + 4 : 0;
+    const keyWidth = sideNote ? measure(sideNote, 'muted') + 4 : 0;
     const groups = wrapWords(words, wordWidth, width - keyWidth);
     const height = (hasChords ? chordLH : 0) + lyricLH;
     return groups.map((group, i) => ({
@@ -236,15 +236,15 @@ export function layoutSongPdf(sheet: Sheet, options: PdfOptions, measure: Measur
           }
         }
         flush();
-        if (secondKey && i === groups.length - 1) {
-          out.push({ kind: 'text', page: p, x: left + width, y: lyricBase, text: secondKey, font: 'muted', align: 'right' });
+        if (sideNote && i === groups.length - 1) {
+          out.push({ kind: 'text', page: p, x: left + width, y: lyricBase, text: sideNote, font: 'muted', align: 'right' });
         }
       },
     }));
   }
 
   /** "B- G D A": chords written as text, in one row. */
-  function chordItemsRow(items: { chord?: string; text?: string }[], secondKey: string | null, left: number, width: number): Row {
+  function chordItemsRow(items: { chord?: string; text?: string }[], sideNote: string | null, left: number, width: number): Row {
     const gap = f.lyric.size * PT * 0.9;
     const height = chordLH + 1.5;
     return {
@@ -260,7 +260,7 @@ export function layoutSongPdf(sheet: Sheet, options: PdfOptions, measure: Measur
           out.push({ kind: 'text', page: p, x, y: base, text, font: role });
           x += measure(text, role) + gap;
         }
-        if (secondKey) out.push({ kind: 'text', page: p, x: left + width, y: base, text: secondKey, font: 'muted', align: 'right' });
+        if (sideNote) out.push({ kind: 'text', page: p, x: left + width, y: base, text: sideNote, font: 'muted', align: 'right' });
       },
     };
   }

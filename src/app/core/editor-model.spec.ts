@@ -46,9 +46,9 @@ function rendered(sheet: Sheet) {
       label: s.label,
       lines: s.lines.map((l) =>
         l.kind === 'lyrics'
-          ? { text: l.text, second: l.secondKey, segs: l.words.flatMap((w) => w.segments) }
+          ? { text: l.text, second: l.sideNote, segs: l.words.flatMap((w) => w.segments) }
           : l.kind === 'chords'
-            ? { chords: l.items, second: l.secondKey }
+            ? { chords: l.items, second: l.sideNote }
             : { comment: l.text },
       ),
     })),

@@ -69,8 +69,8 @@
                   }
                 }
               </p>
-              @if (line.secondKey) {
-                <span class="second-key" [title]="t.secondKey">{{ line.secondKey }}</span>
+              @if (line.sideNote) {
+                <span class="side-note" [class.side-chords]="isChordNote(line.sideNote)">{{ line.sideNote }}</span>
               }
             </div>
           } @else {
@@ -94,8 +94,8 @@
                   </span>
                 }
               </span>
-              @if (line.secondKey) {
-                <span class="second-key" [title]="t.secondKey">{{ line.secondKey }}</span>
+              @if (line.sideNote) {
+                <span class="side-note" [class.side-chords]="isChordNote(line.sideNote)">{{ line.sideNote }}</span>
               }
             </div>
           }

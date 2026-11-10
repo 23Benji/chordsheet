@@ -439,3 +439,14 @@ Discussed one by one, built one at a time, one version bump + push at the end.
 - [x] Editor undo: iPhone floating ↶ ↷ pill (was scrolling away unnoticed); "Sezione/Riga eliminata · Annulla" after deleting
 - [x] Editor: "+" above/below the section being edited (menu: types + "Copia di Ritornello"); "+ Aggiungi sezione" at the end replaces the old row
 - [x] Chord gap: automatic after a chord line, strip "spazio accordi" in the editor to switch it ({x_gap} / {x_glue})
+
+## 1.42 — Second feedback round (Benji, 2026-11-10)
+Discuss one at a time, build one at a time, one version bump + push at the end.
+- [x] Notes on the right: "(poi pace, poi amore)" at the end of a line → grey italics on the right (look A). Lowercase text or chords only; capitals and repeated words stay in the lyrics (sung echoes). Also fixed: "(GLORIA A DIO)" was taken for chords
+- [ ] Later: a note above the chords for who sings ("donne", "uomini")
+- [ ] Repeats: "×2" bigger, in colour, bottom-right corner of the section (seen when you reach the end of it, no looking back up)
+- [ ] Tempo per song: the metronome remembers each song's BPM; saved in the song and always exported/shared with it (not optional like notes)
+- [ ] "Tutto da capo": a mark more visible than a normal note, bottom-right like the ×2
+- [ ] Intro: mark (underline / green highlight) the part of the song that is the intro, instead of a text line above; keep the separate intro card for songs whose intro is different
+- [ ] Intro marks don't show the note/highlight symbol in the sidebar (all other notes/highlights still do)
+- [ ] Editor: copy a line's chords (with their spacing) and paste them onto another line or section of the same song

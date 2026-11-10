@@ -185,7 +185,6 @@ export const IT = {
       interlude: 'Intermezzo musicale',
       outro: 'Finale',
     },
-    secondKey: 'Accordi nella seconda tonalità',
     personalChord: 'Accordo personale',
     perform: 'Esibizione',
     controls: 'Controlli del canto',

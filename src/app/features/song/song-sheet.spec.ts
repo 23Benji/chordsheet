@@ -23,13 +23,13 @@ describe('SongSheet', () => {
     expect(segs[segs.length - 1]).toEqual(['F', 'TÀ']);
   });
 
-  it('marks choruses, comments and second-key groups', () => {
+  it('marks choruses, comments and side-note groups', () => {
     const el = render(
       '{comment: x2}\n{start_of_chorus}\n[G]IO LODO TE\n{end_of_chorus}\n[Bm]CANTA.    (Am Em)',
     );
     expect(el.querySelector('.chorus .tag')?.textContent).toBe('Ritornello');
     expect(el.querySelector('.comment')?.textContent).toBe('x2');
-    expect(el.querySelector('.second-key')?.textContent).toBe('(Am Em)');
+    expect(el.querySelector('.side-note')?.textContent).toBe('Am Em');
   });
 
   it('labels every section so verses, choruses and intermezzi are easy to tell apart', () => {
@@ -125,7 +125,7 @@ describe('SongSheet', () => {
     fixture.detectChanges();
     const el = fixture.nativeElement as HTMLElement;
     expect(el.querySelectorAll('.chord').length).toBe(0);
-    expect(el.querySelector('.second-key')).toBeNull();
+    expect(el.querySelector('.side-note')).toBeNull();
     expect(el.querySelector('.chord-line')).toBeNull();
     expect(el.querySelector('.instrumental')).toBeNull();
     expect(el.querySelector('.tab')).toBeNull();

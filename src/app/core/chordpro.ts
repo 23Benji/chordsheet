@@ -27,8 +27,12 @@ export interface LyricLine {
   hasChords: boolean;
   /** Lyric text without chords (used for search and annotation anchoring). */
   text: string;
-  /** Trailing "(Am Em Am Em)" group = chords in the second key (SPEC §3). */
-  secondKey: string | null;
+  /**
+   * Note on the right, written as a trailing "( … )" group without its
+   * brackets: chords ("Am Em Am Em", the old second key) or a lowercase note
+   * ("poi pace, poi amore", "due volte"). See `readSideNote`.
+   */
+  sideNote: string | null;
   /** `{x_gap}` / `{x_glue}` written before the line (see chord-gap.ts). */
   space?: ChordSpace;
   /** No chords, but keeps the chord row's space (see chord-gap.ts). */
@@ -46,7 +50,7 @@ export interface ChordsLine {
   kind: 'chords';
   index: number;
   items: ChordTextItem[];
-  secondKey?: string | null;
+  sideNote?: string | null;
 }
 
 export type SheetLine = LyricLine | CommentLine | ChordsLine;
@@ -105,7 +109,7 @@ function protect(source: string): string {
     .join('\n');
 }
 
-const SECOND_KEY_RE = /\s*\(([^()]+)\)\s*$/;
+const SIDE_NOTE_RE = /\s*\(([^()]+)\)\s*$/;
 
 /** `{comment: Ritornello}` / `{comment: Ritornello: IO CANTERÒ A TE…}`. */
 const CHORUS_REPEAT_RE = /^ritornello\b\s*:?\s*(.*)$/i;
@@ -340,21 +344,22 @@ function buildLyricLine(pairs: ChordLyricsPair[], index: number): LyricLine | Ch
   }
 
   const fullText = segments.map((s) => s.lyric).join('');
-  let secondKey: string | null = null;
-  const match = SECOND_KEY_RE.exec(fullText);
-  if (match && isChordGroup(match[1])) {
-    secondKey = `(${match[1].trim()})`;
+  let sideNote: string | null = null;
+  const match = SIDE_NOTE_RE.exec(fullText);
+  // Position of "(" itself: a chord just before it ("REM[G] (tutti)") is not inside.
+  if (match && isSideNote(match[1], segments, fullText.length - match[0].trimStart().length)) {
+    sideNote = match[1].trim();
     segments = trimEnd(segments, match[0].length);
   }
 
   const hasChords = segments.some((s) => s.chord !== null);
   const text = segments.map((s) => s.lyric).join('').trim();
-  if (!hasChords && text === '' && !secondKey) return null;
+  if (!hasChords && text === '' && !sideNote) return null;
   if (!hasChords) {
     const items = parseChordLine(text);
-    if (items) return { kind: 'chords', index, items, secondKey };
+    if (items) return { kind: 'chords', index, items, sideNote };
   }
-  return { kind: 'lyrics', index, words: groupWords(segments), hasChords, text, secondKey };
+  return { kind: 'lyrics', index, words: groupWords(segments), hasChords, text, sideNote };
 }
 
 /** "LUIA AL SI" → ["LUIA ", "AL ", "SI"] (whitespace stays attached). */
@@ -392,9 +397,46 @@ function trimEnd(segments: Segment[], count: number): Segment[] {
   return result;
 }
 
+/**
+ * Which trailing "( … )" groups go to the right of the line:
+ * - only chords: "(Am Em Am Em)" (the old second key, kept as it was);
+ * - text with lowercase letters and no chord inside: "(poi pace, poi amore)",
+ *   "(due volte)", "(donne)".
+ * Sung echoes stay in the lyrics: the songbook writes them in capitals
+ * ("GLORIA A DIO (GLORIA A DIO)") or repeating the words just before
+ * ("SE CREDERAI… (se crederai)"). So does a group with a chord over it, and a
+ * line that is only a text group ("(tutto da capo)").
+ */
+function isSideNote(content: string, segments: Segment[], open: number): boolean {
+  if (isChordGroup(content)) return true;
+  if (!/\p{Ll}/u.test(content)) return false;
+  let at = 0;
+  for (const segment of segments) {
+    if (segment.chord && at > open) return false; // a chord inside the brackets
+    at += segment.lyric.length;
+  }
+  const before = segments.map((s) => s.lyric).join('').slice(0, open);
+  if (!/\S/.test(before) && !segments.some((s) => s.chord)) return false;
+  const words = (text: string) => text.toLowerCase().replace(/[^\p{L}\s]/gu, ' ').replace(/\s+/g, ' ').trim();
+  const echo = words(content);
+  return !(echo && words(before).endsWith(echo));
+}
+
+/** True when a side note is chords only (transposed, hidden in "Solo testo"). */
+export function isChordNote(note: string | null | undefined): boolean {
+  return !!note && isChordGroup(note);
+}
+
 function isChordGroup(content: string): boolean {
   const tokens = content.trim().split(/[\s,-]+/).filter(Boolean);
-  return tokens.length > 0 && tokens.every((t) => parseChord(t) !== null);
+  // Strict check (chord-text.ts): "GLORIA" is not G + "LORIA", so a sung
+  // echo "(GLORIA A DIO)" is never taken for chords.
+  return tokens.length > 0 && tokens.every((t) => isStrictChord(t));
+}
+
+function isStrictChord(token: string): boolean {
+  const items = tokenizeChordText(token);
+  return items?.length === 1 && 'chord' in items[0] && parseChord(token) !== null;
 }
 
 /** Returns a copy of the sheet with every chord passed through `mapChord`. */
@@ -411,12 +453,12 @@ export function mapSheetChords(sheet: Sheet, mapChord: (chord: string) => string
             return {
               ...line,
               items: line.items.map((i) => ('chord' in i ? { chord: mapChord(i.chord) } : i)),
-              secondKey: line.secondKey && mapSecondKey(line.secondKey, mapChord),
+              sideNote: line.sideNote && mapSideNote(line.sideNote, mapChord),
             };
           case 'lyrics':
             return {
               ...line,
-              secondKey: mapSecondKey(line.secondKey, mapChord),
+              sideNote: mapSideNote(line.sideNote, mapChord),
               words: line.words.map((word) => ({
                 segments: word.segments.map((s) => (s.chord ? { ...s, chord: mapChord(s.chord) } : s)),
               })),
@@ -428,13 +470,13 @@ export function mapSheetChords(sheet: Sheet, mapChord: (chord: string) => string
 }
 
 /**
- * "(Am Em Am Em)" → the same group with every chord mapped, keeping the
- * spaces/commas between them. The second key moves together with the song:
- * transposing +2 turns the alternative key's Am into Bm, just like the main
- * chords (SPEC §3: "nice-to-have later: parse and transpose it too").
+ * "Am Em Am Em" → the same group with every chord mapped, keeping the
+ * spaces/commas between them. The old second key moves together with the
+ * song: transposing +2 turns its Am into Bm, just like the main chords.
+ * A text note stays as written ("E" in "donne e uomini" is not a chord).
  */
-export function mapSecondKey(group: string | null, mapChord: (chord: string) => string): string | null {
-  if (!group) return group;
+export function mapSideNote(group: string | null, mapChord: (chord: string) => string): string | null {
+  if (!group || !isChordGroup(group)) return group;
   return group.replace(/[^\s,()-]+/g, (token) => (parseChord(token) ? mapChord(token) : token));
 }
 
@@ -459,7 +501,7 @@ export function lyricsOnlySheet(sheet: Sheet): Sheet {
       lines.push({
         ...line,
         hasChords: false,
-        secondKey: null,
+        sideNote: isChordNote(line.sideNote) ? null : line.sideNote,
         words: line.words.map((word) => ({ segments: word.segments.map((s) => (s.chord ? { ...s, chord: null } : s)) })),
       });
     }

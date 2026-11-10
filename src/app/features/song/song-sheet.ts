@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, computed, input, output } from '@angular/core';
-import { Segment, Sheet, lyricsOnlySheet } from '../../core/chordpro';
+import { Segment, Sheet, isChordNote, lyricsOnlySheet } from '../../core/chordpro';
 import { IntroView } from '../../core/intro';
 import { Annotation } from '../../core/models';
 import { IT } from '../../i18n/it';
@@ -52,6 +52,7 @@ export class SongSheet {
   protected readonly shown = computed(() => (this.lyricsOnly() ? lyricsOnlySheet(this.sheet()) : this.sheet()));
 
   protected readonly t = IT.song;
+  protected readonly isChordNote = isChordNote;
 
   /**
    * Personal chords ("Cadd9 instead of C") by the segment they sit on. A

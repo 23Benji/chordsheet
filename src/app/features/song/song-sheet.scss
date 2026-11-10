@@ -220,10 +220,23 @@
   padding-top: calc(0.85em * 1.2);
 }
 
-.second-key {
-  flex: none;
+.side-note {
+  // Note on the right ("poi pace, poi amore"): quiet grey italics that may
+  // wrap onto two lines instead of squeezing the lyrics.
+  flex: 0 1 auto;
+  max-width: 40%;
   color: var(--text-muted);
   font-size: 0.75em;
+  font-style: italic;
+  line-height: 1.25;
+  text-align: right;
+}
+
+// Chords on the right (the old second key) keep upright and on one line.
+.side-chords {
+  flex: none;
+  max-width: none;
+  font-style: normal;
   white-space: nowrap;
 }
 
