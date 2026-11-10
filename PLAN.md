@@ -440,7 +440,7 @@ Discussed one by one, built one at a time, one version bump + push at the end.
 - [x] Editor: "+" above/below the section being edited (menu: types + "Copia di Ritornello"); "+ Aggiungi sezione" at the end replaces the old row
 - [x] Chord gap: automatic after a chord line, strip "spazio accordi" in the editor to switch it ({x_gap} / {x_glue})
 
-## 1.42 — Second feedback round (Benji, 2026-11-10)
+## 1.42 — Second feedback round (Benji, 2026-11-10) ✓
 Discuss one at a time, build one at a time, one version bump + push at the end.
 - [x] Notes on the right: "(poi pace, poi amore)" at the end of a line → grey italics on the right (look A). Lowercase text or chords only; capitals and repeated words stay in the lyrics (sung echoes). Also fixed: "(GLORIA A DIO)" was taken for chords
 - [ ] Later: a note above the chords for who sings ("donne", "uomini")
