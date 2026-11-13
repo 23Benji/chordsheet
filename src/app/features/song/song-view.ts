@@ -36,6 +36,7 @@ import { ScreenService } from '../../services/screen.service';
 import { RecentService } from '../../services/recent.service';
 import { SettingsService } from '../../services/settings.service';
 import { SongPrefsService } from '../../services/song-prefs.service';
+import { SoloDraftService } from '../../services/solo-draft.service';
 import { ToastService } from '../../services/toast.service';
 import { Icon } from '../../ui/icon';
 import { Pager } from '../../ui/pager';
@@ -77,6 +78,9 @@ export class SongView {
   private readonly prefsService = inject(SongPrefsService);
   private readonly settings = inject(SettingsService);
   private readonly annotationService = inject(AnnotationService);
+  /** "Scrivi assolo" → "Aggiungi a un canto": a solo waiting for the line it goes under. */
+  protected readonly soloDraft = inject(SoloDraftService);
+  protected readonly soloText = IT.solo;
   private readonly toast = inject(ToastService);
   private readonly injector = inject(Injector);
   protected readonly layout = inject(LayoutService);
@@ -182,7 +186,11 @@ export class SongView {
   /** Orphaned annotation waiting for the user to tap its new line. */
   protected readonly relinking = signal<Annotation | null>(null);
   protected readonly panelOpen = computed(
-    () => this.showNotes() && !this.relinking() && (this.selectedLine() !== null || this.showOrphans()),
+    () =>
+      this.showNotes() &&
+      !this.relinking() &&
+      !this.soloDraft.pending() &&
+      (this.selectedLine() !== null || this.showOrphans()),
   );
 
   // ── Chord diagrams ────────────────────────────────────────────────────────
@@ -304,6 +312,19 @@ export class SongView {
       void this.annotationService.relink(relinking, anchorFor(parsed, lineIndex));
       this.relinking.set(null);
       this.toast.show(this.nt.relinked);
+      return;
+    }
+    const solo = this.soloDraft.pending();
+    if (solo && parsed) {
+      void this.annotationService.add({
+        songId: this.id(),
+        anchor: anchorFor(parsed, lineIndex),
+        type: 'tab',
+        title: solo.title || undefined,
+        text: solo.text,
+      });
+      this.soloDraft.pending.set(null);
+      this.toast.show(IT.solo.placed);
       return;
     }
     this.showOrphans.set(false);
@@ -455,6 +476,8 @@ export class SongView {
     const onWideChange = (e: MediaQueryListEvent) => this.wide.set(e.matches);
     this.wideQuery.addEventListener('change', onWideChange);
     inject(DestroyRef).onDestroy(() => this.wideQuery.removeEventListener('change', onWideChange));
+    // Leaving the song without choosing a line: the solo stays in Scrivi assolo, nothing is added.
+    inject(DestroyRef).onDestroy(() => this.soloDraft.pending.set(null));
 
     // iPhone/iPad app: fetch the PDF code in the background, so "Stampa / PDF"
     // opens the share sheet right away (iOS only allows it shortly after the tap).

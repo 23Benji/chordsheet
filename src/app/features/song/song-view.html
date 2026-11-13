@@ -236,7 +236,12 @@
         <p class="memo-line"><app-icon name="note" /><strong>{{ nt.memo }}</strong><span>{{ memo() }}</span></p>
       }
 
-      @if (relinking()) {
+      @if (soloDraft.pending()) {
+        <p class="banner" role="status">
+          {{ soloText.placeHint }}
+          <button type="button" class="btn small" (click)="soloDraft.pending.set(null)">{{ nt.cancel }}</button>
+        </p>
+      } @else if (relinking()) {
         <p class="banner" role="status">
           {{ nt.relinkHint }}
           <button type="button" class="btn small" (click)="relinking.set(null)">{{ nt.cancel }}</button>

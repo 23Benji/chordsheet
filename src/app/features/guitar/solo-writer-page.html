@@ -1,0 +1,154 @@
+<div class="page">
+  <nav class="nav-bar">
+    <a class="nav-back" routerLink="/chitarra"><app-icon name="chevronLeft" />{{ back }}</a>
+    @if (items().length || draft.title()) {
+      <button type="button" class="btn new" (click)="clear()">{{ t.clear }}</button>
+    }
+  </nav>
+  <h1 class="large-title">{{ t.title }}</h1>
+
+  <input
+    class="title-input"
+    type="text"
+    autocomplete="off"
+    [value]="draft.title()"
+    [placeholder]="t.titlePlaceholder"
+    [attr.aria-label]="t.titlePlaceholder"
+    (input)="draft.setTitle($any($event.target).value)"
+  />
+
+  <!-- The result, as the song will show it. -->
+  <figure class="tab-view" [attr.aria-label]="t.tab">
+    @if (hasNotes()) {
+      <pre #tabView>{{ text() }}</pre>
+    } @else {
+      <p class="empty">{{ mode() === 'neck' ? t.empty : t.emptyGrid }}</p>
+    }
+  </figure>
+
+  <span class="segmented" role="radiogroup" [attr.aria-label]="t.inputMode">
+    <button type="button" role="radio" [class.selected]="mode() === 'neck'" [attr.aria-checked]="mode() === 'neck'" (click)="setMode('neck')">{{ t.neck }}</button>
+    <button type="button" role="radio" [class.selected]="mode() === 'grid'" [attr.aria-checked]="mode() === 'grid'" (click)="setMode('grid')">{{ t.grid }}</button>
+  </span>
+
+  @if (mode() === 'neck') {
+    <!-- Same neck as Trova accordo: column 1 string names, 2 the open string (by the nut), 3…14 frets 1…12. -->
+    <div class="neck-scroll">
+      <div class="neck" role="group" [attr.aria-label]="t.neck">
+        <span class="board" aria-hidden="true"></span>
+        @for (fret of frets.slice(1); track fret) {
+          <span class="wire" [style.grid-column]="fret + 2" aria-hidden="true"></span>
+          @if (markers.has(fret)) {
+            <span class="inlay" [class.double]="fret === 12" [style.grid-column]="fret + 2" aria-hidden="true"></span>
+          }
+        }
+        @for (string of rows; track string; let row = $index) {
+          <span class="string-name" [style.grid-row]="row + 1" aria-hidden="true">{{ names[string] }}</span>
+          <span class="string" [class]="'s' + string" [style.grid-row]="row + 1" aria-hidden="true"></span>
+          @for (fret of frets; track fret) {
+            <button
+              type="button"
+              class="fret-cell"
+              [class.nut-cell]="fret === 0"
+              [style.grid-row]="row + 1"
+              [style.grid-column]="fret + 2"
+              [attr.aria-label]="t.fret(names[string], fret)"
+              (click)="press(string, fret)"
+            >
+              @if (isLast(string, fret)) {
+                <span class="dot" [class.open]="fret === 0">{{ fret }}</span>
+              }
+            </button>
+          }
+        }
+        @for (fret of frets.slice(1); track fret) {
+          <span class="fret-number" [style.grid-column]="fret + 2" aria-hidden="true">{{ markers.has(fret) ? fret : '' }}</span>
+        }
+      </div>
+    </div>
+    <p class="rotate">{{ t.rotate }}</p>
+  } @else {
+    <div class="grid-scroll" #gridScroll>
+      <div class="grid" role="grid" [attr.aria-label]="t.tab">
+        <div class="col names" aria-hidden="true">
+          @for (string of rows; track string) {
+            <span class="name">{{ names[string] }}</span>
+          }
+        </div>
+        @for (item of items(); track $index; let column = $index) {
+          @switch (item.kind) {
+            @case ('note') {
+              <div class="col" [class.current]="selected().column === column" [attr.data-column]="column">
+                @for (string of rows; track string) {
+                  <button
+                    type="button"
+                    class="cell"
+                    [class.selected]="selected().column === column && selected().string === string"
+                    [attr.aria-label]="t.cell(names[string], column + 1)"
+                    (click)="select(column, string)"
+                  >
+                    @if (item.frets[string] !== null) {
+                      <span>{{ item.frets[string] }}</span>
+                    }
+                  </button>
+                }
+              </div>
+            }
+            @case ('tech') {
+              <div class="col mark" aria-hidden="true">
+                @for (string of rows; track string) {
+                  <span class="cell">
+                    @if (item.string === string) {
+                      <span>{{ item.mark }}</span>
+                    }
+                  </span>
+                }
+              </div>
+            }
+            @case ('bar') {
+              <div class="col bar" aria-hidden="true"></div>
+            }
+          }
+        }
+        <!-- An empty column at the end, to go on writing. -->
+        <div class="col" [class.current]="selected().column === items().length" [attr.data-column]="items().length">
+          @for (string of rows; track string) {
+            <button
+              type="button"
+              class="cell"
+              [class.selected]="selected().column === items().length && selected().string === string"
+              [attr.aria-label]="t.cell(names[string], items().length + 1)"
+              (click)="select(items().length, string)"
+            ></button>
+          }
+        </div>
+      </div>
+    </div>
+    <div class="pad">
+      @for (n of padNumbers; track n) {
+        <button type="button" class="num" (click)="write(n)">{{ n }}</button>
+      }
+      <button type="button" class="num muted" (click)="write(null)" [attr.aria-label]="t.clearCell"><app-icon name="close" /></button>
+    </div>
+  }
+
+  <div class="tools">
+    @if (mode() === 'neck') {
+      <button type="button" class="tool wide" [class.on]="together()" [attr.aria-pressed]="together()" (click)="toggleTogether()">{{ t.together }}</button>
+    }
+    @for (tech of techniques; track tech.mark) {
+      <button type="button" class="tool" (click)="technique(tech.mark)" [attr.aria-label]="tech.label" [title]="tech.label">{{ tech.mark }}</button>
+    }
+    <button type="button" class="tool" (click)="bar()" [attr.aria-label]="t.bar" [title]="t.bar">|</button>
+    <button type="button" class="tool" (click)="undo()" [disabled]="!draft.canUndo()" [attr.aria-label]="t.undo" [title]="t.undo">
+      <app-icon name="undo" />
+    </button>
+  </div>
+
+  <div class="actions">
+    <button type="button" class="btn btn-secondary" [disabled]="!hasNotes()" (click)="copy()"><app-icon name="copy" /> {{ t.copy }}</button>
+    <button type="button" class="btn btn-primary" [disabled]="!hasNotes()" (click)="chooseSong()"><app-icon name="tab" /> {{ t.addToSong }}</button>
+  </div>
+</div>
+
+<app-add-songs-sheet [heading]="t.pickSong" [single]="true" (add)="placeIn($event)" />

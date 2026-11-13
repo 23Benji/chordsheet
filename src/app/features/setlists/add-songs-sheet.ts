@@ -12,15 +12,17 @@ import { Icon } from '../../ui/icon';
  * status bar (like iOS "page sheets"), so the search box stays visible above
  * the keyboard; on bigger screens a centred panel. It stays open, so several
  * songs can be added in a row; each tap shows a tick and the count.
+ * With [single] it picks just one song (e.g. "In quale canto?" for a solo):
+ * the parent closes it after (add).
  */
 @Component({
   selector: 'app-add-songs-sheet',
   imports: [Icon],
   template: `
-    <dialog #dialog class="sheet" (close)="onClose()" (click)="onBackdrop($event)" [attr.aria-label]="t.addSongs">
+    <dialog #dialog class="sheet" (close)="onClose()" (click)="onBackdrop($event)" [attr.aria-label]="heading() ?? t.addSongs">
       <header class="bar">
-        <h2>{{ t.addSongs }}</h2>
-        <button type="button" class="btn done" (click)="close()">{{ t.done }}</button>
+        <h2>{{ heading() ?? t.addSongs }}</h2>
+        <button type="button" class="btn done" (click)="close()">{{ single() ? cancel : t.done }}</button>
       </header>
       <div class="search">
         <app-icon name="search" class="search-icon" />
@@ -39,7 +41,7 @@ import { Icon } from '../../ui/icon';
         @for (song of results(); track song.id) {
           @let count = counts().get(song.id) ?? 0;
           <li>
-            <button type="button" class="result" [class.in]="count > 0" (click)="pick(song)" [attr.aria-label]="t.add(song.title)">
+            <button type="button" class="result" [class.in]="count > 0" (click)="pick(song)" [attr.aria-label]="single() ? song.title : t.add(song.title)">
               @if (numberLabel(song); as label) {
                 <span class="pill">{{ label }}</span>
               }
@@ -51,6 +53,8 @@ import { Icon } from '../../ui/icon';
                     ×{{ count }}
                   }
                 </span>
+              } @else if (single()) {
+                <app-icon name="chevronRight" class="plus" />
               } @else {
                 <app-icon name="plus" class="plus" />
               }
@@ -203,7 +207,12 @@ export class AddSongsSheet {
 
   /** Song ids already in the setlist (a song can be there more than once). */
   readonly songIds = input<readonly string[]>([]);
+  /** Title instead of "Aggiungi canti". */
+  readonly heading = input<string>();
+  /** One song only: "Annulla" instead of "Fine", a chevron instead of "+". */
+  readonly single = input(false);
   readonly add = output<Song>();
+  protected readonly cancel = IT.notes.cancel;
 
   protected readonly query = signal('');
   protected readonly counts = computed(() => {

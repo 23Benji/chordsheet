@@ -1,0 +1,466 @@
+:host {
+  display: block;
+  height: 100%;
+  overflow-y: auto;
+  // One string's row and one fret: finger-sized, a little tighter than Trova
+  // accordo so tab, neck and buttons fit an upright iPhone.
+  --row-h: 40px;
+  --fret-w: 44px;
+  --nut-w: 44px;
+}
+
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  max-width: 900px;
+  margin: 0 auto;
+  padding: calc(max(var(--space-5), env(safe-area-inset-top)) + var(--top-gap)) var(--page-x) var(--space-8);
+}
+
+.large-title {
+  margin-bottom: var(--space-1);
+}
+
+.new {
+  margin-left: auto;
+  color: var(--accent);
+}
+
+.title-input {
+  height: 44px;
+  padding: 0 var(--space-4);
+  border: 1px solid transparent;
+  border-radius: var(--radius-m);
+  background: var(--surface);
+  font-size: 16px; // iOS doesn't zoom in on focus
+
+  &:focus {
+    outline: none;
+    border-color: var(--accent);
+  }
+}
+
+// ── The tab, as the song will show it ──────────────────────────────────────
+.tab-view {
+  margin: 0;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-m);
+  background: var(--bg-elev-1);
+
+  pre {
+    max-height: 9.6em;
+    margin: 0;
+    padding: var(--space-3) var(--space-4);
+    overflow: auto;
+    font-family: var(--font-mono);
+    font-size: 14px;
+    line-height: 1.35;
+  }
+}
+
+.empty {
+  display: grid;
+  place-items: center;
+  min-height: calc(6 * 1.35em + 2 * var(--space-3));
+  margin: 0;
+  padding: var(--space-3) var(--space-4);
+  color: var(--text-muted);
+  font-size: 15px;
+  text-align: center;
+}
+
+// ── Tastiera | Griglia ─────────────────────────────────────────────────────
+.segmented {
+  display: flex;
+  align-self: stretch;
+  max-width: 360px;
+  gap: 2px;
+  padding: var(--space-1);
+  border-radius: var(--radius-m);
+  background: var(--surface);
+
+  button {
+    flex: 1;
+    min-height: calc(var(--tap) - 6px);
+    padding: 0 var(--space-3);
+    border: none;
+    border-radius: var(--radius-s);
+    background: transparent;
+    color: var(--text-muted);
+    font-weight: 700;
+    cursor: pointer;
+
+    &.selected {
+      background: var(--bg-elev-1);
+      color: var(--accent);
+      box-shadow: 0 1px 2px rgb(0 0 0 / 25%);
+    }
+  }
+}
+
+// ── The neck (as in Trova accordo) ─────────────────────────────────────────
+.neck-scroll {
+  overflow-x: auto;
+  padding-bottom: var(--space-1);
+}
+
+.neck {
+  display: grid;
+  grid-template-columns: 20px var(--nut-w) repeat(12, minmax(var(--fret-w), 1fr));
+  grid-template-rows: repeat(6, var(--row-h)) 20px;
+  min-width: max-content;
+}
+
+.board {
+  grid-row: 1 / 7;
+  grid-column: 3 / -1;
+  border-radius: 0 var(--radius-s) var(--radius-s) 0;
+  background: var(--surface);
+}
+
+.wire {
+  z-index: 1;
+  grid-row: 1 / 7;
+  border-right: 2px solid var(--border);
+}
+
+.inlay {
+  z-index: 1;
+  grid-row: 1 / 7;
+  place-self: center;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--border);
+
+  &.double {
+    background: none;
+    box-shadow:
+      0 calc(var(--row-h) * -1) 0 var(--border),
+      0 var(--row-h) 0 var(--border);
+  }
+}
+
+.string-name {
+  grid-column: 1;
+  align-self: center;
+  color: var(--text-muted);
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.string {
+  z-index: 2;
+  grid-column: 2 / -1;
+  align-self: center;
+  height: 1px;
+  background: var(--text-muted);
+  opacity: 0.8;
+  pointer-events: none;
+
+  &.s0 { height: 3px; }
+  &.s1 { height: 2.5px; }
+  &.s2 { height: 2px; }
+  &.s3 { height: 1.5px; }
+}
+
+.fret-cell {
+  z-index: 3;
+  display: grid;
+  place-items: center;
+  min-width: 0;
+  padding: 0;
+  border: none;
+  background: none;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+
+  &:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: -2px;
+  }
+
+  &:active {
+    background: var(--highlight-amber);
+  }
+}
+
+// Fret 0: the open string, by the nut (the thick bar before the first fret).
+.nut-cell {
+  border-right: 5px solid var(--text-muted);
+}
+
+@media (hover: hover) {
+  .fret-cell:hover {
+    background: var(--highlight-amber);
+  }
+}
+
+// The last note written: its fret number on the neck.
+.dot {
+  display: grid;
+  place-items: center;
+  width: min(calc(var(--row-h) - 8px), 32px);
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: var(--accent);
+  color: var(--accent-ink);
+  font-size: 13px;
+  font-weight: 700;
+  box-shadow: var(--shadow);
+  animation: pop 0.25s ease-out;
+
+  &.open {
+    background: var(--bg);
+    color: var(--accent);
+    box-shadow: inset 0 0 0 2px var(--accent);
+  }
+}
+
+@keyframes pop {
+  from {
+    transform: scale(0.5);
+  }
+}
+
+.fret-number {
+  grid-row: 7;
+  align-self: end;
+  color: var(--text-muted);
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+  text-align: center;
+}
+
+.rotate {
+  display: none;
+  margin: 0;
+  color: var(--text-muted);
+  font-size: 13px;
+}
+
+// ── The grid ───────────────────────────────────────────────────────────────
+.grid-scroll {
+  position: relative;
+  overflow-x: auto;
+  padding: 2px 2px 2px 0; // nothing peeks out left of the sticky string names
+}
+
+.grid {
+  display: flex;
+  gap: 2px;
+  width: max-content;
+}
+
+.col {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  border-radius: var(--radius-s);
+
+  &.current {
+    background: var(--surface);
+  }
+
+  // The string names stay put while the notes scroll under them.
+  &.names {
+    position: sticky;
+    left: 0;
+    z-index: 2;
+    background: var(--bg);
+  }
+
+  &.names .name {
+    display: grid;
+    place-items: center;
+    width: 20px;
+    height: 36px;
+    color: var(--text-muted);
+    font-family: var(--font-mono);
+    font-size: 13px;
+    font-weight: 700;
+  }
+
+  &.bar {
+    width: 3px;
+    margin: 0 var(--space-1);
+    border-radius: 2px;
+    background: var(--text-muted);
+  }
+}
+
+.cell {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  border: none;
+  border-radius: var(--radius-s);
+  background: transparent;
+  color: var(--text);
+  font-family: var(--font-mono);
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+
+  // The string, through the cell.
+  &::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    right: 0;
+    left: 0;
+    height: 1px;
+    background: var(--border);
+  }
+
+  span {
+    position: relative;
+    padding: 0 2px;
+    border-radius: 4px;
+    background: var(--bg);
+  }
+
+  .current & span {
+    background: var(--surface);
+  }
+
+  &.selected {
+    box-shadow: inset 0 0 0 2px var(--accent);
+  }
+
+  .mark & {
+    width: 18px;
+    color: var(--coral);
+    cursor: default;
+  }
+}
+
+.pad {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: var(--space-1);
+  max-width: 420px;
+}
+
+.num {
+  height: 44px;
+  padding: 0;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-s);
+  background: var(--bg-elev-1);
+  color: var(--text);
+  font-size: 17px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+
+  &:active {
+    transform: scale(0.94);
+  }
+
+  &.muted {
+    display: grid;
+    place-items: center;
+    color: var(--text-muted);
+  }
+}
+
+// ── Insieme, h p / b, bar, undo ────────────────────────────────────────────
+.tools {
+  display: flex;
+  gap: var(--space-1);
+  max-width: 480px;
+}
+
+.tool {
+  display: grid;
+  flex: 1;
+  place-items: center;
+  min-width: 0;
+  height: 44px;
+  padding: 0;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-s);
+  background: var(--bg-elev-1);
+  color: var(--text);
+  font-family: var(--font-mono);
+  font-size: 17px;
+  font-weight: 700;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+
+  &:active:not(:disabled) {
+    transform: scale(0.94);
+  }
+
+  &:disabled {
+    opacity: 0.4;
+    cursor: default;
+  }
+
+  &.wide {
+    flex: 2.2;
+    font-family: var(--font-body);
+    font-size: 14px;
+  }
+
+  &.on {
+    border-color: var(--accent);
+    background: var(--accent);
+    color: var(--accent-ink);
+  }
+}
+
+.actions {
+  display: flex;
+  gap: var(--space-2);
+  margin-top: var(--space-1);
+
+  .btn {
+    justify-content: center;
+  }
+}
+
+@media (max-width: 600px) {
+  .actions .btn {
+    flex: 1;
+  }
+}
+
+@media (max-width: 600px) and (orientation: portrait) {
+  .rotate {
+    display: block;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dot {
+    animation: none;
+  }
+}
+
+// Phone on its side: smaller title, the neck as tall as the height allows.
+@media (max-height: 520px) and (orientation: landscape) {
+  :host {
+    --row-h: 34px;
+    --fret-w: 40px;
+  }
+
+  .large-title,
+  .title-input {
+    display: none;
+  }
+
+  // Still all six strings of the last row.
+  .tab-view pre {
+    max-height: calc(6 * 1.35em + 2 * var(--space-2));
+    padding-block: var(--space-2);
+    font-size: 12px;
+  }
+}

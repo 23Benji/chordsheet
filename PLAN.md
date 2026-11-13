@@ -470,3 +470,11 @@ Agreed in chat: one official way to write a repeat, shown the same on every phon
 
 ## 1.46 — "Altro (senza numero)": a part that isn't a verse (Benji, 2026-11-13) ✓
 - [x] New part kind in the editor: no "Strofa N" label, not counted in the verse numbers, looks like a plain verse (`{x_plain}` in the song; an optional label still shows). Songs without it don't change
+
+## 1.47 — "Chitarra": a home for guitar tools (Benji, 2026-11-13) ✓
+Agreed in chat. One at a time, one version bump + push at the end. Benji picked A2 · B2 · C1 from the options page.
+- [x] Bottom-bar tab "Accordi" → "Chitarra" (still only with Strumento = Chitarra): a small home with Accordatore, Trova accordo, Scrivi assolo; sidebar link the same
+- [x] Accordatore: microphone, finds the string by itself (E A D G B e), needle + "troppo basso / troppo alto", green when in tune; tap a string to hear its note. Everything stays on the phone
+- [x] Checked in the real app at 390, 1280 and iPhone landscape; tuner tested with a fake A string (−18 cents → green), solo → "Aggiungi a un canto" → line → Tab/Assolo block
+- [x] Scrivi assolo: neck input (tap a fret = next note; | h p / b, space, undo) and grid input (6 tab rows, tap a cell, type the fret) — switchable; the 6-line tab builds live
+- [x] Ready solo: "Copia" (paste in Tab/Assolo as today) and "Aggiungi a un canto" (pick song + line → saved as its Tab/Assolo)
