@@ -478,3 +478,8 @@ Agreed in chat. One at a time, one version bump + push at the end. Benji picked 
 - [x] Checked in the real app at 390, 1280 and iPhone landscape; tuner tested with a fake A string (−18 cents → green), solo → "Aggiungi a un canto" → line → Tab/Assolo block
 - [x] Scrivi assolo: neck input (tap a fret = next note; | h p / b, space, undo) and grid input (6 tab rows, tap a cell, type the fret) — switchable; the 6-line tab builds live
 - [x] Ready solo: "Copia" (paste in Tab/Assolo as today) and "Aggiungi a un canto" (pick song + line → saved as its Tab/Assolo)
+
+## 1.48 — Type a song's number to open it (Benji, 2026-11-13) ✓
+- [x] Computer keyboard: digits anywhere (library, a song, setlists) → box with the number and the title; Enter opens, or it opens by itself 1.5 s after the last digit; ⌫ takes back a digit, Esc cancels. Not while typing in a field, not in the editor, not in presentation mode (Benji's pick), not over a dialog. Main version for numbers with versions
+- [x] Digits can't be assigned in "Tasti" any more (they're for this)
+- [x] Real app at 1280: 12 + Enter, 4 + pause, 999 (no song), Esc, typing in the search, presentation unchanged

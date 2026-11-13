@@ -548,6 +548,14 @@ export const IT = {
     fret: (string: string, fret: number) => `Corda ${string}, tasto ${fret}`,
   },
 
+  /** Typing a song's number anywhere (computer keyboard). */
+  numberJump: {
+    label: 'Vai al canto',
+    none: 'Nessun canto con questo numero',
+    hint: 'Invio per aprire · Esc per annullare',
+    cancelHint: 'Esc per annullare',
+  },
+
   /** "Chitarra": the home of the guitar tools (bottom-bar tab, only with Strumento = Chitarra). */
   guitar: {
     title: 'Chitarra',
@@ -819,7 +827,7 @@ export const IT = {
     cancelListening: 'Annulla',
     none: 'Nessun tasto',
     remove: (key: string) => `Rimuovi ${key}`,
-    reserved: 'Questo tasto serve all’app (Esc, Tab, Invio…): scegline un altro.',
+    reserved: 'Questo tasto serve all’app (Esc, Tab, Invio, i numeri…): scegline un altro.',
     reset: 'Ripristina i tasti predefiniti',
     done: 'Fine',
   },

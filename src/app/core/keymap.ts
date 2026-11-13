@@ -49,9 +49,9 @@ export function unassignKey(map: KeyMap, key: string): KeyMap {
   return next;
 }
 
-/** Keys that can't be assigned (they're needed to leave full screen, use dialogs, …). */
+/** Keys that can't be assigned (they're needed to leave full screen, use dialogs, type a song's number, …). */
 export function isReservedKey(key: string): boolean {
-  return ['Escape', 'Tab', 'Shift', 'Control', 'Alt', 'Meta', 'CapsLock', 'Enter'].includes(key);
+  return ['Escape', 'Tab', 'Shift', 'Control', 'Alt', 'Meta', 'CapsLock', 'Enter'].includes(key) || /^[0-9]$/.test(key);
 }
 
 const LABELS: Record<string, string> = {

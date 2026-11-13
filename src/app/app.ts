@@ -12,11 +12,12 @@ import { LibraryService } from './services/library.service';
 import { SettingsService } from './services/settings.service';
 import { ToastService } from './services/toast.service';
 import { Icon } from './ui/icon';
+import { NumberJump } from './ui/number-jump';
 
 /** App shell: welcome screen while the library is empty, else sidebar + routed main area. */
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, RouterLink, LibrarySidebar, Welcome, Intro, Icon],
+  imports: [RouterOutlet, RouterLink, LibrarySidebar, Welcome, Intro, Icon, NumberJump],
   templateUrl: './app.html',
   styleUrl: './app.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

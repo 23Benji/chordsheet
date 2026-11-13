@@ -12,6 +12,11 @@
     </main>
   </div>
 
+  <!-- Computer keyboard: type a song's number anywhere to open it. Loaded just after start-up (@defer), not in the start-up bundle. -->
+  @defer (on idle) {
+    <app-number-jump />
+  }
+
   <!-- iPhone: bottom navigation bar (Impostazioni is in the library's floating "+" menu) -->
   <nav class="bottom-bar" [class.hidden]="bottomBarHidden()" [class.from-welcome]="layout.fromWelcome()" [attr.aria-label]="t.nav">
     <button type="button" class="tab" [class.selected]="section() === 'library'" (click)="openLibrary()">

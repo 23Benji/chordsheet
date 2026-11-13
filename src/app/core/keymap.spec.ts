@@ -1,4 +1,4 @@
-import { DEFAULT_KEYMAP, actionFor, assignKey, effectiveKeymap, keyLabel, keysFor, unassignKey } from './keymap';
+import { DEFAULT_KEYMAP, actionFor, assignKey, effectiveKeymap, isReservedKey, keyLabel, keysFor, unassignKey } from './keymap';
 
 describe('keymap', () => {
   it('uses the defaults until the user changes something', () => {
@@ -20,5 +20,11 @@ describe('keymap', () => {
 
   it('labels keys in Italian', () => {
     expect([' ', 'PageDown', 'ArrowLeft', 's'].map(keyLabel)).toEqual(['Spazio', 'Pagina giù', '←', 'S']);
+  });
+
+  it('keeps digits free for typing a song number', () => {
+    expect(isReservedKey('7')).toBe(true);
+    expect(isReservedKey('Enter')).toBe(true);
+    expect(isReservedKey('s')).toBe(false);
   });
 });
