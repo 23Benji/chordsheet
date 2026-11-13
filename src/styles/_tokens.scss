@@ -165,7 +165,10 @@
   color-scheme: light;
 }
 
-// Performance mode: maximum contrast (text ≥ 7:1 on the background).
+// Performance mode: maximum contrast (text ≥ 7:1 on the background), in a
+// shade of the chosen theme (Benji, 2026-11-13): the dark themes a bit deeper,
+// the light ones a little softer so a white screen glares less on stage.
+// The tokens sit on the performance view (data-contrast="high"), inside <html data-theme>.
 [data-contrast='high'] {
   --bg: #0e0b09;
   --bg-elev-1: #17120e;
@@ -177,6 +180,54 @@
   --coral: #ffab8a;
   --sage: #b2dbb9;
   --sky: #a6cdf2;
+}
+
+[data-theme='black'] [data-contrast='high'] {
+  --bg: #000000;
+  --bg-elev-1: #101010;
+  --surface: #1e1e1e;
+  --surface-chorus: rgb(30 30 30 / 70%);
+  --text: #ffffff;
+  --text-muted: #c4c4c4;
+}
+
+[data-theme='light'] [data-contrast='high'] {
+  --bg: #f2ebe2;
+  --bg-elev-1: #fbf8f4;
+  --surface: #e6dbcf;
+  --surface-chorus: rgb(230 219 207 / 70%);
+  --text: #1a120c;
+  --text-muted: #54473b;
+  --accent: #9c5418;
+  --coral: #ac4539;
+  --sage: #446f4d;
+  --sky: #3b6b98;
+}
+
+[data-theme='mono'] [data-contrast='high'] {
+  --bg: #f0f0f0;
+  --bg-elev-1: #ffffff;
+  --surface: #e0e0e0;
+  --surface-chorus: rgb(0 0 0 / 5%);
+  --text: #000000;
+  --text-muted: #474747;
+  --accent: #000000;
+  --coral: #b3261e;
+  --sage: #3d6b47;
+  --sky: #2f5f8a;
+}
+
+[data-theme='paper'] [data-contrast='high'] {
+  --bg: #e9dcc1;
+  --bg-elev-1: #f3ead7;
+  --surface: #dfd0b2;
+  --surface-chorus: rgb(223 208 178 / 70%);
+  --text: #241b11;
+  --text-muted: #54473a;
+  --accent: #954c1a;
+  --coral: #a2412d;
+  --sage: #486849;
+  --sky: #3d6484;
 }
 
 // ── QR codes (same for every theme) ───────────────────────────────────────────

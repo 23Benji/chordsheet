@@ -153,3 +153,6 @@ A line that is only "(tutto da capo)" / "…tutto da capo" / "{comment: da capo}
 
 ## 2026-11-10 — Intro marked in the song ({x_intro})
 Lines that are also the intro carry `{x_intro}` on the line before them (like `{x_gap}`; "x_" directives are ignored by other ChordPro apps). Benji wants it to be part of the song, always shared — unlike the personal Intro card, which stays for intros that aren't a part of the lyrics. Marking from the song view (line menu → Intro) edits only that spot of the text (intro-mark.ts finds the source line by its text and occurrence), so the rest of the song is never reformatted. Being in the song and not a personal note, it never shows the note symbol in the library. Drawn as a green bracket with "INTRO" (look B), hidden in "Solo testo".
+
+## 2026-11-13 — Presentation mode in a shade of the theme
+Replaces "performance mode keeps its own high-contrast dark look" (2026-11-02, 2026-11-05). Benji wanted the presentation background to follow the theme; from two options (exactly the theme's colour, or a shade of it) he picked the shade: Scuro deeper (#0e0b09, as before), Nero pure black, Chiaro / Bianco / Carta a little softer (#f2ebe2 / #f0f0f0 / #e9dcc1) so a white screen glares less on stage. Text stays at maximum contrast in each (near-white or near-black). Tokens: `[data-theme='…'] [data-contrast='high']` in _tokens.scss.
