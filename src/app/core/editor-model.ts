@@ -5,12 +5,13 @@
 // function returning a new object — easy to test, and new references are
 // what Angular signals need to notice a change.
 import { CHORD_SPACE_DIRECTIVES, ChordSpace } from './chord-gap';
-import { INTRO_DIRECTIVE } from './chordpro';
+import { INTRO_DIRECTIVE, PLAIN_DIRECTIVE } from './chordpro';
 import { REPEAT_DIRECTIVE, REPEAT_LINE_DIRECTIVE, noteTimes, readTimes, upgradeRepeatSpans } from './repeat-marks';
 import { chordLinePositions } from './chord-text';
 import { keyOf, keyUsesFlats, transposeChord, transposeKey } from './transpose';
 
-export type EditorKind = 'auto' | 'chorus' | 'bridge' | 'intro' | 'interlude' | 'outro';
+/** 'plain' = "Altro (senza numero)": not a verse, no number (`{x_plain}`). */
+export type EditorKind = 'auto' | 'plain' | 'chorus' | 'bridge' | 'intro' | 'interlude' | 'outro';
 
 export interface EditorChord {
   id: string;
@@ -210,6 +211,11 @@ export function parseEditorSong(source: string): EditorSong {
       times = readTimes(d[2]);
       continue;
     }
+    if (d && name === PLAIN_DIRECTIVE) {
+      const section = open();
+      if (section.kind === 'auto') section.kind = 'plain';
+      continue;
+    }
     if (d && name === REPEAT_DIRECTIVE && readTimes(d[2])) {
       open().repeat = readTimes(d[2])!;
       continue;
@@ -283,6 +289,7 @@ function sectionWrapper(section: EditorSection): [string, string] | null {
   const label = section.label.trim();
   switch (section.kind) {
     case 'auto':
+    case 'plain':
       return label ? [`{start_of_verse: ${label}}`, '{end_of_verse}'] : null;
     case 'chorus':
       return [label ? `{start_of_chorus: ${label}}` : '{start_of_chorus}', '{end_of_chorus}'];
@@ -329,6 +336,7 @@ export function serializeEditorSong(song: EditorSong): string {
     .map((section) => {
       const body = section.lines.map(lineToChordPro);
       if (section.repeat) body.unshift(`{${REPEAT_DIRECTIVE}: ${section.repeat}}`);
+      if (section.kind === 'plain') body.unshift(`{${PLAIN_DIRECTIVE}}`);
       const wrapper = sectionWrapper(section);
       return (wrapper ? [wrapper[0], ...body, wrapper[1]] : body).join('\n');
     });

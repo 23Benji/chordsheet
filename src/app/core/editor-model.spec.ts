@@ -359,3 +359,15 @@ describe('editor: repeats', () => {
     expect(serializeEditorSong(merged)).toContain('{start_of_chorus}\n{x_repeat: 4}\n[C]RIT\n{end_of_chorus}');
   });
 });
+
+describe('editor: "Altro (senza numero)"', () => {
+  it('reads and writes {x_plain}, with or without a label', () => {
+    const source = '{x_plain}\n[C]UNO\n\n{start_of_verse: Coda}\n{x_plain}\n{x_repeat: 2}\n[G]DUE\n{end_of_verse}\n';
+    const song = parseEditorSong(source);
+    expect(song.sections.map((s) => [s.kind, s.label, s.repeat ?? null])).toEqual([
+      ['plain', '', null],
+      ['plain', 'Coda', 2],
+    ]);
+    expect(serializeEditorSong(song)).toBe(source);
+  });
+});

@@ -467,3 +467,6 @@ Agreed in chat: one official way to write a repeat, shown the same on every phon
 - [x] Editor: "Ripeti parte" (1× 2× 3× 4× …) and "Ripeti righe" (tick lines, "N righe · quante volte?", Fatto) on each part; ×N chip under repeated lines to change or remove. Old marks are converted when the song is opened in the editor. Phone and laptop
 - [x] Editor: pasted copies — on Salva, parts identical one after the other → "Queste N parti sono uguali: mostrarle una volta con ×N?"
 - [x] Check the editor doesn't feel too full (screenshots phone + laptop) → on the iPhone the two buttons show only on the part being edited (or when it already repeats); laptop shows them on every part
+
+## 1.46 — "Altro (senza numero)": a part that isn't a verse (Benji, 2026-11-13) ✓
+- [x] New part kind in the editor: no "Strofa N" label, not counted in the verse numbers, looks like a plain verse (`{x_plain}` in the song; an optional label still shows). Songs without it don't change

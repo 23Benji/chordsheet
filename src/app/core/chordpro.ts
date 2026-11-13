@@ -77,8 +77,17 @@ export type SheetLine = LyricLine | CommentLine | ChordsLine;
  * - chorusRepeat: a `{comment: Ritornello: IO CANTERÒ A TE…}` reminder to sing the chorus again
  * - bridge: {start_of_bridge}, or a "Bridge"/"Special" line
  * - instrumental: chords only, or an "Intro" / "Intermezzo" / "Finale" line
+ * - plain: `{x_plain}` — a part that isn't a verse ("Altro (senza numero)"):
+ *   no "Strofa N" label and not counted when numbering the verses
  */
-export type SectionType = 'verse' | 'chorus' | 'chorusRepeat' | 'bridge' | 'instrumental';
+export type SectionType = 'verse' | 'plain' | 'chorus' | 'chorusRepeat' | 'bridge' | 'instrumental';
+
+/**
+ * `{x_plain}` at the top of a part: not a verse (Benji, 2026-11-13). Without
+ * it a paragraph is a verse, as in the songbook. Other ChordPro apps ignore
+ * "x_" directives, so there it's just a paragraph.
+ */
+export const PLAIN_DIRECTIVE = 'x_plain';
 export type InstrumentalRole = 'intro' | 'interlude' | 'outro';
 
 export interface SheetSection {
@@ -199,6 +208,8 @@ export function parseChordPro(source: string): Sheet {
   let lineTimes: number | null = null;
   /** `{x_repeat: N}` written before the section it belongs to was opened. */
   let sectionTimes: number | null = null;
+  /** `{x_plain}` written before the section it belongs to was opened. */
+  let sectionPlain = false;
 
   const close = () => {
     if (current && current.lines.length > 0) sections.push(current);
@@ -209,8 +220,10 @@ export function parseChordPro(source: string): Sheet {
       const kind = block ?? pending ?? { type: 'verse', role: null, label: null };
       current = { index: sections.length, number: null, lines: [], ...kind };
       if (sectionTimes) current.repeat = sectionTimes;
+      if (sectionPlain && current.type === 'verse') current.type = 'plain';
       pending = null;
       sectionTimes = null;
+      sectionPlain = false;
     }
     return current;
   };
@@ -238,6 +251,13 @@ export function parseChordPro(source: string): Sheet {
           intro = true;
         } else if (item.name === REPEAT_LINE_DIRECTIVE) {
           lineTimes = readTimes(restore(item.value ?? ''));
+        } else if (item.name === PLAIN_DIRECTIVE) {
+          const started = current as SheetSection | null; // see x_repeat below
+          if (started && started.lines.length > 0) {
+            if (started.type === 'verse') started.type = 'plain';
+          } else {
+            sectionPlain = true;
+          }
         } else if (item.name === REPEAT_DIRECTIVE) {
           const times = readTimes(restore(item.value ?? ''));
           // Inside a part already started it's that part's, otherwise the next one's.

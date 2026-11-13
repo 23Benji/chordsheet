@@ -804,6 +804,7 @@ export const IT = {
       intro: 'Intro',
       interlude: 'Intermezzo musicale',
       outro: 'Finale',
+      plain: 'Altro (senza numero)',
     },
     kindLabel: 'Tipo di sezione',
     labelPlaceholder: 'Etichetta (facoltativa)',
@@ -899,6 +900,7 @@ export const IT = {
       intro: 'L’intro',
       interlude: 'L’intermezzo',
       outro: 'Il finale',
+      plain: 'La parte',
     },
     confirmLeave: {
       title: 'Uscire senza salvare?',

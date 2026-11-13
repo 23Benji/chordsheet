@@ -58,7 +58,7 @@ export interface SongChange {
   coalesce?: string;
 }
 
-const KINDS: EditorKind[] = ['auto', 'chorus', 'bridge', 'intro', 'interlude', 'outro'];
+const KINDS: EditorKind[] = ['auto', 'chorus', 'bridge', 'intro', 'interlude', 'outro', 'plain'];
 
 /** The section cards. Stateless: every edit is emitted as a new EditorSong. */
 @Component({

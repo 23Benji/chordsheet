@@ -401,3 +401,28 @@ describe.skipIf(!HAS_SONGS)('collapseRepeats on the bundled songs', () => {
     });
   });
 });
+
+describe('"Altro (senza numero)" parts ({x_plain})', () => {
+  const song = '[C]UNO\n\n{x_plain}\n[G]1° — BATTI LE TUE MANI\n\n[F]DUE\n\n{start_of_verse: Coda}\n{x_plain}\n[C]FINE\n{end_of_verse}\n';
+
+  it('is not a verse: no number, and the verses around it count on', () => {
+    const sections = parseChordPro(song).sections;
+    expect(sections.map((s) => [s.type, s.number, s.label])).toEqual([
+      ['verse', 1, null],
+      ['plain', null, null],
+      ['verse', 2, null],
+      ['plain', null, 'Coda'],
+    ]);
+  });
+
+  it('changes nothing in songs without it', () => {
+    const plain = parseChordPro(song).sections.map((s) => s.lines.map((l) => l.index));
+    const without = parseChordPro(song.replaceAll('{x_plain}\n', '')).sections;
+    expect(without.map((s) => s.lines.map((l) => l.index))).toEqual(plain);
+    expect(without.map((s) => s.type)).toEqual(['verse', 'verse', 'verse', 'verse']);
+  });
+
+  it('keeps a chord-only part as it is (not turned into an intermezzo)', () => {
+    expect(parseChordPro('[C]CANTO\n\n{x_plain}\n[G] [D]\n\n[C]CANTO').sections[1].type).toBe('plain');
+  });
+});

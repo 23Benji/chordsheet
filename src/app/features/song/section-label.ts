@@ -8,6 +8,8 @@ export function sectionLabel(section: SheetSection): string | null {
   switch (section.type) {
     case 'verse':
       return section.number === null ? null : names.verse(section.number);
+    case 'plain':
+      return null; // "Altro (senza numero)": no label unless one is written
     case 'chorus':
       return names.chorus;
     case 'chorusRepeat':
