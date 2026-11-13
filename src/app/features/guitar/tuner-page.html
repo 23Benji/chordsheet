@@ -1,0 +1,102 @@
+<div class="page">
+  <nav class="nav-bar">
+    <a class="nav-back" routerLink="/chitarra"><app-icon name="chevronLeft" />{{ back }}</a>
+    @if (state() === 'listening') {
+      <button type="button" class="btn stop" (click)="stop()">{{ t.stop }}</button>
+    }
+  </nav>
+  <h1 class="large-title">{{ t.title }}</h1>
+
+  <div class="tuner">
+    @switch (state()) {
+      @case ('listening') {
+        <p class="listening">{{ t.listening }}</p>
+      }
+      @case ('denied') {
+        <div class="message">
+          <p><strong>{{ t.denied }}</strong> {{ t.deniedHint }}</p>
+          <button type="button" class="btn btn-primary" (click)="start()"><app-icon name="mic" /> {{ t.retry }}</button>
+        </div>
+      }
+      @case ('unavailable') {
+        <div class="message">
+          <p>{{ t.unavailable }}</p>
+        </div>
+      }
+      @default {
+        <div class="message">
+          <p>{{ t.startHint }}</p>
+          <button type="button" class="btn btn-primary" [disabled]="state() === 'starting'" (click)="start()">
+            <app-icon name="mic" /> {{ t.start }}
+          </button>
+        </div>
+      }
+    }
+
+    @if (state() === 'listening') {
+      @let string = current();
+      <div class="reading" [class.stale]="stale()" [class.ok]="inTune()">
+        <p class="note" aria-hidden="true">
+          @if (string !== null) {
+            {{ strings[string].name.toUpperCase() }}<sub>{{ strings[string].octave }}</sub>
+          } @else {
+            –
+          }
+        </p>
+
+        <div class="sides" aria-hidden="true">
+          <span [class.lit]="!stale() && !inTune() && cents() < 0">◀ {{ t.lowSide }}</span>
+          <span [class.lit]="!stale() && !inTune() && cents() > 0">{{ t.highSide }} ▶</span>
+        </div>
+        <div
+          class="meter"
+          role="meter"
+          aria-valuemin="-100"
+          aria-valuemax="100"
+          [attr.aria-valuenow]="rounded()"
+          [attr.aria-label]="t.meter"
+        >
+          <span class="zone"></span>
+          <span class="scale" [style.transform]="'translateX(' + shift() + 'px)'">
+            @for (tick of ticks; track tick.cents) {
+              <span class="tick" [class.major]="tick.major" [style.left.px]="tick.x"></span>
+              @if (tick.label) {
+                <span class="label" [style.left.px]="tick.x">{{ tick.label }}</span>
+              }
+            }
+          </span>
+          <span class="line"></span>
+        </div>
+
+        <p class="hint" aria-live="polite">
+          @if (string === null || stale()) {
+            {{ t.play }}<small>&nbsp;</small>
+          } @else if (inTune()) {
+            {{ t.inTune }}<small>&nbsp;</small>
+          } @else {
+            {{ cents() < 0 ? t.low : t.high }}<small>{{ t.cents(rounded()) }}</small>
+          }
+        </p>
+      </div>
+    }
+
+    <div class="strings-block">
+      <div class="strings">
+        @for (s of strings; track s.index) {
+          <button
+            type="button"
+            class="string"
+            [class.current]="state() === 'listening' && current() === s.index && !stale()"
+            [class.ok]="state() === 'listening' && current() === s.index && inTune()"
+            [class.done]="tuned().has(s.index)"
+            (click)="playString(s.index)"
+            [attr.aria-label]="tuned().has(s.index) ? t.tuned(s.name) + '. ' + t.playString(s.name) : t.playString(s.name)"
+          >
+            {{ s.name }}
+          </button>
+        }
+      </div>
+      <p class="caption">{{ t.reference }}</p>
+    </div>
+  </div>
+</div>
