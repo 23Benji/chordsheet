@@ -454,3 +454,7 @@ Discuss one at a time, build one at a time, one version bump + push at the end.
 ## 1.43 — Intro bar fix + presentation in the theme's colours (Benji, 2026-11-13) ✓
 - [x] Intro mark: the green bar was cut off in presentation mode and in the two-column pages (only "INTRO" was left) → the bar now sits inside the lines
 - [x] Presentation mode follows the theme, in a shade of it (look B): dark themes a bit deeper, light ones a little softer; text kept at maximum contrast
+
+## 1.44 — ×2 where the eyes are (Benji, 2026-11-13) ✓
+- [x] A part played more than once gets a coral line down its left side (like the intro's green one), ending in the "×2" pill at the bottom left (look E). Before, the ×2 sat at the far right, too far from the lyrics
+- [x] Intro inside a repeated part: coral line outside, green inside, both visible. The intro mark no longer splits a "×2" in two, and the Intro switch changes every copy of a merged part (it can't get stuck on)

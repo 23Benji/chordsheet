@@ -575,9 +575,26 @@ export function lyricsOnlySheet(sheet: Sheet): Sheet {
 }
 
 /** What a section looks like on the page, without its line indexes. */
-function sectionKey(section: SheetSection): string {
-  const lines = section.lines.map(({ index: _index, ...line }) => line);
+/**
+ * What makes two sections "the same part played again". The intro mark is left
+ * out: marking the intro in one copy must not split a "×2" in two (the merged
+ * section shows the mark when any copy has it).
+ */
+export function sectionKey(section: SheetSection): string {
+  const lines = section.lines.map(({ index: _index, ...line }) => ({ ...line, intro: undefined })); // undefined: left out by JSON
   return JSON.stringify([section.type, section.label, section.role, section.daCapo ?? null, lines]);
+}
+
+/** `kept` with each line also marked as intro where `copy`'s line is. */
+function withIntroOf(kept: SheetSection, copy: SheetSection): SheetSection {
+  if (!copy.lines.some((l) => l.kind !== 'comment' && l.intro)) return kept;
+  return {
+    ...kept,
+    lines: kept.lines.map((line, i) => {
+      const other = copy.lines[i];
+      return line.kind !== 'comment' && !line.intro && other?.kind !== 'comment' && other?.intro ? { ...line, intro: true } : line;
+    }),
+  };
 }
 
 /**
@@ -594,7 +611,7 @@ export function collapseRepeats(sheet: Sheet, keep: (lineIndex: number) => boole
     const key = sectionKey(section);
     const previous = sections[sections.length - 1];
     if (previous && key === lastKey && !section.lines.some((l) => keep(l.index))) {
-      sections[sections.length - 1] = { ...previous, repeat: (previous.repeat ?? 1) + 1 };
+      sections[sections.length - 1] = { ...withIntroOf(previous, section), repeat: (previous.repeat ?? 1) + 1 };
       continue;
     }
     sections.push(section);

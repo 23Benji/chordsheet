@@ -24,7 +24,7 @@ import { currentPlatform, isIos } from '../../core/platform';
 import { numberLabel, readDirective } from '../../core/song-meta';
 import { meterFromTime, withSongTempo } from '../../core/metronome';
 import { withChordPro } from '../../core/song-import';
-import { toggleIntroMark } from '../../core/intro-mark';
+import { switchIntroMark } from '../../core/intro-mark';
 import { clampTranspose, keyUsesFlats, keyView, transposeChord } from '../../core/transpose';
 import { IT } from '../../i18n/it';
 import { CAPO_TIP_SNOOZE_MS, sheetChords, suggestCapo } from '../../core/capo';
@@ -267,7 +267,7 @@ export class SongView {
     const song = this.song();
     const line = this.selectedLine();
     if (!song || line === null) return;
-    const text = toggleIntroMark(song.chordpro, line);
+    const text = switchIntroMark(song.chordpro, line, !!this.settings.settings().collapseRepeats);
     if (text === null) return;
     const wasOn = this.selectedIntro();
     await this.library.saveSong(withChordPro(song, text));

@@ -69,11 +69,40 @@
   }
 }
 
-// "×2" in the bottom-right corner: the section is played that many times in
-// a row. A coral pill, so it never looks like a chord.
+// A section played more than once ("Parti ripetute"): a coral line down its
+// left side, like the intro's green one, ending in the "×2" pill — seen while
+// reading, right there when the part ends (look E, Benji 2026-11-13). Before,
+// the pill sat at the far right, too far from the lyrics to notice.
+.section.repeated {
+  position: relative;
+
+  &::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    width: 3px;
+    border-radius: 2px;
+    background: var(--coral);
+  }
+
+  // Plain sections make room for the line; choruses and bridges already have
+  // a padded box, so the line goes inside it.
+  &:not(.chorus):not(.bridge) {
+    padding-left: 0.75em;
+  }
+
+  &.chorus::after,
+  &.bridge::after {
+    top: 0.55em;
+    bottom: 0.6em;
+    left: 0.4em;
+  }
+}
+
 .times-row {
   display: flex;
-  justify-content: flex-end;
   margin: 0.15em 0 0;
 }
 

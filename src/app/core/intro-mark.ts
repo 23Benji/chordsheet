@@ -3,7 +3,7 @@
 // the song text, so it is always shared with the song (Benji, 2026-11-10),
 // and the song view draws those lines with a green bracket and "INTRO".
 import { lineText } from './anchoring';
-import { INTRO_DIRECTIVE, SheetLine, parseChordPro } from './chordpro';
+import { INTRO_DIRECTIVE, SheetLine, parseChordPro, sectionKey } from './chordpro';
 import { normalize } from './search';
 
 const MARK = `{${INTRO_DIRECTIVE}}`;
@@ -21,6 +21,42 @@ const key = (line: SheetLine) => normalize(lineText(line));
  * can't be marked (a note) or isn't found.
  */
 export function toggleIntroMark(chordpro: string, lineIndex: number): string | null {
+  return switchOne(chordpro, lineIndex);
+}
+
+/**
+ * The intro switch of a line in the song view. With "Parti ripetute" on
+ * (`linked`), a part played twice shows once with "×2": the switch then
+ * changes the same line in every copy, so the mark never gets stuck on (one
+ * copy still marked) and both copies stay the same part.
+ */
+export function switchIntroMark(chordpro: string, lineIndex: number, linked: boolean): string | null {
+  if (!linked) return switchOne(chordpro, lineIndex);
+  const sections = parseChordPro(chordpro).sections;
+  const at = sections.findIndex((s) => s.lines.some((l) => l.index === lineIndex));
+  if (at < 0) return null;
+  const position = sections[at].lines.findIndex((l) => l.index === lineIndex);
+  // The run of identical sections (one after the other) this line is part of.
+  const key = sectionKey(sections[at]);
+  let first = at;
+  while (first > 0 && sectionKey(sections[first - 1]) === key) first--;
+  let last = at;
+  while (last < sections.length - 1 && sectionKey(sections[last + 1]) === key) last++;
+  const copies = sections.slice(first, last + 1).map((s) => s.lines[position]);
+  if (!copies.every(isMarkable)) return null;
+  const on = !copies.some((l) => l.intro); // all lyrics or chord lines (isMarkable)
+  let text = chordpro;
+  for (const copy of copies) {
+    if (!!copy.intro === on) continue;
+    // Line indexes don't change: the mark is a directive, not a sheet line.
+    const next = switchOne(text, copy.index);
+    if (next === null) return null;
+    text = next;
+  }
+  return text;
+}
+
+function switchOne(chordpro: string, lineIndex: number): string | null {
   const lines = parseChordPro(chordpro).sections.flatMap((s) => s.lines);
   const target = lines.find((l) => l.index === lineIndex);
   if (!target || !isMarkable(target)) return null;

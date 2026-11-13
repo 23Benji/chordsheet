@@ -1,5 +1,5 @@
-import { LyricLine, parseChordPro } from './chordpro';
-import { toggleIntroMark } from './intro-mark';
+import { LyricLine, collapseRepeats, parseChordPro } from './chordpro';
+import { switchIntroMark, toggleIntroMark } from './intro-mark';
 
 const SONG = `{title: Grande è il Signore}
 
@@ -49,5 +49,36 @@ describe('intro mark', () => {
     const on = toggleIntroMark(song, 0)!;
     expect(on).toBe('{x_intro}\nA D E A\n[A]GRANDE\n');
     expect(parseChordPro(on).sections[0].lines[0]).toMatchObject({ kind: 'chords', intro: true });
+  });
+
+  describe('in a part played twice ("Parti ripetute")', () => {
+    const verse = '[C]TU SEI\n[G]IL MIO RE';
+    const twice = `${verse}\n\n${verse}\n\n[F]ALTRO`;
+    const shown = (text: string) => collapseRepeats(parseChordPro(text)).sections;
+
+    it('a mark in one copy keeps the ×2 and shows on the merged part', () => {
+      const marked = `[C]TU SEI\n[G]IL MIO RE\n\n[C]TU SEI\n{x_intro}\n[G]IL MIO RE\n\n[F]ALTRO`;
+      const [first] = shown(marked);
+      expect(first.repeat).toBe(2);
+      expect(first.lines.map((l) => l.kind !== 'comment' && !!l.intro)).toEqual([false, true]);
+    });
+
+    it('the switch marks and unmarks the line in every copy', () => {
+      const index = shown(twice)[0].lines[1].index;
+      const on = switchIntroMark(twice, index, true)!;
+      expect(on.match(/\{x_intro\}/g)?.length).toBe(2);
+      expect(switchIntroMark(on, index, true)).toBe(twice);
+    });
+
+    it('one copy marked: the switch turns it off everywhere instead of getting stuck', () => {
+      const half = `[C]TU SEI\n[G]IL MIO RE\n\n[C]TU SEI\n{x_intro}\n[G]IL MIO RE\n\n[F]ALTRO`;
+      const index = shown(half)[0].lines[1].index;
+      expect(switchIntroMark(half, index, true)).toBe(twice);
+    });
+
+    it('with the setting off, only that copy changes', () => {
+      const index = parseChordPro(twice).sections[0].lines[1].index;
+      expect(switchIntroMark(twice, index, false)!.match(/\{x_intro\}/g)?.length).toBe(1);
+    });
   });
 });
