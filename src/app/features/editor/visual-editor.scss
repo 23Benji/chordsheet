@@ -352,6 +352,147 @@
   transition: transform 0.2s ease;
 }
 
+// ── Repeats ──────────────────────────────────────────────────────────────
+// "Ripeti parte" / "Ripeti righe" under the section header (the chips
+// themselves, .repeat-chip, are styled in styles.scss: one is a popover trigger).
+.repeat-tools {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  margin: 0 0 var(--space-2);
+}
+
+// Repeated lines: the coral line of the song view, next to them and down to
+// their "×2" chip. With the intro too, the green line sits inside the coral one.
+.row.rep-line,
+.rep-chip-row {
+  margin-left: calc(-1 * var(--space-2));
+  padding-left: var(--space-2);
+  box-shadow: inset 3px 0 0 var(--coral);
+}
+
+.row.rep-line.intro-line {
+  padding-left: var(--space-4);
+  box-shadow:
+    inset 3px 0 0 var(--coral),
+    inset 7px 0 0 var(--bg-elev-1),
+    inset 10px 0 0 var(--sage);
+}
+
+.rep-chip-row {
+  padding-top: var(--space-1);
+  padding-bottom: var(--space-2);
+}
+
+// "Ripeti righe" open: each lyric line is one big button with a circle on
+// the left; tapping ticks it (the line can't be edited meanwhile).
+.lines.picking .row {
+  position: relative;
+  padding-left: 40px;
+
+  .row-actions {
+    display: none;
+  }
+}
+
+.pick-cover {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  padding: 0;
+  border: none;
+  border-radius: var(--radius-s);
+  background: transparent;
+  cursor: pointer;
+
+  &.on {
+    background: var(--highlight-coral);
+  }
+}
+
+.pick-tick {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  margin-left: var(--space-1);
+  border: 2px solid var(--text-muted);
+  border-radius: 50%;
+  color: var(--accent-ink);
+
+  .on & {
+    border-color: var(--coral);
+    background: var(--coral);
+  }
+
+  app-icon {
+    --icon-size: var(--icon-s);
+  }
+}
+
+// The panel at the bottom while ticking: how many lines, how many times, Fatto.
+.pick-panel {
+  position: fixed;
+  right: var(--space-3);
+  bottom: max(var(--space-4), env(safe-area-inset-bottom));
+  left: var(--space-3);
+  z-index: 40;
+  max-width: 460px;
+  margin: 0 auto;
+  padding: var(--space-3) var(--space-4) var(--space-4);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-l);
+  background: var(--bg-elev-1);
+  box-shadow: var(--shadow);
+}
+
+.pick-head {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin-bottom: var(--space-3);
+}
+
+.pick-title {
+  flex: 1;
+  font-weight: 700;
+}
+
+.pick-cancel,
+.pick-done {
+  min-height: var(--tap-small);
+  padding: 0 var(--space-4);
+}
+
+.pick-cancel {
+  color: var(--text-muted);
+}
+
+.pick-times {
+  display: flex;
+  gap: var(--space-2);
+}
+
+.pick-time {
+  flex: 1;
+  min-height: var(--tap);
+  border: none;
+  border-radius: 999px;
+  background: var(--surface);
+  color: var(--text);
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+
+  &.on {
+    background: var(--coral);
+    color: var(--accent-ink);
+  }
+}
+
 // Phones: lyric lines get the full width of the card. The line buttons (+,
 // delete) take room only on the line being edited, underneath it, instead of
 // an invisible column next to every line that squeezed the text.
@@ -381,5 +522,10 @@
 
   .label {
     min-width: 0;
+  }
+
+  // "Ripeti parte / righe" only on the part you're working in.
+  .repeat-tools.idle {
+    display: none;
   }
 }

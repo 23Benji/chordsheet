@@ -6,6 +6,7 @@
 // what Angular signals need to notice a change.
 import { CHORD_SPACE_DIRECTIVES, ChordSpace } from './chord-gap';
 import { INTRO_DIRECTIVE } from './chordpro';
+import { REPEAT_DIRECTIVE, REPEAT_LINE_DIRECTIVE, noteTimes, readTimes, upgradeRepeatSpans } from './repeat-marks';
 import { chordLinePositions } from './chord-text';
 import { keyOf, keyUsesFlats, transposeChord, transposeKey } from './transpose';
 
@@ -26,6 +27,8 @@ export interface EditorLyricsLine {
   space?: ChordSpace;
   /** Part of the intro (`{x_intro}` before it; see intro-mark.ts). */
   intro?: boolean;
+  /** Repeated line: `{x_repeat_line: N}` before it (see repeat-marks.ts). */
+  times?: number;
 }
 
 /** `{comment: …}`: performance notes like "x2", "basso". */
@@ -51,6 +54,8 @@ export interface EditorSection {
   /** Free label ("Strofa finale", "Assolo"); '' = default name. */
   label: string;
   lines: EditorLine[];
+  /** The whole part is played this many times (`{x_repeat: N}` at its top). */
+  repeat?: number;
 }
 
 export interface EditorMeta {
@@ -134,7 +139,8 @@ export function parseLyricsLine(source: string): EditorLyricsLine {
 }
 
 export function parseEditorSong(source: string): EditorSong {
-  const lines = source.replace(/\r\n?/g, '\n').split('\n');
+  // Old "x2/ … /x2" spans open as repeated lines (saved in the new way).
+  const lines = upgradeRepeatSpans(source.replace(/\r\n?/g, '\n')).split('\n');
   const meta: EditorMeta = { title: '', number: '', key: '', tempo: '', capo: '' };
   const extraHeader: string[] = [];
 
@@ -173,10 +179,13 @@ export function parseEditorSong(source: string): EditorSong {
   let space: ChordSpace | undefined;
   /** `{x_intro}`: also belongs to the lyric line after it (ahead of a `{x_gap}`). */
   let intro = false;
-  /** The next line that isn't a `{x_gap}` / `{x_glue}` is a lyric line. */
+  /** `{x_repeat_line: N}`: belongs to the lyric line after it too. */
+  let times: number | null = null;
+  const lineDirective = (name: string) => name in CHORD_SPACE_DIRECTIVES || name === INTRO_DIRECTIVE || name === REPEAT_LINE_DIRECTIVE;
+  /** The next line that isn't a line mark (`{x_gap}`, `{x_intro}` …) is a lyric line. */
   const lyricsAfter = (from: number): boolean => {
     let j = from;
-    while (j < lines.length && (DIRECTIVE.exec(lines[j])?.[1].toLowerCase() ?? '') in CHORD_SPACE_DIRECTIVES) j++;
+    while (j < lines.length && lineDirective(DIRECTIVE.exec(lines[j])?.[1].toLowerCase() ?? '')) j++;
     return j < lines.length && lines[j].trim() !== '' && !DIRECTIVE.exec(lines[j]) && !/^\s*#/.test(lines[j]);
   };
 
@@ -195,6 +204,14 @@ export function parseEditorSong(source: string): EditorSong {
     }
     if (d && name === INTRO_DIRECTIVE && lyricsAfter(i + 1)) {
       intro = true;
+      continue;
+    }
+    if (d && name === REPEAT_LINE_DIRECTIVE && readTimes(d[2]) && lyricsAfter(i + 1)) {
+      times = readTimes(d[2]);
+      continue;
+    }
+    if (d && name === REPEAT_DIRECTIVE && readTimes(d[2])) {
+      open().repeat = readTimes(d[2])!;
       continue;
     }
     if (d && name in STARTS) {
@@ -216,13 +233,34 @@ export function parseEditorSong(source: string): EditorSong {
       const lyrics = parseLyricsLine(line);
       if (space) lyrics.space = space;
       if (intro) lyrics.intro = true;
+      if (times) lyrics.times = times;
       open().lines.push(lyrics);
       intro = false;
+      times = null;
     }
     space = undefined;
   }
   close();
-  return { meta, extraHeader, sections };
+  return { meta, extraHeader, sections: attachRepeatNotes(sections) };
+}
+
+/**
+ * An old note "x2" ending a part (or on its own right after it) opens as
+ * "Ripeti parte ×2", like the song view reads it (chordpro.ts). A note in the
+ * middle of a part stays a note.
+ */
+function attachRepeatNotes(sections: EditorSection[]): EditorSection[] {
+  const out: EditorSection[] = [];
+  for (const section of sections) {
+    const last = section.lines[section.lines.length - 1];
+    const times = last?.kind === 'comment' ? noteTimes(last.text) : null;
+    const previous = out[out.length - 1];
+    if (!times) out.push(section);
+    else if (section.lines.length > 1) out.push({ ...section, lines: section.lines.slice(0, -1), repeat: times });
+    else if (previous) out[out.length - 1] = { ...previous, repeat: times };
+    else out.push(section);
+  }
+  return out;
 }
 
 // ── Serialising ────────────────────────────────────────────────────────────
@@ -260,8 +298,9 @@ function sectionWrapper(section: EditorSection): [string, string] | null {
 function lineToChordPro(line: EditorLine): string {
   switch (line.kind) {
     case 'lyrics':
-      // The gap choice only matters on a line without chords; the intro mark goes first.
+      // The gap choice only matters on a line without chords; the line marks go first.
       return [
+        line.times ? `{${REPEAT_LINE_DIRECTIVE}: ${line.times}}` : null,
         line.intro ? `{${INTRO_DIRECTIVE}}` : null,
         line.space && !line.chords.length ? `{x_${line.space}}` : null,
         lyricsToChordPro(line),
@@ -289,6 +328,7 @@ export function serializeEditorSong(song: EditorSong): string {
     .filter((s) => s.lines.length > 0)
     .map((section) => {
       const body = section.lines.map(lineToChordPro);
+      if (section.repeat) body.unshift(`{${REPEAT_DIRECTIVE}: ${section.repeat}}`);
       const wrapper = sectionWrapper(section);
       return (wrapper ? [wrapper[0], ...body, wrapper[1]] : body).join('\n');
     });
@@ -589,4 +629,102 @@ export function newSongTemplate(): EditorSong {
     extraHeader: [],
     sections: [newSection('auto'), newSection('chorus')],
   };
+}
+
+// ── Repeats ("Ripeti parte" / "Ripeti righe") ─────────────────────────────
+
+/** "Ripeti parte": the whole part `times` times (null or 1 = once). */
+export function setPartRepeat(song: EditorSong, sectionId: string, times: number | null): EditorSong {
+  return updateSection(song, sectionId, (s) => ({ ...s, repeat: times && times > 1 ? times : undefined }));
+}
+
+/** "Ripeti righe": these lines are repeated `times` times (null = not repeated). */
+export function setLinesRepeat(song: EditorSong, sectionId: string, lineIds: readonly string[], times: number | null): EditorSong {
+  const ids = new Set(lineIds);
+  return updateSection(song, sectionId, (s) => ({
+    ...s,
+    lines: s.lines.map((l) => (l.kind === 'lyrics' && ids.has(l.id) ? { ...l, times: times && times > 1 ? times : undefined } : l)),
+  }));
+}
+
+export interface RepeatGroup {
+  times: number;
+  /** The lines of the group, top to bottom. */
+  ids: string[];
+}
+
+/** Groups of repeated lines (next to each other, same count), keyed by their last line. */
+export function repeatGroups(section: EditorSection): Map<string, RepeatGroup> {
+  const groups = new Map<string, RepeatGroup>();
+  let current: RepeatGroup | null = null;
+  for (const line of section.lines) {
+    const times = line.kind === 'lyrics' ? (line.times ?? 0) : 0;
+    if (times && current && current.times === times) current.ids.push(line.id);
+    else current = times ? { times, ids: [line.id] } : null;
+    if (current) groups.set(current.ids[current.ids.length - 1], current);
+  }
+  // Only the entry under each group's last line stays.
+  for (const [last, group] of groups) if (group.ids[group.ids.length - 1] !== last) groups.delete(last);
+  return groups;
+}
+
+/**
+ * Ticking lines for "Ripeti righe": the ticked lines are always next to each
+ * other. Ticking a line adds it and everything between it and the others;
+ * unticking one keeps the lines above it (or drops just the first one).
+ */
+export function pickLines(section: EditorSection, picked: readonly string[], tapped: string): string[] {
+  const order = section.lines.filter((l) => l.kind === 'lyrics').map((l) => l.id);
+  const at = order.indexOf(tapped);
+  if (at < 0) return [...picked];
+  const positions = picked.map((id) => order.indexOf(id)).filter((p) => p >= 0);
+  if (!positions.length) return [tapped];
+  const first = Math.min(...positions);
+  const last = Math.max(...positions);
+  if (at < first || at > last) return order.slice(Math.min(first, at), Math.max(last, at) + 1);
+  if (at === first) return order.slice(first + 1, last + 1);
+  return order.slice(first, at);
+}
+
+/** What a part says, without ids: two parts with the same content are the same part. */
+function partContent(section: EditorSection): string {
+  return JSON.stringify([
+    section.kind,
+    section.label.trim(),
+    section.lines.map((l) =>
+      l.kind === 'lyrics' ? [l.text, l.chords.map((c) => [c.pos, c.chord]), l.space ?? null, !!l.intro, l.times ?? null] : [l.kind, l.text],
+    ),
+  ]);
+}
+
+/** Parts pasted several times in a row: where each run starts and how many copies it has. */
+export function sameParts(song: EditorSong): { start: number; count: number }[] {
+  const runs: { start: number; count: number }[] = [];
+  const sections = song.sections;
+  for (let i = 0; i < sections.length; ) {
+    const content = partContent(sections[i]);
+    let j = i + 1;
+    while (j < sections.length && partContent(sections[j]) === content) j++;
+    if (j - i > 1 && sections[i].lines.some((l) => l.kind === 'lyrics' && (l.text.trim() || l.chords.length))) runs.push({ start: i, count: j - i });
+    i = j;
+  }
+  return runs;
+}
+
+/** Each run of copies becomes one part "×N" (N counts the copies' own ×2 too). */
+export function mergeSameParts(song: EditorSong): EditorSong {
+  const runs = sameParts(song);
+  if (!runs.length) return song;
+  const sections: EditorSection[] = [];
+  for (let i = 0; i < song.sections.length; i++) {
+    const run = runs.find((r) => r.start === i);
+    if (!run) {
+      sections.push(song.sections[i]);
+      continue;
+    }
+    const copies = song.sections.slice(i, i + run.count);
+    sections.push({ ...copies[0], repeat: copies.reduce((sum, s) => sum + (s.repeat ?? 1), 0) });
+    i += run.count - 1;
+  }
+  return { ...song, sections };
 }

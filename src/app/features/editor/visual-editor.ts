@@ -37,6 +37,11 @@ import {
   moveSectionTo,
   removeSection,
   pasteChords,
+  pickLines,
+  RepeatGroup,
+  repeatGroups,
+  setLinesRepeat,
+  setPartRepeat,
   splitLine,
   updateSection,
 } from '../../core/editor-model';
@@ -284,6 +289,58 @@ export class VisualEditor {
       section,
       section.lines.map((l) => (l.id === line.id ? { ...line, intro: !line.intro || undefined } : l)),
     );
+  }
+
+  // ── Repeats: "Ripeti parte" / "Ripeti righe" ─────────────────────────────
+
+  protected readonly timesChoices = [2, 3, 4, 5, 6, 8];
+
+  /** Groups of repeated lines per section, keyed by each group's last line. */
+  private readonly groups = computed(() => new Map(this.song().sections.map((s) => [s.id, repeatGroups(s)])));
+  protected repeatGroupsOf(section: EditorSection): Map<string, RepeatGroup> {
+    return this.groups().get(section.id) ?? new Map();
+  }
+
+  protected setPartTimes(section: EditorSection, times: number | null): void {
+    this.emit(setPartRepeat(this.song(), section.id, times));
+  }
+
+  protected setGroupTimes(section: EditorSection, ids: string[], times: number | null): void {
+    this.emit(setLinesRepeat(this.song(), section.id, ids, times));
+  }
+
+  /** "Ripeti righe" is open on this section: the ticked lines (always next to each other). */
+  protected readonly picking = signal<{ sectionId: string; ids: string[] } | null>(null);
+  protected readonly pickTimes = signal(2);
+
+  protected startPick(section: EditorSection): void {
+    if (this.picking()?.sectionId === section.id) {
+      this.cancelPick();
+      return;
+    }
+    (document.activeElement as HTMLElement | null)?.blur?.(); // the keyboard goes away while ticking
+    this.picking.set({ sectionId: section.id, ids: [] });
+    this.pickTimes.set(2);
+  }
+
+  protected tapPick(section: EditorSection, line: EditorLine): void {
+    const pick = this.picking();
+    if (!pick) return;
+    const ids = pickLines(section, pick.ids, line.id);
+    this.picking.set({ ...pick, ids });
+    // Ticking lines that already repeat: start from their count.
+    const first = section.lines.find((l) => l.id === ids[0]);
+    if (pick.ids.length === 0 && first?.kind === 'lyrics' && first.times) this.pickTimes.set(first.times);
+  }
+
+  protected finishPick(): void {
+    const pick = this.picking();
+    if (pick?.ids.length) this.emit(setLinesRepeat(this.song(), pick.sectionId, pick.ids, this.pickTimes()));
+    this.picking.set(null);
+  }
+
+  protected cancelPick(): void {
+    this.picking.set(null);
   }
 
   // ── Adding sections in place ─────────────────────────────────────────────

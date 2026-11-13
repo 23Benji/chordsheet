@@ -29,6 +29,13 @@ import {
   splitLine,
   transposeSong,
   updateChord,
+  EditorSection,
+  mergeSameParts,
+  pickLines,
+  repeatGroups,
+  sameParts,
+  setLinesRepeat,
+  setPartRepeat,
 } from './editor-model';
 
 const chordsOf = (line: EditorLyricsLine) => line.chords.map((c) => [c.chord, c.pos]);
@@ -77,7 +84,7 @@ describe('editor model: parse and serialise', () => {
 
   it('reads meta, sections with kinds/labels, notes and raw lines', () => {
     const song = parseEditorSong(
-      '{title: Dio è grande}\n{meta: numero 142}\n{subtitle: x}\n{key: Bm}\n\n[Bm]uno\n{comment: x2}\n\n' +
+      '{title: Dio è grande}\n{meta: numero 142}\n{subtitle: x}\n{key: Bm}\n\n[Bm]uno\n{comment: basso}\n\n' +
         '{start_of_chorus}\n[G]rit\n{end_of_chorus}\n\n{start_of_part: Intermezzo musicale: Assolo}\n[A] [D]\n{end_of_part}\n' +
         '{start_of_bridge: Special}\n[C]b\n{end_of_bridge}\n{new_page}',
     );
@@ -294,5 +301,61 @@ describe('editor model: old notation, sections, song-wide', () => {
       expect(pasted[0]).toBe(target[0]);
       expect(pasted.slice(1).map((l) => lyricsToChordPro(l as EditorLyricsLine))).toEqual(['[G]il S[D]uo amore', '[C]più corto']);
     });
+  });
+});
+
+describe('editor: repeats', () => {
+  const lyricIds = (s: EditorSection) => s.lines.filter((l) => l.kind === 'lyrics').map((l) => l.id);
+
+  it('reads and writes "Ripeti parte" and "Ripeti righe"', () => {
+    const source = '{title: X}\n\n{x_repeat: 3}\n[C]UNO\n{x_repeat_line: 2}\n{x_intro}\n[G]DUE\n';
+    const song = parseEditorSong(source);
+    const [part] = song.sections;
+    expect(part.repeat).toBe(3);
+    expect(part.lines.map((l) => (l.kind === 'lyrics' ? (l.times ?? null) : null))).toEqual([null, 2]);
+    expect(serializeEditorSong(song)).toBe(source);
+  });
+
+  it('opens old marks in the new way', () => {
+    const song = parseEditorSong('[C]UNO\nx2/ [G]DUE\nTRE /x2\n\n[F]QUATTRO\n{comment: x3}\n\n[C]CINQUE\n\n{comment: x 2 volte}\n');
+    expect(song.sections.map((s) => s.repeat ?? null)).toEqual([null, 3, 2]);
+    expect(song.sections[0].lines.map((l) => (l.kind === 'lyrics' ? [l.text, l.times ?? null] : null))).toEqual([
+      ['UNO', null],
+      ['DUE', 2],
+      ['TRE', 2],
+    ]);
+    expect(serializeEditorSong(song)).toContain('{x_repeat_line: 2}\n[G]DUE\n{x_repeat_line: 2}\nTRE');
+  });
+
+  it('sets and removes repeats', () => {
+    let song = parseEditorSong('[C]UNO\n[G]DUE\n[F]TRE\n');
+    const part = song.sections[0];
+    const [, two, three] = lyricIds(part);
+    song = setPartRepeat(song, part.id, 4);
+    expect(song.sections[0].repeat).toBe(4);
+    song = setLinesRepeat(song, part.id, [two, three], 2);
+    expect([...repeatGroups(song.sections[0]).entries()]).toEqual([[three, { times: 2, ids: [two, three] }]]);
+    song = setLinesRepeat(setPartRepeat(song, part.id, 1), part.id, [two, three], null);
+    expect(serializeEditorSong(song)).toBe('[C]UNO\n[G]DUE\n[F]TRE\n');
+  });
+
+  it('ticked lines stay next to each other', () => {
+    const part = parseEditorSong('A\nB\nC\nD\n').sections[0];
+    const [a, b, c, d] = lyricIds(part);
+    expect(pickLines(part, [], c)).toEqual([c]);
+    expect(pickLines(part, [c], a)).toEqual([a, b, c]);
+    expect(pickLines(part, [b], d)).toEqual([b, c, d]);
+    expect(pickLines(part, [a, b, c, d], c)).toEqual([a, b]);
+    expect(pickLines(part, [a, b, c], a)).toEqual([b, c]);
+  });
+
+  it('finds parts pasted several times in a row and merges them into ×N', () => {
+    const rit = '{start_of_chorus}\n[C]RIT\n{end_of_chorus}';
+    const song = parseEditorSong(`[G]STROFA\n\n${rit}\n\n${rit}\n\n${rit}\n\n${rit}\n\n[G]STROFA 2\n`);
+    expect(sameParts(song)).toEqual([{ start: 1, count: 4 }]);
+    const merged = mergeSameParts(song);
+    expect(merged.sections.length).toBe(3);
+    expect(merged.sections[1].repeat).toBe(4);
+    expect(serializeEditorSong(merged)).toContain('{start_of_chorus}\n{x_repeat: 4}\n[C]RIT\n{end_of_chorus}');
   });
 });

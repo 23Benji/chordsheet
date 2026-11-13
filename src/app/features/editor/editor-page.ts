@@ -19,8 +19,10 @@ import {
   EditorMeta,
   EditorSong,
   detectedKey,
+  mergeSameParts,
   newSongTemplate,
   parseEditorSong,
+  sameParts,
   serializeEditorSong,
   transposeSong,
 } from '../../core/editor-model';
@@ -273,12 +275,34 @@ export class EditorPage implements OnInit, OnDestroy {
     return null;
   }
 
+  /** "Lascia così" once: don't ask again about pasted copies while this song is open. */
+  private keepCopies = false;
+
   protected async save(): Promise<void> {
-    const text = this.text();
+    let text = this.text();
     const problem = this.validate(text);
     if (problem) {
       this.error.set(problem);
       return;
+    }
+    // The same part pasted several times in a row: offer one part ×N, which
+    // looks the same for everyone (copies are merged only with the
+    // "Parti ripetute" setting on).
+    const doc = this.mode() === 'visual' ? this.doc() : parseEditorSong(text);
+    const runs = this.keepCopies ? [] : sameParts(doc);
+    if (runs.length) {
+      const parts = runs.map(({ start, count }) => {
+        const section = doc.sections[start];
+        return { name: section.label.trim() || this.t.partName[section.kind], count };
+      });
+      if (await this.dialog().ask(this.t.confirmMerge(parts))) {
+        const merged = mergeSameParts(doc);
+        text = serializeEditorSong(merged);
+        if (this.mode() === 'visual') this.onVisualChange({ song: merged });
+        else this.onSourceChange(text);
+      } else {
+        this.keepCopies = true;
+      }
     }
     const existing = this.song();
     const song = existing ? withChordPro(existing, text) : songFromChordPro(text, '', 'created');

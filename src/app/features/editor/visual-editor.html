@@ -76,9 +76,56 @@
       </div>
     </header>
 
-    <div class="lines" cdkDropList [cdkDropListData]="section" (cdkDropListDropped)="dropLine($event)">
+    <!-- Repeats: the whole part ×N, or some of its lines ×N (Benji, 2026-11-13). -->
+    <!-- Phones: only on the part being edited, or when it already repeats (Benji: the editor mustn't feel too full). -->
+    <div class="repeat-tools" [class.idle]="activeIndex() !== i && !section.repeat && picking()?.sectionId !== section.id">
+      <app-popover [label]="t.repeatPartHint" [triggerClass]="'chip repeat-chip' + (section.repeat ? ' on' : '')" [menu]="true">
+        <span trigger><app-icon name="repeat" /> {{ section.repeat ? t.partTimes(section.repeat) : t.repeatPart }}</span>
+        @for (n of timesChoices; track n) {
+          <button type="button" class="menu-item" role="menuitem" [class.current]="section.repeat === n" (click)="setPartTimes(section, n)">
+            {{ t.times(n) }}
+          </button>
+        }
+        @if (section.repeat) {
+          <div class="menu-separator"></div>
+          <button type="button" class="menu-item" role="menuitem" (click)="setPartTimes(section, null)"><app-icon name="close" /> {{ t.removeRepeat }}</button>
+        }
+      </app-popover>
+      <button
+        type="button"
+        class="btn chip repeat-chip"
+        [class.on]="picking()?.sectionId === section.id"
+        [attr.aria-pressed]="picking()?.sectionId === section.id"
+        [title]="t.repeatLinesHint"
+        (click)="startPick(section)"
+      >
+        <span><app-icon name="repeat" /> {{ t.repeatLines }}</span>
+      </button>
+    </div>
+
+    @let pickingHere = picking()?.sectionId === section.id;
+    @let groups = repeatGroupsOf(section);
+    <div class="lines" [class.picking]="pickingHere" cdkDropList [cdkDropListData]="section" (cdkDropListDropped)="dropLine($event)">
     @for (line of section.lines; track line.id; let li = $index) {
-      <div class="row" [class.intro-line]="line.kind === 'lyrics' && line.intro" [attr.data-line]="line.id" cdkDrag cdkDragLockAxis="y" [cdkDragData]="line">
+      @let times = line.kind === 'lyrics' ? (line.times ?? 0) : 0;
+      @let group = groups.get(line.id);
+      <div
+        class="row"
+        [class.intro-line]="line.kind === 'lyrics' && line.intro"
+        [class.rep-line]="times > 0 && !pickingHere"
+        [class.rep-end]="!!group && !pickingHere"
+        [attr.data-line]="line.id"
+        cdkDrag
+        cdkDragLockAxis="y"
+        [cdkDragData]="line"
+      >
+        @if (pickingHere && line.kind === 'lyrics') {
+          <!-- "Ripeti righe": the whole row is one big button that ticks the line. -->
+          @let ticked = picking()!.ids.includes(line.id);
+          <button type="button" class="pick-cover" [class.on]="ticked" [attr.aria-pressed]="ticked" [attr.aria-label]="t.pickLine" (click)="tapPick(section, line)">
+            <span class="pick-tick">@if (ticked) {<app-icon name="check" />}</span>
+          </button>
+        }
         <div class="row-main">
           @switch (line.kind) {
             @case ('lyrics') {
@@ -163,6 +210,21 @@
           }
         </div>
       </div>
+      @if (group && !pickingHere) {
+        <!-- Under repeated lines: "×2", tap to change or take it away. -->
+        <div class="rep-chip-row">
+          <app-popover [label]="t.linesTimes(group.times)" triggerClass="chip repeat-chip on small" [menu]="true">
+            <span trigger>{{ t.times(group.times) }} <span class="chip-caret">▼</span></span>
+            @for (n of timesChoices; track n) {
+              <button type="button" class="menu-item" role="menuitem" [class.current]="group.times === n" (click)="setGroupTimes(section, group.ids, n)">
+                {{ t.times(n) }}
+              </button>
+            }
+            <div class="menu-separator"></div>
+            <button type="button" class="menu-item" role="menuitem" (click)="setGroupTimes(section, group.ids, null)"><app-icon name="close" /> {{ t.removeRepeat }}</button>
+          </app-popover>
+        </div>
+      }
     }
     </div>
 
@@ -218,3 +280,21 @@
     }
   }
 </ng-template>
+
+@if (picking(); as pick) {
+  <!-- "Ripeti righe": which lines are ticked, how many times, Fatto. -->
+  <div class="pick-panel" role="dialog" [attr.aria-label]="t.repeatLines">
+    <div class="pick-head">
+      <span class="pick-title">{{ t.pickTitle(pick.ids.length) }}</span>
+      <button type="button" class="btn pick-cancel" (click)="cancelPick()">{{ t.pickCancel }}</button>
+      <button type="button" class="btn btn-primary pick-done" [disabled]="!pick.ids.length" (click)="finishPick()">{{ t.pickDone }}</button>
+    </div>
+    <div class="pick-times" role="radiogroup">
+      @for (n of timesChoices.slice(0, 5); track n) {
+        <button type="button" role="radio" class="pick-time" [class.on]="pickTimes() === n" [attr.aria-checked]="pickTimes() === n" (click)="pickTimes.set(n)">
+          {{ t.times(n) }}
+        </button>
+      }
+    </div>
+  </div>
+}

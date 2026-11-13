@@ -825,6 +825,19 @@ export const IT = {
     chordsPasted: 'Accordi incollati',
     introOn: 'Fa parte dell’intro: tocca per togliere',
     introOff: 'Segna questa riga come intro',
+    repeatPart: 'Ripeti parte',
+    repeatPartHint: 'Quante volte si suona tutta questa parte',
+    partTimes: (n: number) => `Parte ×${n}`,
+    repeatLines: 'Ripeti righe',
+    repeatLinesHint: 'Scegli le righe che si ripetono',
+    times: (n: number) => `×${n}`,
+    once: 'Una volta',
+    removeRepeat: 'Togli la ripetizione',
+    linesTimes: (n: number) => `Righe ripetute ×${n}: tocca per cambiare`,
+    pickTitle: (n: number) => (n === 0 ? 'Tocca le righe che si ripetono' : n === 1 ? '1 riga · quante volte?' : `${n} righe · quante volte?`),
+    pickDone: 'Fatto',
+    pickCancel: 'Annulla',
+    pickLine: 'Scegli questa riga',
     lineDelete: 'Elimina riga',
     lineDeleted: 'Riga eliminata',
     lineDrag: 'Trascina per spostare la riga (o ↑ ↓ dalla tastiera)',
@@ -868,6 +881,25 @@ export const IT = {
       restore: 'Originale non trovato.',
     },
 
+    /** Saving a song with the same part pasted several times in a row. */
+    confirmMerge: (parts: { name: string; count: number }[]) => ({
+      title: 'Parti uguali di fila',
+      message:
+        parts.length === 1
+          ? `${parts[0].name} compare ${parts[0].count} volte di fila. Tenere una copia sola con ×${parts[0].count}? Così si vede uguale su ogni telefono.`
+          : `Alcune parti compaiono più volte di fila (${parts.map((p) => `${p.name} ×${p.count}`).join(', ')}). Tenere una copia sola di ognuna con ×N? Così si vedono uguali su ogni telefono.`,
+      confirm: 'Unisci',
+      cancel: 'Lascia così',
+    }),
+    /** A part's name in messages: its label, or "La strofa", "Il ritornello" … */
+    partName: {
+      auto: 'La strofa',
+      chorus: 'Il ritornello',
+      bridge: 'Il bridge',
+      intro: 'L’intro',
+      interlude: 'L’intermezzo',
+      outro: 'Il finale',
+    },
     confirmLeave: {
       title: 'Uscire senza salvare?',
       message: 'Le modifiche a questo canto andranno perse.',
