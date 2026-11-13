@@ -227,6 +227,63 @@
   }
 }
 
+// Lines repeated inside a part (`{x_repeat_line: 2}`, look C1): a coral line
+// next to just those lines, ending in the "×2" pill under them — the same
+// look as a whole repeated part, so a repeat always looks the same.
+.row.rep-line,
+.intro-head.rep-line,
+.line-times {
+  position: relative;
+  padding-left: 0.75em;
+
+  &::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    bottom: -0.1em; // across the gap to the next row
+    left: 0;
+    width: 3px;
+    background: var(--coral);
+  }
+}
+
+.row.rep-start::after {
+  border-radius: 2px 2px 0 0;
+}
+
+.line-times {
+  margin: 0 0 0.35em;
+
+  &::after {
+    top: -0.1em;
+    bottom: 0;
+    border-radius: 0 0 2px 2px;
+  }
+}
+
+// Intro and repeated lines in the same part: the green line moves inside the
+// coral one (for every intro line of that part, so it stays straight).
+.rep-lines {
+  .intro-head,
+  .row.intro-line,
+  .line-times.intro-through {
+    padding-left: 1.5em;
+
+    &::before {
+      left: 0.75em;
+    }
+  }
+
+  .line-times.intro-through::before {
+    content: '';
+    position: absolute;
+    top: -0.1em;
+    bottom: -0.1em;
+    width: 3px;
+    background: var(--sage);
+  }
+}
+
 .intro-tag {
   display: inline-block;
   padding: 0.1em 0.5em;

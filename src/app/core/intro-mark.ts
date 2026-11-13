@@ -8,7 +8,7 @@ import { normalize } from './search';
 
 const MARK = `{${INTRO_DIRECTIVE}}`;
 /** Directives that belong to the line right after them. */
-const LINE_DIRECTIVE = /^\s*\{\s*(x_intro|x_gap|x_glue)\s*\}\s*$/i;
+const LINE_DIRECTIVE = /^\s*\{\s*(x_intro|x_gap|x_glue|x_repeat_line\s*:\s*\d+)\s*\}\s*$/i;
 const INTRO_LINE = /^\s*\{\s*x_intro\s*\}\s*$/i;
 
 const isMarkable = (line: SheetLine) => line.kind === 'lyrics' || line.kind === 'chords';

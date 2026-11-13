@@ -31,7 +31,7 @@
   </section>
 }
 @for (section of shown().sections; track section.index) {
-  <section class="section" [class]="section.type" [class.repeated]="!!section.repeat">
+  <section class="section" [class]="section.type" [class.repeated]="!!section.repeat" [class.rep-lines]="hasRepeatedLines(section.lines)">
     @let name = label(section);
     @if (name) {
       <span class="tag">{{ name }}</span>
@@ -42,9 +42,12 @@
     @for (line of section.lines; track line.index) {
       @let notes = annotationsOf(line.index);
       @let intro = introAt(section.lines, $index);
+      @let times = timesAt(section.lines, $index);
       @if (intro && !introAt(section.lines, $index - 1)) {
         <!-- Lines that are also the intro: a green bracket with "INTRO" on top. -->
-        <p class="intro-head"><span class="intro-tag">{{ t.sections.intro }}</span></p>
+        <p class="intro-head" [class.rep-line]="sameGroup(section.lines, $index - 1, $index)">
+          <span class="intro-tag">{{ t.sections.intro }}</span>
+        </p>
       }
       <!-- A row = the line + its personal notes; clickable to select the line. -->
       <div
@@ -52,6 +55,8 @@
         [class]="highlightClass(notes)"
         [class.intro-line]="intro"
         [class.intro-end]="intro && !introAt(section.lines, $index + 1)"
+        [class.rep-line]="times > 0"
+        [class.rep-start]="times > 0 && !sameGroup(section.lines, $index - 1, $index)"
         [class.selectable]="selectable()"
         [class.selected]="selectedLine() === line.index"
         [attr.tabindex]="selectable() ? 0 : null"
@@ -121,6 +126,12 @@
           }
         }
       </div>
+      @if (times > 0 && !sameGroup(section.lines, $index, $index + 1)) {
+        <!-- Lines repeated inside the part: the coral line ends in "×2" under them. -->
+        <p class="times-row line-times" [class.intro-through]="intro && introAt(section.lines, $index + 1)">
+          <span class="times" [attr.aria-label]="t.sections.timesLabel(times)">{{ t.sections.times(times) }}</span>
+        </p>
+      }
     }
     @if (section.repeat) {
       <!-- "×2" at the end of the coral line along the repeated section ("Parti ripetute"). -->

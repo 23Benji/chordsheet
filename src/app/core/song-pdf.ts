@@ -63,7 +63,7 @@ export interface PdfOptions {
   label: (section: SheetSection) => string | null;
   /** "(ripeti)" after a chorus reminder. */
   repeat: string;
-  /** "×2" after a section shown once for several repeats (setting "Parti ripetute"). */
+  /** "×2" for a repeated section or repeated lines. */
   times?: (n: number) => string;
 }
 
@@ -142,16 +142,37 @@ export function layoutSongPdf(sheet: Sheet, options: PdfOptions, measure: Measur
       });
     }
 
-    for (const line of section.lines) rows.push(...lineRows(line, left, width));
+    // Repeated lines (`{x_repeat_line}`): a thin line beside them and "×2" under
+    // them, as in the app.
+    const linesTimes = (i: number) => {
+      const line = section.lines[i];
+      return line && line.kind !== 'comment' ? (line.times ?? 0) : 0;
+    };
+    const timesRow = (n: number): Row => ({
+      height: lh('tag', 1.6),
+      draw: (top, p, out) => out.push({ kind: 'text', page: p, x: left, y: top + lh('tag', 1.1), text: options.times!(n), font: 'tag' }),
+    });
+    section.lines.forEach((line, i) => {
+      const n = options.times ? linesTimes(i) : 0;
+      const own = lineRows(line, left, width);
+      if (!n) {
+        rows.push(...own);
+        return;
+      }
+      for (const row of own) {
+        rows.push({
+          height: row.height,
+          draw: (top, p, out) => {
+            row.draw(top, p, out);
+            out.push({ kind: 'line', page: p, x1: left - 2.5, y1: top, x2: left - 2.5, y2: top + row.height, width: 0.35 });
+          },
+        });
+      }
+      if (own.length && linesTimes(i + 1) !== n) rows.push(timesRow(n));
+    });
     if (!rows.length || (name && rows.length === 1)) continue; // nothing left to show in this mode
-    // "×2" at the bottom right of the section, as in the app.
-    const times = section.repeat && options.times ? options.times(section.repeat) : '';
-    if (times) {
-      rows.push({
-        height: lh('tag', 1.6),
-        draw: (top, p, out) => out.push({ kind: 'text', page: p, x: left + width, y: top + lh('tag', 1.1), text: times, font: 'tag', align: 'right' }),
-      });
-    }
+    // "×2" at the bottom left of a repeated section, as in the app.
+    if (section.repeat && options.times) rows.push(timesRow(section.repeat));
     // "TUTTO DA CAPO" at the bottom right, after a short line (as in the app).
     if (section.daCapo) {
       const text = section.daCapo.toUpperCase();

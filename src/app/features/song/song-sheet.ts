@@ -62,6 +62,22 @@ export class SongSheet {
     return !!line && line.kind !== 'comment' && !!line.intro && !this.lyricsOnly();
   }
 
+  /** How many times line `i` is repeated (0: not a repeated line). Also in "Solo testo": singers repeat too. */
+  protected timesAt(lines: SheetLine[], i: number): number {
+    const line = lines[i];
+    return line && line.kind !== 'comment' ? (line.times ?? 0) : 0;
+  }
+
+  /** Lines `i` and `j` are in the same group of repeated lines. */
+  protected sameGroup(lines: SheetLine[], i: number, j: number): boolean {
+    const times = this.timesAt(lines, i);
+    return times > 0 && times === this.timesAt(lines, j);
+  }
+
+  protected hasRepeatedLines(lines: SheetLine[]): boolean {
+    return lines.some((_, i) => this.timesAt(lines, i) > 0);
+  }
+
   /**
    * Personal chords ("Cadd9 instead of C") by the segment they sit on. A
    * personal chord annotation says which chord of its line it replaces

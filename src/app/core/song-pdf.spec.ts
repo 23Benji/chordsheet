@@ -83,15 +83,26 @@ describe('song PDF layout', () => {
 });
 
 describe('song PDF: repeated sections', () => {
-  it('writes "×2" at the bottom right of a section shown once', () => {
+  it('writes "×2" at the bottom left of a section shown once (as in the app)', () => {
     const sheet = collapseRepeats(parseChordPro(`${SONG}\n{start_of_chorus}\n[G]IO LODO [F]TE SI[G]GNOR\n{end_of_chorus}\n`));
     const ops = layoutSongPdf(sheet, { ...options('chords'), times: (n) => `×${n}` }, measure).ops;
     const tag = ops.find((o): o is PdfText => o.kind === 'text' && o.text === 'RITORNELLO')!;
     const times = ops.find((o): o is PdfText => o.kind === 'text' && o.text === '×2')!;
     const lyric = ops.filter((o): o is PdfText => o.kind === 'text' && o.text.includes('GNOR'));
     expect(times.y).toBeGreaterThan(Math.max(...lyric.map((o) => o.y)));
-    expect(times.align).toBe('right');
-    expect(times.x).toBeGreaterThan(tag.x);
+    expect(times.align).toBeUndefined();
+    expect(times.x).toBe(tag.x);
+  });
+
+  it('repeated lines: a thin line beside them and "×2" under them', () => {
+    const sheet = parseChordPro('[C]UNO\n{x_repeat_line: 2}\n[G]DUE\n{x_repeat_line: 2}\n[F]TRE\n[C]QUATTRO\n');
+    const ops = layoutSongPdf(sheet, { ...options('chords'), times: (n) => `×${n}` }, measure).ops;
+    const text = (t: string) => ops.find((o): o is PdfText => o.kind === 'text' && o.text.includes(t))!;
+    const times = text('×2');
+    expect(times.y).toBeGreaterThan(text('TRE').y);
+    expect(times.y).toBeLessThan(text('QUATTRO').y);
+    const bars = ops.filter((o) => o.kind === 'line' && o.x1 === o.x2);
+    expect(bars.length).toBeGreaterThanOrEqual(2); // chord row + lyric row of each line
   });
 
   it('writes "TUTTO DA CAPO" after a short line at the bottom right of its section', () => {

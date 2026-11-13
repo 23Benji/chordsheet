@@ -11,6 +11,7 @@ import { CHORD_SPACE_DIRECTIVES, ChordSpace, chordGaps } from './chord-gap';
  */
 export const INTRO_DIRECTIVE = 'x_intro';
 import { ChordTextItem, parseChordLine, tokenizeChordText } from './chord-text';
+import { REPEAT_DIRECTIVE, REPEAT_LINE_DIRECTIVE, noteTimes, readTimes, reminderTimes, upgradeRepeatSpans } from './repeat-marks';
 import { parseChord } from './transpose';
 
 /** One chord with the lyric under it. `chord` is null when there is none. */
@@ -46,6 +47,8 @@ export interface LyricLine {
   chordGap?: boolean;
   /** Part of the intro: `{x_intro}` written before the line (see intro-mark.ts). */
   intro?: boolean;
+  /** Repeated line: `{x_repeat_line: N}` before it (see repeat-marks.ts). */
+  times?: number;
 }
 
 export interface CommentLine {
@@ -62,6 +65,8 @@ export interface ChordsLine {
   sideNote?: string | null;
   /** Part of the intro (`{x_intro}` before the line). */
   intro?: boolean;
+  /** Repeated line (`{x_repeat_line: N}` before it). */
+  times?: number;
 }
 
 export type SheetLine = LyricLine | CommentLine | ChordsLine;
@@ -86,7 +91,11 @@ export interface SheetSection {
   /** Where an instrumental section sits: before, between or after the sung parts. */
   role: InstrumentalRole | null;
   lines: SheetLine[];
-  /** Set by collapseRepeats(): the section is played this many times in a row (shown "×2"). */
+  /**
+   * The section is played this many times in a row (shown "×2"): written in
+   * the song (`{x_repeat: 2}`, or an old "x2" note at its end), or counted by
+   * collapseRepeats() from copies one after the other.
+   */
   repeat?: number;
   /** "Tutto da capo" / "Da capo" written at the end of the section (see `attachDaCapo`). */
   daCapo?: string;
@@ -173,7 +182,8 @@ const BLOCK_STARTS: Record<string, SectionType> = {
 const BLOCK_ENDS = new Set(['end_of_chorus', 'end_of_verse', 'end_of_bridge', 'end_of_part']);
 
 export function parseChordPro(source: string): Sheet {
-  const song: CsSong = new ChordProParser().parse(protect(source));
+  // Old "x2/ … /x2" spans become line marks first (see repeat-marks.ts).
+  const song: CsSong = new ChordProParser().parse(protect(upgradeRepeatSpans(source)));
   const sections: SheetSection[] = [];
   let current: SheetSection | null = null;
   /** Kind of the {start_of_…} block we are in; null outside blocks. */
@@ -185,6 +195,10 @@ export function parseChordPro(source: string): Sheet {
   let space: ChordSpace | null = null;
   /** `{x_intro}` waiting for the line it marks. */
   let intro = false;
+  /** `{x_repeat_line: N}` waiting for the line it marks. */
+  let lineTimes: number | null = null;
+  /** `{x_repeat: N}` written before the section it belongs to was opened. */
+  let sectionTimes: number | null = null;
 
   const close = () => {
     if (current && current.lines.length > 0) sections.push(current);
@@ -194,7 +208,9 @@ export function parseChordPro(source: string): Sheet {
     if (!current) {
       const kind = block ?? pending ?? { type: 'verse', role: null, label: null };
       current = { index: sections.length, number: null, lines: [], ...kind };
+      if (sectionTimes) current.repeat = sectionTimes;
       pending = null;
+      sectionTimes = null;
     }
     return current;
   };
@@ -220,6 +236,15 @@ export function parseChordPro(source: string): Sheet {
           space = CHORD_SPACE_DIRECTIVES[item.name];
         } else if (item.name === INTRO_DIRECTIVE) {
           intro = true;
+        } else if (item.name === REPEAT_LINE_DIRECTIVE) {
+          lineTimes = readTimes(restore(item.value ?? ''));
+        } else if (item.name === REPEAT_DIRECTIVE) {
+          const times = readTimes(restore(item.value ?? ''));
+          // Inside a part already started it's that part's, otherwise the next one's.
+          // (`as`: TypeScript can't see that close()/open() change `current`.)
+          const started = current as SheetSection | null;
+          if (started && started.lines.length > 0) started.repeat = times ?? undefined;
+          else sectionTimes = times;
         } else if (BLOCK_ENDS.has(item.name)) {
           close();
           block = null;
@@ -229,7 +254,11 @@ export function parseChordPro(source: string): Sheet {
           if (repeat) {
             close();
             pending = { type: 'chorusRepeat', role: null, label: null };
-            if (repeat[1]) comment(repeat[1]);
+            // "Ritornello: BENEDICI… x2" → the reminder ×2.
+            const counted = reminderTimes(repeat[1]);
+            if (counted) sectionTimes = counted.times;
+            const rest = counted?.text ?? repeat[1];
+            if (rest) comment(rest);
             else open();
             sections.push(current!);
             current = null;
@@ -261,6 +290,10 @@ export function parseChordPro(source: string): Sheet {
         const rest = label[2];
         const isReminder = kind.type === 'chorus' && rest !== '' && !parseChordLine(rest);
         pending = isReminder ? { type: 'chorusRepeat', role: null, label: null } : kind;
+        // "x2/ Ritornello: DO A TE… /x2" (the span became a line mark) → the reminder ×2.
+        if (isReminder && lineTimes) sectionTimes = lineTimes;
+        lineTimes = null;
+        intro = false;
         if (rest) {
           headingRest(rest);
           close();
@@ -272,8 +305,10 @@ export function parseChordPro(source: string): Sheet {
       if (lyricLine) {
         if (space && lyricLine.kind === 'lyrics') lyricLine.space = space;
         if (intro) lyricLine.intro = true;
+        if (lineTimes) lyricLine.times = lineTimes;
         space = null;
         intro = false;
+        lineTimes = null;
         open().lines.push(lyricLine);
         lineIndex++;
         continue;
@@ -282,6 +317,7 @@ export function parseChordPro(source: string): Sheet {
     if (line.items.length === 0) close(); // blank line = end of paragraph
   }
   close();
+  attachRepeatNotes(sections);
   attachDaCapo(sections);
   classifySections(sections);
   for (const section of sections) markChordGaps(section);
@@ -333,6 +369,33 @@ function daCapoText(line: SheetLine): string | null {
   if (!match) return null;
   const words = match[1].replace(/\s+/g, ' ').toLowerCase();
   return words[0].toUpperCase() + words.slice(1);
+}
+
+/**
+ * An old "x2" note ending a part means the whole part twice (Benji: only at the
+ * very end — in the middle of a part it stays a note, too unclear). Written as
+ * its own paragraph right after a part it belongs to that part. Like the
+ * "da capo" mark, line and section indexes are kept, so personal notes stay
+ * anchored.
+ */
+function attachRepeatNotes(sections: SheetSection[]): void {
+  for (let i = 0; i < sections.length; i++) {
+    const section = sections[i];
+    const last = section.lines[section.lines.length - 1];
+    const times = last?.kind === 'comment' ? noteTimes(last.text) : null;
+    if (!times) continue;
+    const previous = sections[i - 1];
+    if (section.lines.length === 1) {
+      // Only the note: it's about the part before (if there is one to repeat).
+      if (previous) {
+        previous.repeat = times;
+        sections.splice(i--, 1);
+      }
+      continue;
+    }
+    section.lines = section.lines.slice(0, -1);
+    section.repeat = times;
+  }
 }
 
 /**
@@ -574,7 +637,6 @@ export function lyricsOnlySheet(sheet: Sheet): Sheet {
   return { ...sheet, sections };
 }
 
-/** What a section looks like on the page, without its line indexes. */
 /**
  * What makes two sections "the same part played again". The intro mark is left
  * out: marking the intro in one copy must not split a "×2" in two (the merged
@@ -611,7 +673,7 @@ export function collapseRepeats(sheet: Sheet, keep: (lineIndex: number) => boole
     const key = sectionKey(section);
     const previous = sections[sections.length - 1];
     if (previous && key === lastKey && !section.lines.some((l) => keep(l.index))) {
-      sections[sections.length - 1] = { ...withIntroOf(previous, section), repeat: (previous.repeat ?? 1) + 1 };
+      sections[sections.length - 1] = { ...withIntroOf(previous, section), repeat: (previous.repeat ?? 1) + (section.repeat ?? 1) };
       continue;
     }
     sections.push(section);

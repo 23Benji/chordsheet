@@ -288,9 +288,15 @@ a {
       box-shadow: none !important;
     }
 
-    // Room for the intro's green bar, which sits inside the row.
-    .row.intro-line {
-      padding-left: 0.6em !important;
+    // Room for the intro's green line and the coral line of repeated lines,
+    // which sit inside the row.
+    .row.intro-line,
+    .row.rep-line {
+      padding-left: 0.75em !important;
+    }
+
+    .rep-lines .row.intro-line {
+      padding-left: 1.5em !important;
     }
 
     .tag {
@@ -553,6 +559,32 @@ a {
 
 .btn.add-end-btn {
   color: var(--accent);
+}
+
+// Editor: "Ripeti parte" / "Ripeti righe" and the "×2" under repeated lines
+// (some are popover triggers, so they're styled here). Coral, like repeats
+// in the song view.
+.chip.repeat-chip {
+  &.on {
+    border-color: transparent;
+    background: var(--highlight-coral);
+    color: var(--coral);
+
+    app-icon {
+      color: var(--coral);
+    }
+  }
+
+  &.small {
+    min-height: 26px;
+    padding: 0 var(--space-3);
+    font-size: 13px;
+  }
+}
+
+.menu-item.current {
+  color: var(--coral);
+  font-weight: 700;
 }
 
 // Stepper: − value + (transpose, capo, size …).
