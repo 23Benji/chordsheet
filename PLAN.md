@@ -450,3 +450,7 @@ Discuss one at a time, build one at a time, one version bump + push at the end.
 - [x] Intro: lines marked with {x_intro} (part of the song, always shared) get a green bracket + "INTRO" (look B). Mark from the line menu (tap a line → Intro) or in the editor (Intro switch on each line). The Intro card stays for intros that aren't a part of the lyrics
 - [x] Intro marks don't show the note symbol in the sidebar — they live in the song, not in personal notes
 - [x] Editor: copy chords — line button (copy) and section button (♪); "paste" shows on the line being edited once something is copied, replaces that line's chords at the same positions (past the end of a shorter line too); a section pastes line by line. "Duplica" got the layers icon
+
+## 1.43 — Intro bar fix + presentation in the theme's colours (Benji, 2026-11-13) ✓
+- [x] Intro mark: the green bar was cut off in presentation mode and in the two-column pages (only "INTRO" was left) → the bar now sits inside the lines
+- [x] Presentation mode follows the theme, in a shade of it (look B): dark themes a bit deeper, light ones a little softer; text kept at maximum contrast
