@@ -459,11 +459,11 @@ Discuss one at a time, build one at a time, one version bump + push at the end.
 - [x] A part played more than once gets a coral line down its left side (like the intro's green one), ending in the "×2" pill at the bottom left (look E). Before, the ×2 sat at the far right, too far from the lyrics
 - [x] Intro inside a repeated part: coral line outside, green inside, both visible. The intro mark no longer splits a "×2" in two, and the Intro switch changes every copy of a merged part (it can't get stuck on)
 
-## 1.45 — Repeats written once, same look for everyone (Benji, 2026-11-13)
+## 1.45 — Repeats written once, same look for everyone (Benji, 2026-11-13) ✓
 Agreed in chat: one official way to write a repeat, shown the same on every phone whatever the settings.
 - [x] Song format: `{x_repeat: N}` at the top of a part = the whole part ×N; `{x_repeat_line: N}` before a line = that line is repeated (lines next to each other with the same N form one group)
 - [x] Song view / presentation / PDF: whole part = coral line + ×N (look E); some lines = coral line next to just those lines, ×N under them (look C1). Works with the intro's green line and in "Solo testo"
 - [x] Old songs, clear cases only: "x2/ … /x2" around lines → those lines ×2; a note "x2" / "x 3 volte" at the very end of a part (or right after it) → the part ×N; "Ritornello: … x2" reminders → ×2. Everything else stays as text (Benji's pick)
-- [ ] Editor: "Ripeti parte" (1× 2× 3× 4× …) and "Ripeti righe" (tick lines, "N righe · quante volte?", Fatto) on each part; ×N chip under repeated lines to change or remove. Old marks are converted when the song is opened in the editor. Phone and laptop
-- [ ] Editor: pasted copies — on Salva, parts identical one after the other → "Queste N parti sono uguali: mostrarle una volta con ×N?"
-- [ ] Check the editor doesn't feel too full (screenshots phone + laptop)
+- [x] Editor: "Ripeti parte" (1× 2× 3× 4× …) and "Ripeti righe" (tick lines, "N righe · quante volte?", Fatto) on each part; ×N chip under repeated lines to change or remove. Old marks are converted when the song is opened in the editor. Phone and laptop
+- [x] Editor: pasted copies — on Salva, parts identical one after the other → "Queste N parti sono uguali: mostrarle una volta con ×N?"
+- [x] Check the editor doesn't feel too full (screenshots phone + laptop) → on the iPhone the two buttons show only on the part being edited (or when it already repeats); laptop shows them on every part
