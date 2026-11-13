@@ -242,8 +242,8 @@ export const IT = {
     nav: 'Navigazione',
     library: 'Libreria',
     setlists: 'Scalette',
-    /** Bottom-bar tab of "Trova accordo" (only with Strumento = Chitarra). */
-    chords: 'Accordi',
+    /** Bottom-bar tab of the guitar tools (only with Strumento = Chitarra). */
+    chords: 'Chitarra',
     settings: 'Impostazioni',
     updateReady: 'Nuova versione disponibile.',
     update: 'Aggiorna',
@@ -531,8 +531,9 @@ export const IT = {
 
   chordFinder: {
     title: 'Trova accordo',
-    /** Library sidebar link (computer, iPad). */
-    link: 'Trova accordo',
+    /** Library sidebar link to the guitar tools (computer, iPad). */
+    link: 'Chitarra',
+    back: 'Chitarra',
     start: 'Tocca i tasti dove metti le dita',
     startHint: 'Tocca ○ / × a sinistra per una corda a vuoto o da non suonare.',
     unknown: 'Accordo non riconosciuto',
@@ -545,6 +546,74 @@ export const IT = {
     stringOpen: (string: string) => `Corda ${string}: a vuoto (tocca per non suonarla)`,
     stringMuted: (string: string) => `Corda ${string}: non suonata (tocca per suonarla a vuoto)`,
     fret: (string: string, fret: number) => `Corda ${string}, tasto ${fret}`,
+  },
+
+  /** "Chitarra": the home of the guitar tools (bottom-bar tab, only with Strumento = Chitarra). */
+  guitar: {
+    title: 'Chitarra',
+    tools: 'Strumenti per la chitarra',
+    tuner: 'Accordatore',
+    tunerHint: 'Accorda con il microfono',
+    finder: 'Trova accordo',
+    finderHint: 'Tocca le dita, leggi il nome',
+    solo: 'Scrivi assolo',
+    soloHint: 'Crea una tab da mettere nei canti',
+  },
+
+  tuner: {
+    title: 'Accordatore',
+    start: 'Inizia ad accordare',
+    startHint: 'Chordsheet ascolta con il microfono e ti dice se ogni corda è giusta. Il suono resta sul telefono.',
+    listening: 'In ascolto…',
+    play: 'Suona una corda',
+    inTune: 'Accordata',
+    low: 'Troppo bassa · stringi',
+    high: 'Troppo alta · allenta',
+    lowSide: 'basso',
+    highSide: 'alto',
+    cents: (c: number) => `${c > 0 ? '+' : ''}${c} cent`,
+    reference: 'Tocca una corda per sentire la sua nota',
+    playString: (name: string) => `Suona la nota della corda ${name}`,
+    tuned: (name: string) => `Corda ${name}: accordata`,
+    denied: 'Il microfono non è permesso.',
+    deniedHint: 'Permettilo nelle impostazioni del telefono (Safari › Microfono) e riprova.',
+    unavailable: 'Questo dispositivo non ha un microfono che l’app può usare.',
+    retry: 'Riprova',
+    stop: 'Ferma',
+    meter: 'Quanto è lontana dalla nota giusta',
+  },
+
+  solo: {
+    title: 'Scrivi assolo',
+    titlePlaceholder: 'Titolo (es. Assolo intro)',
+    empty: 'Tocca un tasto sul manico: la nota finisce nella tab.',
+    emptyGrid: 'Tocca una casella, poi il numero del tasto.',
+    neck: 'Tastiera',
+    grid: 'Griglia',
+    inputMode: 'Come scrivere',
+    together: 'Insieme',
+    hammer: 'Hammer-on (h)',
+    pull: 'Pull-off (p)',
+    slide: 'Slide (/)',
+    bend: 'Bend (b)',
+    bar: 'Battuta (|)',
+    undo: 'Annulla',
+    redo: 'Ripeti',
+    clear: 'Nuovo',
+    cleared: 'Assolo cancellato',
+    copy: 'Copia',
+    copied: 'Copiato: incollalo in Tab/Assolo di un canto',
+    copyFailed: 'Non è stato possibile copiare',
+    addToSong: 'Aggiungi a un canto',
+    pickSong: 'In quale canto?',
+    fret: (string: string, fret: number) => (fret === 0 ? `Corda ${string} a vuoto` : `Corda ${string}, tasto ${fret}`),
+    cell: (string: string, column: number) => `Corda ${string}, colonna ${column}`,
+    clearCell: 'Cancella la casella',
+    tab: 'La tab dell’assolo',
+    rotate: 'Gira il telefono per vedere tutto il manico.',
+    /** Song view, after "Aggiungi a un canto". */
+    placeHint: 'Tocca la riga sotto cui mettere l’assolo.',
+    placed: 'Assolo aggiunto al canto',
   },
 
   trash: {

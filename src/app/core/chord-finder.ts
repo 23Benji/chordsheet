@@ -1,5 +1,5 @@
 // "Trova accordo": from the frets pressed on each guitar string to the
-// chord's name. Pure functions, unit-tested (the page is features/chords).
+// chord's name. Pure functions, unit-tested (the page is features/guitar).
 import { Quality } from './chord-diagrams';
 import { INTERVALS } from './chord-notes';
 import { mod12 } from './transpose';

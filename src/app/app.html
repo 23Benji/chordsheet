@@ -21,7 +21,7 @@
       <app-icon name="list" /><span>{{ t.setlists }}</span>
     </a>
     @if (settings.guitar()) {
-      <a class="tab" routerLink="/accordi" [class.selected]="section() === 'chords'" (click)="layout.sidebarOpen.set(false)">
+      <a class="tab" routerLink="/chitarra" [class.selected]="section() === 'chords'" (click)="layout.sidebarOpen.set(false)">
         <app-icon name="guitar" /><span>{{ t.chords }}</span>
       </a>
     }

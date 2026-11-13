@@ -42,11 +42,25 @@ export const routes: Routes = [
     path: 'scaletta-condivisa',
     loadComponent: () => import('./features/setlists/shared-setlist-page').then((m) => m.SharedSetlistPage),
   },
+  // "Chitarra" (only with Strumento = Chitarra): a home with the guitar tools.
   {
-    // "Trova accordo" (guitar): its tab/link shows only with Strumento = Chitarra.
-    path: 'accordi',
-    loadComponent: () => import('./features/chords/chord-finder-page').then((m) => m.ChordFinderPage),
+    path: 'chitarra',
+    loadComponent: () => import('./features/guitar/guitar-home').then((m) => m.GuitarHome),
   },
+  {
+    path: 'chitarra/accordatore',
+    loadComponent: () => import('./features/guitar/tuner-page').then((m) => m.TunerPage),
+  },
+  {
+    path: 'chitarra/accordi',
+    loadComponent: () => import('./features/guitar/chord-finder-page').then((m) => m.ChordFinderPage),
+  },
+  {
+    path: 'chitarra/assolo',
+    loadComponent: () => import('./features/guitar/solo-writer-page').then((m) => m.SoloWriterPage),
+  },
+  // "Trova accordo" lived here until 1.46 (bookmarks, old links).
+  { path: 'accordi', redirectTo: 'chitarra/accordi' },
   {
     path: 'cestino',
     loadComponent: () => import('./features/library/trash-page').then((m) => m.TrashPage),

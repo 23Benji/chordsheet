@@ -1,4 +1,5 @@
 import { ChangeDetectionStrategy, Component, computed, signal } from '@angular/core';
+import { RouterLink } from '@angular/router';
 import { FINDER_FRETS, FretChoice, GUITAR_TUNING, findChords, pitchName, soundingNotes } from '../../core/chord-finder';
 import { mod12 } from '../../core/transpose';
 import { IT } from '../../i18n/it';
@@ -20,7 +21,7 @@ const MARKERS = new Set([3, 5, 7, 9, 12]);
  */
 @Component({
   selector: 'app-chord-finder-page',
-  imports: [Icon, SidebarToggle],
+  imports: [RouterLink, Icon, SidebarToggle],
   templateUrl: './chord-finder-page.html',
   styleUrl: './chord-finder-page.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

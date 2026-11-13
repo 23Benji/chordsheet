@@ -63,7 +63,7 @@ export class App {
     const url = this.url();
     if (url.startsWith('/scalette') || url.startsWith('/scaletta-condivisa')) return 'setlists';
     if (url.startsWith('/impostazioni')) return 'settings';
-    if (url.startsWith('/accordi')) return 'chords';
+    if (url.startsWith('/chitarra') || url.startsWith('/accordi')) return 'chords';
     return 'library';
   });
 

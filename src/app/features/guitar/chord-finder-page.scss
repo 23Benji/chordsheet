@@ -271,6 +271,11 @@
     padding-bottom: max(var(--space-2), env(safe-area-inset-bottom));
   }
 
+  // The bottom bar's Chitarra tab goes back too; the screen height is precious here.
+  .nav-bar {
+    display: none;
+  }
+
   .head {
     flex-wrap: nowrap;
     gap: var(--space-4);
