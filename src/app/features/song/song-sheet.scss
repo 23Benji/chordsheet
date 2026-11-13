@@ -162,15 +162,18 @@
 }
 
 // The intro: a green bracket on the left of its lines, "INTRO" on top. The
-// bar sits just outside the row, so the lyrics don't move.
+// bar sits inside the row (the lines move a little to the right): outside it,
+// presentation mode and the two-column pages cut it off (they hide anything
+// past their left edge), leaving only "INTRO".
 .intro-head,
 .row.intro-line {
   position: relative;
+  padding-left: 0.75em;
 
   &::before {
     content: '';
     position: absolute;
-    left: -0.35em;
+    left: 0;
     top: 0;
     bottom: -0.1em; // across the gap to the next row
     width: 3px;
@@ -185,7 +188,8 @@
 
 .intro-head {
   margin: 0.2em 0 0;
-  padding: 0 0.3em 0.15em;
+  padding-top: 0;
+  padding-bottom: 0.15em;
 
   &::before {
     top: 0.2em;

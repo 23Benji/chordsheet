@@ -288,6 +288,11 @@ a {
       box-shadow: none !important;
     }
 
+    // Room for the intro's green bar, which sits inside the row.
+    .row.intro-line {
+      padding-left: 0.6em !important;
+    }
+
     .tag {
       margin: 0 0 1.5mm !important;
       padding: 0 !important;
